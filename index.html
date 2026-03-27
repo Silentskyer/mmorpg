@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>艾斯雷恩：單機文字 MMORPG</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>艾斯雷恩</h1>
+        <p>單機文字 MMORPG</p>
+      </div>
+      <div class="menu" id="menu"></div>
+      <div class="save-note">
+        <span>儲存方式</span>
+        <strong>IndexedDB 本機存檔</strong>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Click To Play</p>
+          <h2>以滑鼠點擊操作的單機冒險版</h2>
+        </div>
+        <div class="hero-actions" id="hero-actions"></div>
+      </section>
+
+      <section class="panel" id="app"></section>
+    </main>
+  </div>
+
+  <template id="menu-button-template">
+    <button class="menu-button" type="button"></button>
+  </template>
+
+  <script src="./app.js"></script>
+</body>
+</html>
