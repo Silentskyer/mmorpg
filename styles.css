@@ -61,7 +61,8 @@ body {
 .action-grid,
 .card-grid,
 .battle-actions,
-.inline-actions {
+.inline-actions,
+.page-links {
   display: grid;
   gap: 10px;
 }
@@ -213,6 +214,69 @@ body {
 
 .danger {
   color: var(--loss);
+}
+
+.page-links {
+  grid-template-columns: repeat(auto-fit, minmax(88px, max-content));
+  margin: 0 0 16px;
+}
+
+.page-link {
+  border: 1px solid var(--line);
+  background: rgba(255, 250, 242, 0.92);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.page-link.active {
+  color: #fff8f2;
+  background: linear-gradient(135deg, #b6593a, #8a311e);
+  border-color: transparent;
+}
+
+.element-earth {
+  color: #7b5b2f;
+  border-color: #b9965a;
+  background: #fbf4e6;
+}
+
+.element-water {
+  color: #1d5d82;
+  border-color: #7cb9d8;
+  background: #eef8ff;
+}
+
+.element-fire {
+  color: #a83d16;
+  border-color: #de8a64;
+  background: #fff0e8;
+}
+
+.element-wind {
+  color: #2e7b58;
+  border-color: #82c8a8;
+  background: #effbf3;
+}
+
+.element-thunder {
+  color: #8a6d11;
+  border-color: #e0c766;
+  background: #fff9dc;
+}
+
+.element-sun {
+  color: #a86a08;
+  border-color: #efc36c;
+  background: #fff8e7;
+}
+
+.element-moon {
+  color: #54448d;
+  border-color: #a495df;
+  background: #f2efff;
 }
 
 .spacer {

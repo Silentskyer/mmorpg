@@ -52,23 +52,44 @@ const data = {
     "馴獸師": [{ name: "狼獸突襲", cost: 9, power: 1.65, kind: "attack", stat: "attack", element: "風" }, { name: "生命連結", cost: 8, power: 1.2, kind: "heal", stat: "magic", element: "水" }],
   },
   equipment: {
-    "戰士": [{ slot: "主手", name: "青銅劍", element: null }, { slot: "頭", name: "鐵盔", element: null }],
-    "武鬥家": [{ slot: "腳", name: "輕皮靴", element: null }],
-    "魔法師": [{ slot: "主手", name: "橡木長杖", element: "火" }],
-    "僧侶": [{ slot: "主手", name: "祈禱短杖", element: "日" }, { slot: "頭", name: "鐵盔", element: null }],
-    "旅行者": [{ slot: "主手", name: "青銅劍", element: null }, { slot: "身體", name: "旅者披風", element: null }],
-    "盜賊": [{ slot: "主手", name: "疾風匕首", element: "風" }, { slot: "副手", name: "影襲副匕", element: "月" }, { slot: "身體", name: "旅者披風", element: null }, { slot: "腳", name: "輕皮靴", element: null }],
-    "馴獸師": [{ slot: "主手", name: "祈禱短杖", element: "日" }, { slot: "身體", name: "旅者披風", element: null }],
+    "戰士": [{ slot: "主手", name: "青銅劍", element: null, bonuses: { attack: 4 } }, { slot: "頭", name: "鐵盔", element: null, bonuses: { defense: 2 } }],
+    "武鬥家": [{ slot: "腳", name: "輕皮靴", element: null, bonuses: { speed: 2 } }],
+    "魔法師": [{ slot: "主手", name: "橡木長杖", element: "火", bonuses: { magic: 5, maxMp: 10 } }],
+    "僧侶": [{ slot: "主手", name: "祈禱短杖", element: "日", bonuses: { magic: 3, resistance: 2, maxMp: 8 } }, { slot: "頭", name: "鐵盔", element: null, bonuses: { defense: 2 } }],
+    "旅行者": [{ slot: "主手", name: "青銅劍", element: null, bonuses: { attack: 4 } }, { slot: "身體", name: "旅者披風", element: null, bonuses: { defense: 2, resistance: 1 } }],
+    "盜賊": [{ slot: "主手", name: "疾風匕首", element: "風", bonuses: { attack: 3, speed: 3, luck: 1 } }, { slot: "副手", name: "影襲副匕", element: "月", bonuses: { attack: 2, speed: 2 } }, { slot: "身體", name: "旅者披風", element: null, bonuses: { defense: 2, resistance: 1 } }, { slot: "腳", name: "輕皮靴", element: null, bonuses: { speed: 2 } }],
+    "馴獸師": [{ slot: "主手", name: "祈禱短杖", element: "日", bonuses: { magic: 3, resistance: 2, maxMp: 8 } }, { slot: "身體", name: "旅者披風", element: null, bonuses: { defense: 2, resistance: 1 } }],
   },
+  itemCatalog: {
+    potion_hp_s: { key: "potion_hp_s", name: "小型生命藥水", type: "consumable", price: 18, description: "回復 45 HP。", healHp: 45 },
+    potion_mp_s: { key: "potion_mp_s", name: "小型魔力藥水", type: "consumable", price: 20, description: "回復 30 MP。", healMp: 30 },
+    leather_cap: { key: "leather_cap", name: "皮帽", type: "equipment", price: 40, slot: "頭", element: null, description: "基礎防具。", bonuses: { defense: 1, speed: 1 } },
+    stone_ring: { key: "stone_ring", name: "岩環", type: "equipment", price: 55, slot: "飾品1", element: "地", description: "提高防禦與抵抗。", bonuses: { defense: 2, resistance: 1 } },
+    ember_blade: { key: "ember_blade", name: "餘燼短劍", type: "equipment", price: 70, slot: "主手", element: "火", description: "帶火屬性的輕型武器。", bonuses: { attack: 5 } },
+    moon_charm: { key: "moon_charm", name: "月影護符", type: "equipment", price: 72, slot: "飾品2", element: "月", description: "提高運氣與魔法。", bonuses: { magic: 2, luck: 2 } },
+    gale_boots: { key: "gale_boots", name: "疾風靴", type: "equipment", price: 68, slot: "腳", element: "風", description: "讓步伐更輕盈。", bonuses: { speed: 3 } },
+    sun_emblem: { key: "sun_emblem", name: "日耀徽章", type: "equipment", price: 75, slot: "飾品3", element: "日", description: "強化天法與抗性。", bonuses: { magic: 2, resistance: 2 } },
+  },
+  shopItems: ["potion_hp_s", "potion_mp_s", "leather_cap", "stone_ring", "ember_blade", "gale_boots", "sun_emblem"],
   monsters: [
-    { code: "slime", name: "草原史萊姆", category: "normal", level: 1, elements: ["水"], hp: 55, mp: 10, attack: 8, defense: 5, magic: 6, resistance: 6, speed: 7, luck: 4, exp: 20, gold: 8, note: "黏液衝擊" },
-    { code: "wolf", name: "狂牙野狼", category: "normal", level: 2, elements: ["風"], hp: 70, mp: 10, attack: 12, defense: 7, magic: 4, resistance: 5, speed: 12, luck: 5, exp: 28, gold: 12, note: "撕裂撲擊" },
-    { code: "scarecrow", name: "失控稻草人", category: "normal", level: 2, elements: ["地"], hp: 80, mp: 5, attack: 11, defense: 9, magic: 3, resistance: 6, speed: 6, luck: 3, exp: 30, gold: 14, note: "纏草束縛" },
-    { code: "mine_beast", name: "礦坑吞岩獸", category: "dungeon", level: 4, elements: ["地"], hp: 140, mp: 15, attack: 18, defense: 14, magic: 6, resistance: 10, speed: 8, luck: 4, exp: 75, gold: 40, note: "碎岩重踏" },
-    { code: "moon_king", name: "月咒妖精王", category: "dungeon", level: 7, elements: ["月", "風"], hp: 190, mp: 45, attack: 20, defense: 13, magic: 24, resistance: 18, speed: 18, luck: 10, exp: 120, gold: 65, note: "月影詛咒" },
-    { code: "wolf_king", name: "裂口巨狼王", category: "story", storyOrder: 1, level: 3, elements: ["風"], hp: 120, mp: 10, attack: 17, defense: 10, magic: 4, resistance: 8, speed: 16, luck: 6, exp: 60, gold: 35, note: "狂亂咬殺" },
-    { code: "tree_spirit", name: "腐化樹靈", category: "story", storyOrder: 2, level: 5, elements: ["地", "月"], hp: 165, mp: 25, attack: 16, defense: 16, magic: 18, resistance: 15, speed: 9, luck: 5, exp: 95, gold: 55, note: "腐根纏縛" },
+    { code: "slime", name: "草原史萊姆", category: "normal", level: 1, elements: ["水"], hp: 55, mp: 10, attack: 8, defense: 5, magic: 6, resistance: 6, speed: 7, luck: 4, exp: 20, gold: 8, note: "黏液衝擊", drops: ["potion_hp_s", "potion_mp_s"] },
+    { code: "wolf", name: "狂牙野狼", category: "normal", level: 2, elements: ["風"], hp: 70, mp: 10, attack: 12, defense: 7, magic: 4, resistance: 5, speed: 12, luck: 5, exp: 28, gold: 12, note: "撕裂撲擊", drops: ["potion_hp_s", "leather_cap"] },
+    { code: "scarecrow", name: "失控稻草人", category: "normal", level: 2, elements: ["地"], hp: 80, mp: 5, attack: 11, defense: 9, magic: 3, resistance: 6, speed: 6, luck: 3, exp: 30, gold: 14, note: "纏草束縛", drops: ["stone_ring", "potion_hp_s"] },
+    { code: "mine_beast", name: "礦坑吞岩獸", category: "dungeon", level: 4, elements: ["地"], hp: 140, mp: 15, attack: 18, defense: 14, magic: 6, resistance: 10, speed: 8, luck: 4, exp: 75, gold: 40, note: "碎岩重踏", drops: ["stone_ring", "ember_blade"] },
+    { code: "moon_king", name: "月咒妖精王", category: "dungeon", level: 7, elements: ["月", "風"], hp: 190, mp: 45, attack: 20, defense: 13, magic: 24, resistance: 18, speed: 18, luck: 10, exp: 120, gold: 65, note: "月影詛咒", drops: ["moon_charm", "potion_mp_s"] },
+    { code: "wolf_king", name: "裂口巨狼王", category: "story", storyOrder: 1, level: 3, elements: ["風"], hp: 120, mp: 10, attack: 17, defense: 10, magic: 4, resistance: 8, speed: 16, luck: 6, exp: 60, gold: 35, note: "狂亂咬殺", drops: ["leather_cap", "potion_hp_s"] },
+    { code: "tree_spirit", name: "腐化樹靈", category: "story", storyOrder: 2, level: 5, elements: ["地", "月"], hp: 165, mp: 25, attack: 16, defense: 16, magic: 18, resistance: 15, speed: 9, luck: 5, exp: 95, gold: 55, note: "腐根纏縛", drops: ["moon_charm", "stone_ring"] },
   ],
+};
+
+const classAutoGrowth = {
+  "戰士": { maxHp: 16, maxMp: 4, attack: 3, defense: 3, magic: 0, resistance: 2, speed: 1, luck: 1 },
+  "武鬥家": { maxHp: 12, maxMp: 5, attack: 3, defense: 1, magic: 1, resistance: 1, speed: 3, luck: 1 },
+  "魔法師": { maxHp: 8, maxMp: 12, attack: 0, defense: 1, magic: 4, resistance: 2, speed: 1, luck: 1 },
+  "僧侶": { maxHp: 10, maxMp: 11, attack: 1, defense: 2, magic: 3, resistance: 3, speed: 1, luck: 1 },
+  "旅行者": { maxHp: 11, maxMp: 8, attack: 2, defense: 2, magic: 2, resistance: 2, speed: 2, luck: 2 },
+  "盜賊": { maxHp: 10, maxMp: 5, attack: 3, defense: 1, magic: 1, resistance: 1, speed: 4, luck: 2 },
+  "馴獸師": { maxHp: 12, maxMp: 8, attack: 2, defense: 2, magic: 2, resistance: 2, speed: 2, luck: 1 },
 };
 
 const state = { db: null, currentPlayer: null, battle: null, screen: "landing" };
@@ -115,6 +136,10 @@ function renderMenu() {
   const items = state.currentPlayer ? [
     ["冒險首頁", renderGameHub],
     ["角色狀態", renderStatus],
+    ["裝備", renderEquipmentPage],
+    ["背包", renderInventory],
+    ["商店", renderShop],
+    ["同伴", renderCompanions],
     ["技能樹", renderSkillTree],
     ["野外探索", () => startBattle("normal")],
     ["副本挑戰", () => startBattle("dungeon")],
@@ -196,6 +221,7 @@ function renderCreateCharacter() {
       return toast("請先填好名字並選擇種族與職業。", "warning");
     }
     const player = buildPlayer(name, raceCode, classCode);
+    normalizePlayer(player);
     player.id = await dbApi.addPlayer(player);
     state.currentPlayer = player;
     renderGameHub("角色建立完成，現在正式進入冒險。");
@@ -226,6 +252,7 @@ function renderLoadGame() {
     app.querySelectorAll("[data-load-id]").forEach(button => {
       button.addEventListener("click", async () => {
         state.currentPlayer = await dbApi.getPlayer(Number(button.dataset.loadId));
+        normalizePlayer(state.currentPlayer);
         renderGameHub("角色已讀取，現在正式進入冒險。");
       });
     });
@@ -244,7 +271,7 @@ function renderGameHub(message = "") {
       <div class="stat">
         <strong>${player.name}</strong>
         <p>${player.raceName} / ${player.className}</p>
-        <p>Lv.${player.level} | 職業 Lv.${player.classLevel}</p>
+        <p>Lv.${player.level} | 職業 Lv.${player.classLevel} / 100</p>
       </div>
       <div class="stat">
         <strong>目前進度</strong>
@@ -259,6 +286,10 @@ function renderGameHub(message = "") {
     <div class="spacer"></div>
     <div class="action-grid">
       <button class="primary" type="button" id="hub-status">角色狀態</button>
+      <button class="secondary" type="button" id="hub-equipment">裝備</button>
+      <button class="secondary" type="button" id="hub-inventory">背包</button>
+      <button class="secondary" type="button" id="hub-shop">商店</button>
+      <button class="secondary" type="button" id="hub-companions">同伴</button>
       <button class="secondary" type="button" id="hub-skills">技能樹</button>
       <button class="secondary" type="button" id="hub-normal">野外探索</button>
       <button class="secondary" type="button" id="hub-dungeon">副本挑戰</button>
@@ -266,6 +297,10 @@ function renderGameHub(message = "") {
     </div>
   `;
   document.querySelector("#hub-status").addEventListener("click", () => renderStatus());
+  document.querySelector("#hub-equipment").addEventListener("click", () => renderEquipmentPage());
+  document.querySelector("#hub-inventory").addEventListener("click", () => renderInventory());
+  document.querySelector("#hub-shop").addEventListener("click", () => renderShop());
+  document.querySelector("#hub-companions").addEventListener("click", () => renderCompanions());
   document.querySelector("#hub-skills").addEventListener("click", () => renderSkillTree());
   document.querySelector("#hub-normal").addEventListener("click", () => startBattle("normal"));
   document.querySelector("#hub-dungeon").addEventListener("click", () => startBattle("dungeon"));
@@ -283,12 +318,14 @@ function renderStatus(message = "") {
   app.innerHTML = `
     <h3>角色狀態</h3>
     ${message ? `<p class="success">${message}</p>` : ""}
+    ${renderPageLinks("status")}
     <div class="card-grid">
       <div class="stat">
         <h4>${player.name}</h4>
         <p>${player.raceName} / ${player.className}</p>
-        <p>Lv.${player.level} | 職業 Lv.${player.classLevel}</p>
-        <p>EXP ${player.exp} | 技能點 ${player.skillPoints} | 金幣 ${player.gold}</p>
+        <p>Lv.${player.level} | 職業 Lv.${player.classLevel} / 100</p>
+        <p>EXP ${player.exp} / ${nextLevelExp(player.level)} | 技能點 ${player.skillPoints}</p>
+        <p>金幣 ${player.gold}</p>
       </div>
       <div class="stat">
         <h4>生命與魔力</h4>
@@ -313,9 +350,168 @@ function renderStatus(message = "") {
     <div class="spacer"></div>
     <h3>裝備</h3>
     <div class="card-grid">
-      ${player.equipment.map(item => `<div class="stat"><strong>${item.slot}</strong><p>${item.name}${item.element ? ` [${item.element}]` : ""}</p></div>`).join("")}
+      ${player.equipment.map(item => renderEquipmentCard(item)).join("")}
     </div>
   `;
+  attachPageLinks();
+}
+
+function renderInventory(message = "") {
+  if (!state.currentPlayer) return renderHome();
+  state.screen = "inventory";
+  renderMenu();
+  const player = state.currentPlayer;
+  const inventory = player.inventory || [];
+  app.innerHTML = `
+    <h3>背包</h3>
+    ${message ? `<p class="success">${message}</p>` : ""}
+    ${renderPageLinks("inventory")}
+    <p class="hint">可以在這裡使用消耗品或裝備新物品。</p>
+    <div class="card-grid">
+      ${inventory.length ? inventory.map((item, index) => `
+        <div class="choice-card">
+          <h4>${item.name}</h4>
+          <p>${item.description || ""}</p>
+          ${item.type === "equipment" ? `<p>強度評分：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p><p>${compareItemAgainstEquipped(item, player.equipment)}</p>` : ""}
+          <p>種類：${item.type === "consumable" ? "消耗品" : "裝備"}${item.quantity ? ` | 數量 ${item.quantity}` : ""}</p>
+          ${item.element ? `<p class="${elementClassName(item.element)}">屬性：${item.element}</p>` : ""}
+          ${item.type === "consumable" ? `<button type="button" data-use-index="${index}">使用</button>` : `<button type="button" data-equip-index="${index}">裝備</button>`}
+        </div>
+      `).join("") : `<div class="stat"><p>背包目前是空的。</p></div>`}
+    </div>
+  `;
+  app.querySelectorAll("[data-use-index]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const result = useInventoryItem(Number(button.dataset.useIndex));
+      await saveCurrentPlayer(false);
+      renderInventory(result);
+    });
+  });
+  app.querySelectorAll("[data-equip-index]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const result = equipInventoryItem(Number(button.dataset.equipIndex));
+      await saveCurrentPlayer(false);
+      renderInventory(result);
+    });
+  });
+  attachPageLinks();
+}
+
+function renderEquipmentPage(message = "") {
+  if (!state.currentPlayer) return renderHome();
+  state.screen = "equipment";
+  renderMenu();
+  const player = state.currentPlayer;
+  app.innerHTML = `
+    <h3>裝備頁</h3>
+    ${message ? `<p class="success">${message}</p>` : ""}
+    ${renderPageLinks("equipment")}
+    <p class="hint">在這裡可以確認目前穿戴裝備的數值、強度與屬性，並且卸下裝備。</p>
+    <div class="card-grid">
+      ${player.equipment.map((item, index) => `
+        <div class="choice-card ${item.element ? elementClassName(item.element) : ""}">
+          <h4>${item.slot}：${item.name}</h4>
+          <p>強度評分：${itemPower(item)}</p>
+          <p>${formatItemBonuses(item.bonuses)}</p>
+          ${item.element ? `<p>屬性：${item.element}</p>` : ""}
+          <button type="button" data-unequip-index="${index}">卸下</button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  app.querySelectorAll("[data-unequip-index]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const result = unequipItem(Number(button.dataset.unequipIndex));
+      await saveCurrentPlayer(false);
+      renderEquipmentPage(result);
+    });
+  });
+  attachPageLinks();
+}
+
+function renderShop(message = "") {
+  if (!state.currentPlayer) return renderHome();
+  state.screen = "shop";
+  renderMenu();
+  const player = state.currentPlayer;
+  app.innerHTML = `
+    <h3>商店</h3>
+    ${message ? `<p class="success">${message}</p>` : ""}
+    ${renderPageLinks("shop")}
+    <p><span class="pill">持有金幣 ${player.gold}</span></p>
+    <div class="card-grid">
+      ${data.shopItems.map(key => {
+        const item = data.itemCatalog[key];
+        return `
+          <div class="choice-card">
+            <h4>${item.name}</h4>
+            <p>${item.description}</p>
+            ${item.type === "equipment" ? `<p>強度評分：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p><p>${compareItemAgainstEquipped(item, player.equipment)}</p>` : ""}
+            <p>價格：${item.price} 金幣</p>
+            ${item.element ? `<p class="${elementClassName(item.element)}">屬性：${item.element}</p>` : ""}
+            <button type="button" data-buy-key="${item.key}">購買</button>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+  app.querySelectorAll("[data-buy-key]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const result = buyShopItem(button.dataset.buyKey);
+      await saveCurrentPlayer(false);
+      renderShop(result);
+    });
+  });
+  attachPageLinks();
+}
+
+function renderCompanions(message = "") {
+  if (!state.currentPlayer) return renderHome();
+  state.screen = "companions";
+  renderMenu();
+  const player = state.currentPlayer;
+  app.innerHTML = `
+    <h3>同伴招募</h3>
+    ${message ? `<p class="success">${message}</p>` : ""}
+    ${renderPageLinks("companions")}
+    <p><span class="pill">隊伍人數 ${1 + (player.companions?.length || 0)} / 4</span> <span class="pill">最多可招募 3 位同伴</span></p>
+    <div class="card-grid">
+      ${(player.companions || []).map((companion, index) => `
+        <div class="choice-card">
+          <h4>${companion.name}</h4>
+          <p>${companion.className} | Lv.${companion.level} / 職業 Lv.${companion.classLevel} / 100</p>
+          <p>HP ${companion.hp}/${companion.maxHp} | MP ${companion.mp}/${companion.maxMp}</p>
+          <button type="button" data-dismiss-index="${index}">離隊</button>
+        </div>
+      `).join("")}
+    </div>
+    <div class="spacer"></div>
+    <h3>新增同伴</h3>
+    <label>同伴名字</label>
+    <input type="text" id="companion-name" placeholder="輸入同伴名字">
+    <div class="spacer"></div>
+    <div class="card-grid">
+      ${data.classes.map(job => choiceCard(job.name, job.description, job.advantage, "companion-class", job.code)).join("")}
+    </div>
+    <div class="spacer"></div>
+    <button class="primary" type="button" id="recruit-companion">招募同伴</button>
+  `;
+  bindChoiceCards();
+  app.querySelectorAll("[data-dismiss-index]").forEach(button => {
+    button.addEventListener("click", async () => {
+      player.companions.splice(Number(button.dataset.dismissIndex), 1);
+      await saveCurrentPlayer(false);
+      renderCompanions("同伴已離隊。");
+    });
+  });
+  document.querySelector("#recruit-companion").addEventListener("click", async () => {
+    const name = document.querySelector("#companion-name").value.trim();
+    const classCode = document.querySelector(".choice-card[data-group='companion-class'].selected")?.dataset.code;
+    const result = recruitCompanion(name, classCode);
+    await saveCurrentPlayer(false);
+    renderCompanions(result);
+  });
+  attachPageLinks();
 }
 
 function renderSkillTree() {
@@ -328,6 +524,7 @@ function renderSkillTree() {
   app.innerHTML = `
     <h3>技能樹</h3>
     <p class="hint">點擊升級分支。每次升級都會永久提升角色能力。</p>
+    ${renderPageLinks("skills")}
     <p><span class="pill">可用技能點 ${player.skillPoints}</span></p>
     <div class="card-grid">
       ${player.branches.map((branch, index) => {
@@ -374,6 +571,7 @@ function renderSkillTree() {
       renderSkillTree();
     });
   });
+  attachPageLinks();
 }
 
 async function startBattle(category) {
@@ -399,6 +597,7 @@ async function startBattle(category) {
     log: [`遭遇 ${monster.name}！`],
     buffs: { attack: 0, defense: 0, resistance: 0, evade: 0, dragon: 0 },
     dwarfGuardUsed: false,
+    companions: (player.companions || []).map(companion => ({ ...structuredClone(companion) })),
   };
   state.screen = "battle";
   renderMenu();
@@ -410,7 +609,7 @@ function renderBattle() {
   const battle = state.battle;
   const stats = battleStats(player, battle);
   const monster = battle.monster;
-  const battleEnded = battle.monsterHp <= 0 || player.hp <= 0;
+  const battleEnded = battle.monsterHp <= 0 || partyDefeated(player, battle);
   app.innerHTML = `
     <h3>${battle.type === "normal" ? "野外戰鬥" : battle.type === "dungeon" ? "副本戰鬥" : "主線戰鬥"}</h3>
     <div class="battle-layout">
@@ -421,6 +620,13 @@ function renderBattle() {
           <p>MP ${player.mp} / ${stats.maxMp}</p>
           <p>${player.raceName} / ${player.className}</p>
         </div>
+        ${(battle.companions || []).length ? `<div class="spacer"></div><div class="card-grid">${battle.companions.map(companion => `
+          <div class="stat">
+            <strong>${companion.name}</strong>
+            <p>${companion.className}</p>
+            <p>HP ${companion.hp}/${companion.maxHp} | MP ${companion.mp}/${companion.maxMp}</p>
+          </div>
+        `).join("")}</div>` : ""}
         <div class="spacer"></div>
         <div class="battle-monster">
           <h4>${monster.name}</h4>
@@ -431,6 +637,9 @@ function renderBattle() {
         <div class="battle-actions">
           ${battleEnded ? `
             <button class="action" type="button" data-action="return">返回冒險</button>
+          ` : player.hp <= 0 ? `
+            <button class="action" type="button" data-action="ally-turn">同伴接戰</button>
+            <button class="action" type="button" data-action="status">查看狀態</button>
           ` : `
             <button class="action" type="button" data-action="attack">普通攻擊</button>
             <button class="action" type="button" data-action="skills">職業技能</button>
@@ -465,6 +674,7 @@ function handleBattleAction(action) {
     return renderStatus("已返回冒險畫面。");
   }
   if (action === "skills") return renderSkillButtons();
+  if (action === "ally-turn") return performBattleTurn({ type: "allyTurn" });
   if (action === "attack") return performBattleTurn({ type: "attack" });
   if (action === "race") return performBattleTurn({ type: "race" });
   if (action === "defend") return performBattleTurn({ type: "defend" });
@@ -489,7 +699,9 @@ async function performBattleTurn(action) {
   let defend = false;
   let acted = true;
 
-  if (action.type === "attack") {
+  if (action.type === "allyTurn") {
+    battle.log.push("你已倒下，由同伴接手戰鬥。");
+  } else if (action.type === "attack") {
     const weapon = player.equipment.find(item => item.slot === "主手");
     const damage = dealDamage(stats.attack, monster.defense, 1 + dualWieldBonus(player), weapon?.element, monster);
     battle.monsterHp = Math.max(0, battle.monsterHp - damage);
@@ -516,15 +728,28 @@ async function performBattleTurn(action) {
     return renderBattle();
   }
   if (battle.monsterHp <= 0) {
+    syncBattleCompanions(player, battle);
+    await finishVictory();
+    return;
+  }
+
+  companionTurn(battle, monster);
+  if (battle.monsterHp <= 0) {
+    syncBattleCompanions(player, battle);
     await finishVictory();
     return;
   }
 
   monsterTurn(player, battle, monster, defend);
-  if (player.hp <= 0) {
-    battle.log.push("你倒下了，戰鬥失敗。");
+  if (partyDefeated(player, battle)) {
+    battle.log.push("全隊倒下了，戰鬥失敗。");
     player.hp = Math.max(1, Math.floor(player.maxHp / 4));
     player.mp = Math.max(0, Math.floor(player.maxMp / 4));
+    syncBattleCompanions(player, battle);
+    (player.companions || []).forEach(companion => {
+      companion.hp = Math.max(1, Math.floor(companion.maxHp / 4));
+      companion.mp = Math.max(0, Math.floor(companion.maxMp / 4));
+    });
     await saveCurrentPlayer(false);
     renderBattle();
     return;
@@ -532,6 +757,7 @@ async function performBattleTurn(action) {
 
   tickBuffs(battle);
   battle.turn += 1;
+  syncBattleCompanions(player, battle);
   await saveCurrentPlayer(false);
   renderBattle();
 }
@@ -596,21 +822,26 @@ function handleRaceSkill(player, battle) {
 }
 
 function monsterTurn(player, battle, monster, defend) {
-  const stats = battleStats(player, battle);
-  const evadeRate = Math.min(0.35, 0.05 + Math.max(0, stats.speed - monster.speed) * 0.01 + battle.buffs.evade);
+  const partyTargets = [{ type: "player", actor: player, stats: battleStats(player, battle), defend }].concat(
+    (battle.companions || [])
+      .filter(companion => companion.hp > 0)
+      .map(companion => ({ type: "companion", actor: companion, stats: companionStats(companion), defend: false }))
+  );
+  const target = partyTargets[Math.floor(Math.random() * partyTargets.length)];
+  const evadeRate = Math.min(0.35, 0.05 + Math.max(0, target.stats.speed - monster.speed) * 0.01 + (target.type === "player" ? battle.buffs.evade : 0));
   if (Math.random() < evadeRate) {
-    battle.log.push(`${player.name} 閃過了 ${monster.name} 的攻擊。`);
+    battle.log.push(`${target.actor.name} 閃過了 ${monster.name} 的攻擊。`);
     return;
   }
-  let damage = Math.max(1, monster.attack - Math.floor(stats.defense / 2) + randomInt(0, 4));
-  if (defend) damage = Math.floor(damage * 0.65);
-  if (player.raceName === "矮人" && !battle.dwarfGuardUsed) {
+  let damage = Math.max(1, monster.attack - Math.floor(target.stats.defense / 2) + randomInt(0, 4));
+  if (target.defend) damage = Math.floor(damage * 0.65);
+  if (target.type === "player" && player.raceName === "矮人" && !battle.dwarfGuardUsed) {
     damage = Math.floor(damage * 0.7);
     battle.dwarfGuardUsed = true;
     battle.log.push("鋼鐵體魄發動，首次重擊傷害被削減。");
   }
-  player.hp = Math.max(0, player.hp - damage);
-  battle.log.push(`${monster.name} 使用 ${monster.note}，造成 ${damage} 點傷害。`);
+  target.actor.hp = Math.max(0, target.actor.hp - damage);
+  battle.log.push(`${monster.name} 對 ${target.actor.name} 使用 ${monster.note}，造成 ${damage} 點傷害。`);
 }
 
 async function finishVictory() {
@@ -620,22 +851,21 @@ async function finishVictory() {
   player.exp += monster.exp;
   player.gold += monster.gold;
   battle.log.push(`你擊敗了 ${monster.name}，獲得 EXP ${monster.exp}、金幣 ${monster.gold}。`);
+  const droppedItemKey = rollDrop(monster);
+  if (droppedItemKey) {
+    const droppedItem = addItemToInventory(player, droppedItemKey);
+    battle.log.push(`掉落物品：${droppedItem.name}`);
+  }
   while (player.exp >= nextLevelExp(player.level)) {
     player.exp -= nextLevelExp(player.level);
     player.level += 1;
-    player.classLevel += 1;
+    player.classLevel = Math.min(100, player.classLevel + 1);
     player.skillPoints += 1;
-    player.maxHp += 12;
-    player.maxMp += 8;
-    player.attack += 2;
-    player.defense += 2;
-    player.magic += 2;
-    player.resistance += 2;
-    player.speed += 1;
-    player.luck += 1;
+    applyClassLevelGrowth(player, player.className);
+    (player.companions || []).forEach(companion => levelUpCompanion(companion));
     player.hp = player.maxHp;
     player.mp = player.maxMp;
-    battle.log.push(`升級了，現在是 Lv.${player.level}。`);
+    battle.log.push(`升級了，現在是 Lv.${player.level}，能力值已依職業自動成長。`);
   }
   if (battle.type === "story") {
     player.storyStage += 1;
@@ -643,6 +873,7 @@ async function finishVictory() {
   if (battle.type === "dungeon") {
     player.dungeonClears += 1;
   }
+  syncBattleCompanions(player, battle);
   await saveCurrentPlayer(false);
   renderBattle();
 }
@@ -688,11 +919,16 @@ function buildPlayer(name, raceCode, classCode) {
     gold: 30,
     branches: job.branches.map(name => ({ name, level: 0 })),
     equipment: structuredClone(data.equipment[job.name] || []),
+    companions: [],
+    inventory: [
+      { ...structuredClone(data.itemCatalog.potion_hp_s), quantity: 2 },
+      { ...structuredClone(data.itemCatalog.potion_mp_s), quantity: 1 },
+    ],
   };
 }
 
 function effectiveStats(player) {
-  return {
+  const stats = {
     maxHp: player.maxHp,
     maxMp: player.maxMp,
     attack: player.attack,
@@ -702,6 +938,12 @@ function effectiveStats(player) {
     speed: player.speed,
     luck: player.luck,
   };
+  (player.equipment || []).forEach(item => {
+    Object.entries(item.bonuses || {}).forEach(([key, value]) => {
+      stats[key] += value;
+    });
+  });
+  return stats;
 }
 
 function battleStats(player, battle) {
@@ -768,6 +1010,7 @@ async function restPlayer() {
 
 async function saveCurrentPlayer(showMessage = true) {
   if (!state.currentPlayer) return;
+  normalizePlayer(state.currentPlayer);
   await dbApi.updatePlayer(state.currentPlayer);
   if (showMessage) toast("角色已儲存。", "success");
 }
@@ -818,6 +1061,281 @@ function leaveCurrentPlayer() {
   state.currentPlayer = null;
   state.battle = null;
   renderHome();
+}
+
+function normalizePlayer(player) {
+  if (!player) return;
+  player.inventory ??= [];
+  player.equipment ??= [];
+  player.companions ??= [];
+  player.equipment = player.equipment.map(item => ({ bonuses: {}, ...item, bonuses: item.bonuses || {} }));
+  player.companions = player.companions.map(companion => ({ ...companion, level: companion.level || 1, classLevel: companion.classLevel || 1 }));
+}
+
+function rollDrop(monster) {
+  if (!monster.drops?.length) return null;
+  const rate = monster.category === "story" ? 1 : monster.category === "dungeon" ? 0.8 : 0.55;
+  if (Math.random() > rate) return null;
+  return monster.drops[Math.floor(Math.random() * monster.drops.length)];
+}
+
+function addItemToInventory(player, itemKey) {
+  const template = structuredClone(data.itemCatalog[itemKey]);
+  if (!player.inventory) player.inventory = [];
+  if (template.type === "consumable") {
+    const existing = player.inventory.find(item => item.key === itemKey);
+    if (existing) {
+      existing.quantity = (existing.quantity || 0) + 1;
+      return existing;
+    }
+    template.quantity = 1;
+  }
+  player.inventory.push(template);
+  return template;
+}
+
+function useInventoryItem(index) {
+  const player = state.currentPlayer;
+  const item = player.inventory[index];
+  if (!item) return "找不到這個物品。";
+  if (item.type !== "consumable") return "這個物品不能直接使用。";
+  const stats = effectiveStats(player);
+  if (item.healHp) player.hp = Math.min(stats.maxHp, player.hp + item.healHp);
+  if (item.healMp) player.mp = Math.min(stats.maxMp, player.mp + item.healMp);
+  item.quantity -= 1;
+  if (item.quantity <= 0) {
+    player.inventory.splice(index, 1);
+  }
+  return `${item.name} 已使用。`;
+}
+
+function equipInventoryItem(index) {
+  const player = state.currentPlayer;
+  const item = player.inventory[index];
+  if (!item) return "找不到這個物品。";
+  if (item.type !== "equipment") return "這個物品不是裝備。";
+  const equipIndex = player.equipment.findIndex(equip => equip.slot === item.slot);
+  if (equipIndex >= 0) {
+    player.inventory.push(player.equipment[equipIndex]);
+    player.equipment[equipIndex] = item;
+  } else {
+    player.equipment.push(item);
+  }
+  player.inventory.splice(index, 1);
+  const stats = effectiveStats(player);
+  player.hp = Math.min(player.hp, stats.maxHp);
+  player.mp = Math.min(player.mp, stats.maxMp);
+  return `${item.name} 已裝備到 ${item.slot}。`;
+}
+
+function unequipItem(index) {
+  const player = state.currentPlayer;
+  const item = player.equipment[index];
+  if (!item) return "找不到這件裝備。";
+  player.inventory.push(item);
+  player.equipment.splice(index, 1);
+  const stats = effectiveStats(player);
+  player.hp = Math.min(player.hp, stats.maxHp);
+  player.mp = Math.min(player.mp, stats.maxMp);
+  return `${item.name} 已卸下並放回背包。`;
+}
+
+function buyShopItem(itemKey) {
+  const player = state.currentPlayer;
+  const item = data.itemCatalog[itemKey];
+  if (!item) return "找不到這個商品。";
+  if (player.gold < item.price) return "金幣不足。";
+  player.gold -= item.price;
+  addItemToInventory(player, itemKey);
+  return `${item.name} 已購買並放入背包。`;
+}
+
+function recruitCompanion(name, classCode) {
+  const player = state.currentPlayer;
+  if (!name || !classCode) return "請輸入同伴名字並選擇職業。";
+  if ((player.companions || []).length >= 3) return "最多只能擁有三位同伴。";
+  const companion = buildCompanion(name, classCode, player.level);
+  player.companions.push(companion);
+  return `${companion.name} 已加入隊伍。`;
+}
+
+function buildCompanion(name, classCode, level) {
+  const job = data.classes.find(item => item.code === classCode);
+  const stats = structuredClone(baseStats);
+  applyBonuses(stats, job.bonuses);
+  const companion = {
+    name,
+    classCode,
+    className: job.name,
+    level: 1,
+    classLevel: 1,
+    hp: stats.maxHp,
+    mp: stats.maxMp,
+    ...stats,
+  };
+  while (companion.level < level) {
+    levelUpCompanion(companion);
+  }
+  return companion;
+}
+
+function levelUpCompanion(companion) {
+  companion.level += 1;
+  companion.classLevel = Math.min(100, companion.classLevel + 1);
+  applyClassLevelGrowth(companion, companion.className);
+  companion.hp = companion.maxHp;
+  companion.mp = companion.maxMp;
+}
+
+function applyClassLevelGrowth(target, className) {
+  const growth = classAutoGrowth[className] || classAutoGrowth["旅行者"];
+  Object.entries(growth).forEach(([key, value]) => {
+    target[key] += value;
+  });
+}
+
+function companionStats(companion) {
+  return {
+    maxHp: companion.maxHp,
+    maxMp: companion.maxMp,
+    attack: companion.attack,
+    defense: companion.defense,
+    magic: companion.magic,
+    resistance: companion.resistance,
+    speed: companion.speed,
+    luck: companion.luck,
+  };
+}
+
+function companionTurn(battle, monster) {
+  (battle.companions || []).filter(companion => companion.hp > 0).forEach(companion => {
+    if (battle.monsterHp <= 0) return;
+    const skill = data.classSkills[companion.className]?.[0];
+    if (skill && companion.mp >= skill.cost && Math.random() < 0.45) {
+      companion.mp -= skill.cost;
+      if (skill.kind === "attack") {
+        const damage = dealDamage(companion[skill.stat], skill.stat === "magic" ? monster.resistance : monster.defense, skill.power, skill.element, monster);
+        battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+        battle.log.push(`${companion.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
+      } else if (skill.kind === "heal") {
+        const target = lowestHpPartyMember(state.currentPlayer, battle);
+        if (target) {
+          const heal = Math.floor(companion.magic * skill.power + randomInt(4, 8));
+          target.hp = Math.min(target.maxHp, target.hp + heal);
+          battle.log.push(`${companion.name} 施放 ${skill.name}，替 ${target.name} 回復 ${heal} HP。`);
+        }
+      } else {
+        const damage = Math.max(1, Math.floor(companion.attack * 1.1));
+        battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+        battle.log.push(`${companion.name} 趁勢追擊，造成 ${damage} 點傷害。`);
+      }
+    } else {
+      const damage = Math.max(1, Math.floor(companion.attack - monster.defense / 2 + randomInt(0, 4)));
+      battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+      battle.log.push(`${companion.name} 協力攻擊，造成 ${damage} 點傷害。`);
+    }
+  });
+}
+
+function syncBattleCompanions(player, battle) {
+  player.companions = (battle.companions || []).map(companion => ({ ...companion }));
+}
+
+function lowestHpPartyMember(player, battle) {
+  const pool = [player].concat((battle.companions || [])).filter(member => member.hp > 0);
+  return pool.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+}
+
+function partyDefeated(player, battle) {
+  return player.hp <= 0 && (battle.companions || []).every(companion => companion.hp <= 0);
+}
+
+function renderEquipmentCard(item) {
+  return `<div class="stat ${item.element ? elementClassName(item.element) : ""}"><strong>${item.slot}</strong><p>${item.name}${item.element ? ` [${item.element}]` : ""}</p><p>強度：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p></div>`;
+}
+
+function elementClassName(element) {
+  return {
+    "地": "element-earth",
+    "水": "element-water",
+    "火": "element-fire",
+    "風": "element-wind",
+    "雷": "element-thunder",
+    "日": "element-sun",
+    "月": "element-moon",
+  }[element] || "";
+}
+
+function itemPower(item) {
+  const bonus = item.bonuses || {};
+  return Math.max(
+    0,
+    (bonus.attack || 0) * 2 +
+    (bonus.defense || 0) * 2 +
+    (bonus.magic || 0) * 2 +
+    (bonus.resistance || 0) * 2 +
+    (bonus.speed || 0) * 2 +
+    (bonus.luck || 0) * 2 +
+    Math.floor((bonus.maxHp || 0) / 6) +
+    Math.floor((bonus.maxMp || 0) / 6)
+  );
+}
+
+function formatItemBonuses(bonuses = {}) {
+  const labels = { maxHp: "HP", maxMp: "MP", attack: "攻擊", defense: "防禦", magic: "魔法", resistance: "抵抗", speed: "速度", luck: "運氣" };
+  const entries = Object.entries(bonuses);
+  if (!entries.length) return "無數值加成";
+  return entries.map(([key, value]) => `${labels[key] || key} ${value > 0 ? "+" : ""}${value}`).join(" / ");
+}
+
+function compareItemAgainstEquipped(item, equippedItems) {
+  const current = equippedItems.find(equipped => equipped.slot === item.slot);
+  if (!current) return "比較：目前該部位空缺";
+  const allKeys = new Set([...Object.keys(item.bonuses || {}), ...Object.keys(current.bonuses || {})]);
+  const parts = [];
+  allKeys.forEach(key => {
+    const diff = (item.bonuses?.[key] || 0) - (current.bonuses?.[key] || 0);
+    if (diff !== 0) parts.push(`${displayStatName(key)} ${diff > 0 ? "+" : ""}${diff}`);
+  });
+  const powerDiff = itemPower(item) - itemPower(current);
+  if (powerDiff !== 0) parts.unshift(`強度 ${powerDiff > 0 ? "+" : ""}${powerDiff}`);
+  return `比較 ${current.name}：${parts.length ? parts.join(" / ") : "與目前裝備相同"}`;
+}
+
+function displayStatName(key) {
+  return { maxHp: "HP", maxMp: "MP", attack: "攻擊", defense: "防禦", magic: "魔法", resistance: "抵抗", speed: "速度", luck: "運氣" }[key] || key;
+}
+
+function renderPageLinks(active) {
+  const links = [
+    ["hub", "冒險首頁", renderGameHub],
+    ["status", "狀態", renderStatus],
+    ["equipment", "裝備", renderEquipmentPage],
+    ["inventory", "背包", renderInventory],
+    ["shop", "商店", renderShop],
+    ["companions", "同伴", renderCompanions],
+    ["skills", "技能樹", renderSkillTree],
+  ];
+  return `
+    <div class="page-links">
+      ${links.map(([key, label]) => `<button class="page-link ${active === key ? "active" : ""}" type="button" data-page-link="${key}">${label}</button>`).join("")}
+    </div>
+  `;
+}
+
+function attachPageLinks() {
+  const map = {
+    hub: renderGameHub,
+    status: renderStatus,
+    equipment: renderEquipmentPage,
+    inventory: renderInventory,
+    shop: renderShop,
+    companions: renderCompanions,
+    skills: renderSkillTree,
+  };
+  app.querySelectorAll("[data-page-link]").forEach(button => {
+    button.addEventListener("click", () => map[button.dataset.pageLink]?.());
+  });
 }
 
 async function init() {
