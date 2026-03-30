@@ -38,17 +38,16 @@ CLASSES = [
     {"code": "monk", "name": "僧侶", "description": "恢復、祈禱、聖護與天法專精。", "bonuses": {"max_hp": 5, "max_mp": 25, "defense": 1, "magic": 5, "resistance": 6, "luck": 1}, "branches": ["天法系", "祈禱系", "聖護系"]},
     {"code": "traveler", "name": "旅行者", "description": "平均泛用，兼具探索與輔助。", "bonuses": {"max_hp": 5, "max_mp": 10, "attack": 2, "defense": 2, "magic": 2, "resistance": 2, "speed": 2, "luck": 2}, "branches": ["求生系", "輔助系", "探索系"]},
     {"code": "rogue", "name": "盜賊", "description": "高速暴擊與雙匕首靈活戰鬥。", "bonuses": {"max_mp": 5, "attack": 3, "resistance": 1, "speed": 7, "luck": 4}, "branches": ["暗殺系", "影步系", "詭計系"]},
-    {"code": "beastmaster", "name": "馴獸師", "description": "召喚與指揮並重，持續作戰能力佳。", "bonuses": {"max_hp": 10, "max_mp": 15, "attack": 2, "defense": 2, "magic": 3, "resistance": 2, "speed": 2, "luck": 1}, "branches": ["野獸系", "指揮系", "共鳴系"]},
 ]
 
 EQUIPMENT = [
     {"code": "bronze_sword", "name": "青銅劍", "slot": "主手武器", "rarity": "普通", "element": None, "bonuses": {"attack": 4}, "allowed_classes": ["戰士", "旅行者"]},
     {"code": "oak_staff", "name": "橡木長杖", "slot": "主手武器", "rarity": "普通", "element": "火", "bonuses": {"magic": 5, "max_mp": 10}, "allowed_classes": ["魔法師"]},
-    {"code": "prayer_rod", "name": "祈禱短杖", "slot": "主手武器", "rarity": "普通", "element": "日", "bonuses": {"magic": 3, "resistance": 2, "max_mp": 8}, "allowed_classes": ["僧侶", "旅行者", "馴獸師"]},
+    {"code": "prayer_rod", "name": "祈禱短杖", "slot": "主手武器", "rarity": "普通", "element": "日", "bonuses": {"magic": 3, "resistance": 2, "max_mp": 8}, "allowed_classes": ["僧侶", "旅行者"]},
     {"code": "initiate_mace", "name": "修道鎚", "slot": "主手武器", "rarity": "普通", "element": "日", "bonuses": {"attack": 3, "resistance": 2}, "allowed_classes": ["僧侶"]},
     {"code": "wind_dagger", "name": "疾風匕首", "slot": "主手武器", "rarity": "普通", "element": "風", "bonuses": {"attack": 3, "speed": 3, "luck": 1}, "allowed_classes": ["盜賊"]},
     {"code": "shadow_dagger", "name": "影襲副匕", "slot": "副手", "rarity": "普通", "element": "月", "bonuses": {"attack": 2, "speed": 2}, "allowed_classes": ["盜賊"]},
-    {"code": "traveler_cloak", "name": "旅者披風", "slot": "身體", "rarity": "普通", "element": None, "bonuses": {"defense": 2, "resistance": 1}, "allowed_classes": ["旅行者", "盜賊", "馴獸師"]},
+    {"code": "traveler_cloak", "name": "旅者披風", "slot": "身體", "rarity": "普通", "element": None, "bonuses": {"defense": 2, "resistance": 1}, "allowed_classes": ["旅行者", "盜賊"]},
     {"code": "iron_helm", "name": "鐵盔", "slot": "頭", "rarity": "普通", "element": None, "bonuses": {"defense": 2}, "allowed_classes": ["戰士", "僧侶"]},
     {"code": "leather_boots", "name": "輕皮靴", "slot": "腳", "rarity": "普通", "element": None, "bonuses": {"speed": 2}, "allowed_classes": ["武鬥家", "盜賊", "旅行者"]},
 ]
@@ -70,7 +69,6 @@ STARTING_EQUIPMENT = {
     "僧侶": ["prayer_rod", "iron_helm"],
     "旅行者": ["bronze_sword", "traveler_cloak"],
     "盜賊": ["wind_dagger", "shadow_dagger", "traveler_cloak", "leather_boots"],
-    "馴獸師": ["prayer_rod", "traveler_cloak"],
 }
 
 CLASS_SKILLS = {
@@ -80,7 +78,6 @@ CLASS_SKILLS = {
     "僧侶": [{"name": "治癒術", "cost": 10, "power": 1.6, "kind": "heal", "stat": "magic", "element": "日", "note": "基礎天法回復。"}, {"name": "聖盾", "cost": 8, "power": 0, "kind": "buff_resistance", "stat": "resistance", "element": "日", "note": "提升抵抗 3 回合。"}],
     "旅行者": [{"name": "急救", "cost": 8, "power": 1.2, "kind": "heal", "stat": "magic", "element": "日", "note": "緊急包紮回復。"}, {"name": "鼓舞", "cost": 6, "power": 0, "kind": "buff_attack", "stat": "attack", "element": None, "note": "提升攻擊與士氣。"}],
     "盜賊": [{"name": "背刺", "cost": 8, "power": 1.7, "kind": "attack", "stat": "attack", "element": "月", "note": "高暴擊率先手技能。"}, {"name": "煙幕", "cost": 6, "power": 0, "kind": "evade", "stat": "speed", "element": None, "note": "短時間大幅提升閃避。"}],
-    "馴獸師": [{"name": "狼獸突襲", "cost": 9, "power": 1.65, "kind": "attack", "stat": "attack", "element": "風", "note": "召來野獸協同攻擊。"}, {"name": "生命連結", "cost": 8, "power": 1.2, "kind": "heal", "stat": "magic", "element": "水", "note": "穩定回復並強化續戰。"}],
 }
 
 BRANCH_EFFECTS = {
@@ -102,7 +99,4 @@ BRANCH_EFFECTS = {
     "暗殺系": ("attack", 2),
     "影步系": ("speed", 2),
     "詭計系": ("luck", 2),
-    "野獸系": ("attack", 2),
-    "指揮系": ("defense", 1),
-    "共鳴系": ("magic", 1),
 }
