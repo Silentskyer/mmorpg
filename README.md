@@ -6,6 +6,11 @@
 
 這個版本已改為點擊式操作，不需要 PowerShell 或 `cmd`。
 
+如果要啟動另一個桌面 GUI 視窗版：
+
+1. 先安裝 `requirements-desktop.txt`
+2. 執行 `python desktop_gui.py`
+
 ## 目前版本內容
 
 - 點擊式圖形介面
@@ -21,6 +26,7 @@
 - 職業等級上限 100
 - 野外、副本、主線戰鬥
 - 本機資料庫存檔
+- DearPyGui 桌面視窗版
 
 ## 資料儲存
 

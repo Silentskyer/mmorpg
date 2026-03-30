@@ -25,52 +25,102 @@ const data = {
     { code: "vampire", name: "吸血族", description: "持久作戰與吸血續航優秀。", advantage: "優勢：續戰與自我回復能力強。", bonuses: { maxHp: 10, maxMp: 20, magic: 4, speed: 3, luck: 2, resistance: -2 }, skillName: "鮮血汲取", skillType: "被動", skillDescription: "造成傷害時吸收部分生命。" },
   ],
   classes: [
-    { code: "warrior", name: "戰士", description: "高生存近戰，擅長承受傷害。", advantage: "優勢：穩定扛傷，適合正面作戰。", bonuses: { maxHp: 20, attack: 5, defense: 5, resistance: 2, speed: -1 }, branches: ["守護系", "斬擊系", "反擊系"] },
-    { code: "martial", name: "武鬥家", description: "高速連擊與單體爆發。", advantage: "優勢：手感俐落，單體連打很強。", bonuses: { maxHp: 10, maxMp: 5, attack: 4, defense: 1, resistance: 1, speed: 5, luck: 1 }, branches: ["拳擊系", "氣功系", "連段系"] },
-    { code: "mage", name: "魔法師", description: "火焰、寒冰、大地三系法術專家。", advantage: "優勢：範圍法術與屬性輸出突出。", bonuses: { maxHp: -5, maxMp: 30, defense: -2, magic: 8, resistance: 3, speed: 1 }, branches: ["火焰系", "寒冰系", "大地系"] },
-    { code: "monk", name: "僧侶", description: "恢復、祈禱、聖護與天法專精。", advantage: "優勢：恢復與保命能力最穩定。", bonuses: { maxHp: 5, maxMp: 25, defense: 1, magic: 5, resistance: 6, luck: 1 }, branches: ["天法系", "祈禱系", "聖護系"] },
-    { code: "traveler", name: "旅行者", description: "平均泛用，兼具探索與輔助。", advantage: "優勢：適應性高，玩法彈性大。", bonuses: { maxHp: 5, maxMp: 10, attack: 2, defense: 2, magic: 2, resistance: 2, speed: 2, luck: 2 }, branches: ["求生系", "輔助系", "探索系"] },
-    { code: "rogue", name: "盜賊", description: "高速暴擊與雙匕首靈活戰鬥。", advantage: "優勢：速度快，暴擊與雙持特色鮮明。", bonuses: { maxMp: 5, attack: 3, resistance: 1, speed: 7, luck: 4 }, branches: ["暗殺系", "影步系", "詭計系"] },
-    { code: "beastmaster", name: "馴獸師", description: "召喚與指揮並重，持續作戰能力佳。", advantage: "優勢：持續作戰穩，兼具攻擊與回復。", bonuses: { maxHp: 10, maxMp: 15, attack: 2, defense: 2, magic: 3, resistance: 2, speed: 2, luck: 1 }, branches: ["野獸系", "指揮系", "共鳴系"] },
+    { code: "warrior", name: "戰士", armorType: "重型裝甲", description: "高生存近戰，擅長承受傷害。", advantage: "優勢：穩定扛傷，適合正面作戰。", bonuses: { maxHp: 20, attack: 5, defense: 5, resistance: 2, speed: -1 }, branches: ["守護系", "斬擊系", "反擊系"] },
+    { code: "martial", name: "武鬥家", armorType: "輕型裝甲", description: "高速連擊與單體爆發。", advantage: "優勢：手感俐落，單體連打很強。", bonuses: { maxHp: 10, maxMp: 5, attack: 4, defense: 1, resistance: 1, speed: 5, luck: 1 }, branches: ["拳擊系", "氣功系", "連段系"] },
+    { code: "mage", name: "魔法師", armorType: "魔法裝甲", description: "操控多屬性魔法的法術專家。", advantage: "優勢：屬性魔法多樣，範圍輸出強。", bonuses: { maxHp: -5, maxMp: 30, defense: -2, magic: 8, resistance: 3, speed: 1 }, branches: ["大地系", "冰水系", "火焰系", "狂風系", "雷霆系"] },
+    { code: "monk", name: "僧侶", armorType: "輕型裝甲", description: "恢復、祈禱與增幅的支援核心。", advantage: "優勢：恢復與淨化能力最穩定。", bonuses: { maxHp: 5, maxMp: 25, defense: 1, magic: 5, resistance: 6, luck: 1 }, branches: ["天法系", "增幅系", "聖護系"] },
+    { code: "traveler", name: "旅行者", armorType: "一般裝甲", description: "平均泛用，兼具探索與輔助。", advantage: "優勢：適應性高，玩法彈性大。", bonuses: { maxHp: 5, maxMp: 10, attack: 2, defense: 2, magic: 2, resistance: 2, speed: 2, luck: 2 }, branches: ["求生系", "輔助系", "探索系"] },
+    { code: "rogue", name: "盜賊", armorType: "輕型裝甲", description: "高速暴擊與雙匕首靈活戰鬥。", advantage: "優勢：速度快，暴擊與雙持特色鮮明。", bonuses: { maxMp: 5, attack: 3, resistance: 1, speed: 7, luck: 4 }, branches: ["暗殺系", "影步系", "詭計系"] },
   ],
   branchEffects: {
     "守護系": ["defense", 2], "斬擊系": ["attack", 2], "反擊系": ["luck", 1],
     "拳擊系": ["attack", 2], "氣功系": ["magic", 2], "連段系": ["speed", 2],
-    "火焰系": ["magic", 2], "寒冰系": ["resistance", 2], "大地系": ["defense", 2],
-    "天法系": ["magic", 2], "祈禱系": ["maxMp", 5], "聖護系": ["resistance", 2],
+    "火焰系": ["magic", 2], "冰水系": ["resistance", 2], "大地系": ["defense", 2], "狂風系": ["speed", 2], "雷霆系": ["magic", 2],
+    "天法系": ["magic", 2], "增幅系": ["maxMp", 5], "聖護系": ["resistance", 2],
     "求生系": ["maxHp", 5], "輔助系": ["resistance", 1], "探索系": ["luck", 2],
     "暗殺系": ["attack", 2], "影步系": ["speed", 2], "詭計系": ["luck", 2],
-    "野獸系": ["attack", 2], "指揮系": ["defense", 1], "共鳴系": ["magic", 1],
   },
   classSkills: {
     "戰士": [{ name: "重斬", cost: 8, power: 1.75, kind: "attack", stat: "attack", element: null }, { name: "防禦姿態", cost: 6, power: 0, kind: "buffDefense", stat: "defense", element: null }],
     "武鬥家": [{ name: "三連擊", cost: 9, power: 1.55, kind: "attack", stat: "attack", element: "風" }, { name: "聚氣", cost: 6, power: 0, kind: "buffAttack", stat: "attack", element: null }],
-    "魔法師": [{ name: "火球術", cost: 10, power: 1.8, kind: "attack", stat: "magic", element: "火" }, { name: "石槍術", cost: 10, power: 1.8, kind: "attack", stat: "magic", element: "地" }],
-    "僧侶": [{ name: "治癒術", cost: 10, power: 1.6, kind: "heal", stat: "magic", element: "日" }, { name: "聖盾", cost: 8, power: 0, kind: "buffResistance", stat: "resistance", element: "日" }],
-    "旅行者": [{ name: "急救", cost: 8, power: 1.2, kind: "heal", stat: "magic", element: "日" }, { name: "鼓舞", cost: 6, power: 0, kind: "buffAttack", stat: "attack", element: null }],
+    "魔法師": [
+      { name: "碎石波", cost: 8, power: 1.45, kind: "attack", stat: "magic", element: "地" },
+      { name: "岩刺", cost: 10, power: 1.6, kind: "attackDebuffDefense", stat: "magic", element: "地", duration: 3 },
+      { name: "大地之槍", cost: 12, power: 1.9, kind: "attack", stat: "magic", element: "地" },
+      { name: "大地震", cost: 16, power: 2.1, kind: "attackStun", stat: "magic", element: "地", chance: 0.35, duration: 1 },
+      { name: "蓋亞之怒", cost: 22, power: 2.8, kind: "attackDebuffDefense", stat: "magic", element: "地", duration: 4 },
+      { name: "水槍", cost: 8, power: 1.45, kind: "attack", stat: "magic", element: "水" },
+      { name: "酸雨", cost: 10, power: 1.55, kind: "attackDebuffResistance", stat: "magic", element: "水", duration: 3 },
+      { name: "吹雪", cost: 12, power: 1.7, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.35, duration: 2 },
+      { name: "暴風雪", cost: 14, power: 2.0, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.45, duration: 2 },
+      { name: "霜天葬送", cost: 22, power: 2.85, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.65, duration: 3 },
+      { name: "火球", cost: 10, power: 1.8, kind: "attack", stat: "magic", element: "火" },
+      { name: "豪火柱", cost: 12, power: 1.95, kind: "attack", stat: "magic", element: "火" },
+      { name: "火焰之槍", cost: 14, power: 2.05, kind: "attack", stat: "magic", element: "火" },
+      { name: "焦土", cost: 14, power: 2.1, kind: "attackBurn", stat: "magic", element: "火", chance: 0.6, duration: 3 },
+      { name: "焚天神兵", cost: 24, power: 3.0, kind: "attackBurn", stat: "magic", element: "火", chance: 0.8, duration: 4 },
+      { name: "風刃", cost: 8, power: 1.45, kind: "attack", stat: "magic", element: "風" },
+      { name: "旋風", cost: 10, power: 1.55, kind: "attackDebuffSpeed", stat: "magic", element: "風", duration: 3 },
+      { name: "狂嵐", cost: 12, power: 1.8, kind: "attackDebuffAttack", stat: "magic", element: "風", duration: 3 },
+      { name: "嵐天風暴", cost: 14, power: 2.0, kind: "attackDebuffSpeed", stat: "magic", element: "風", duration: 4 },
+      { name: "龍捲風", cost: 22, power: 2.7, kind: "attackStun", stat: "magic", element: "風", chance: 0.5, duration: 1 },
+      { name: "落雷", cost: 10, power: 1.75, kind: "attack", stat: "magic", element: "雷" },
+      { name: "雷電", cost: 12, power: 1.95, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.35, duration: 2 },
+      { name: "閃電球", cost: 14, power: 2.05, kind: "attack", stat: "magic", element: "雷" },
+      { name: "雷電牢獄", cost: 18, power: 2.25, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.55, duration: 2 },
+      { name: "神罰天雷", cost: 26, power: 3.05, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.75, duration: 3 },
+      { name: "陽光射線", cost: 10, power: 1.8, kind: "attack", stat: "magic", element: "日" },
+      { name: "日冕", cost: 12, power: 1.95, kind: "attackDebuffAttack", stat: "magic", element: "日", duration: 3 },
+      { name: "太陽球", cost: 14, power: 2.05, kind: "attack", stat: "magic", element: "日" },
+      { name: "烈日恆天", cost: 18, power: 2.2, kind: "attackDebuffResistance", stat: "magic", element: "日", duration: 4 },
+      { name: "太陽風", cost: 16, power: 2.0, kind: "attackDebuffDefense", stat: "magic", element: "日", duration: 3 },
+      { name: "太陽面爆發", cost: 26, power: 3.1, kind: "attackBurn", stat: "magic", element: "日", chance: 0.8, duration: 4 },
+      { name: "新月", cost: 10, power: 1.8, kind: "attack", stat: "magic", element: "月" },
+      { name: "上弦月", cost: 12, power: 1.95, kind: "attackDebuffDefense", stat: "magic", element: "月", duration: 3 },
+      { name: "下弦月", cost: 12, power: 1.95, kind: "attackDebuffAttack", stat: "magic", element: "月", duration: 3 },
+      { name: "滿月", cost: 16, power: 2.15, kind: "attackDrain", stat: "magic", element: "月" },
+      { name: "無月", cost: 18, power: 2.2, kind: "attackDebuffResistance", stat: "magic", element: "月", duration: 4 },
+      { name: "月亮追逐者", cost: 24, power: 2.85, kind: "attackBuffSpeed", stat: "magic", element: "月" }
+    ],
+    "僧侶": [
+      { name: "治療", cost: 8, power: 1.3, kind: "heal", stat: "magic", element: "日", school: "天法" },
+      { name: "祝福", cost: 6, power: 0, kind: "buffAttackDefense", stat: "magic", element: "日", school: "天法" },
+      { name: "大治療", cost: 14, power: 2.0, kind: "heal", stat: "magic", element: "日", school: "天法" },
+      { name: "完全淨化", cost: 14, power: 0, kind: "cleanseAll", stat: "magic", element: "日", school: "天法" },
+      { name: "祝聖", cost: 12, power: 0, kind: "buffMagicResistance", stat: "magic", element: "日", school: "天法" },
+      { name: "群體治療", cost: 18, power: 1.4, kind: "healAll", stat: "magic", element: "日", school: "天法" },
+      { name: "完全治療", cost: 20, power: 0, kind: "fullHeal", stat: "magic", element: "日", school: "天法" },
+      { name: "奇蹟", cost: 24, power: 0, kind: "revive", stat: "magic", element: "日", school: "天法" },
+      { name: "物理強化", cost: 10, power: 0, kind: "buffAttackParty", stat: "magic", element: null, school: "增幅" },
+      { name: "魔法強化", cost: 10, power: 0, kind: "buffMagicResistance", stat: "magic", element: null, school: "增幅" },
+      { name: "疾走", cost: 8, power: 0, kind: "buffSpeedParty", stat: "magic", element: null, school: "增幅" }
+    ],
+    "旅行者": [{ name: "急救", cost: 8, power: 1.2, kind: "heal", stat: "magic", element: "日" }, { name: "疾走", cost: 6, power: 0, kind: "evade", stat: "speed", element: null }],
     "盜賊": [{ name: "背刺", cost: 8, power: 1.7, kind: "attack", stat: "attack", element: "月" }, { name: "煙幕", cost: 6, power: 0, kind: "evade", stat: "speed", element: null }],
-    "馴獸師": [{ name: "狼獸突襲", cost: 9, power: 1.65, kind: "attack", stat: "attack", element: "風" }, { name: "生命連結", cost: 8, power: 1.2, kind: "heal", stat: "magic", element: "水" }],
-  },
-  equipment: {
-    "戰士": [{ slot: "主手", name: "青銅劍", element: null, bonuses: { attack: 4 } }, { slot: "頭", name: "鐵盔", element: null, bonuses: { defense: 2 } }],
-    "武鬥家": [{ slot: "腳", name: "輕皮靴", element: null, bonuses: { speed: 2 } }],
-    "魔法師": [{ slot: "主手", name: "橡木長杖", element: "火", bonuses: { magic: 5, maxMp: 10 } }],
-    "僧侶": [{ slot: "主手", name: "祈禱短杖", element: "日", bonuses: { magic: 3, resistance: 2, maxMp: 8 } }, { slot: "頭", name: "鐵盔", element: null, bonuses: { defense: 2 } }],
-    "旅行者": [{ slot: "主手", name: "青銅劍", element: null, bonuses: { attack: 4 } }, { slot: "身體", name: "旅者披風", element: null, bonuses: { defense: 2, resistance: 1 } }],
-    "盜賊": [{ slot: "主手", name: "疾風匕首", element: "風", bonuses: { attack: 3, speed: 3, luck: 1 } }, { slot: "副手", name: "影襲副匕", element: "月", bonuses: { attack: 2, speed: 2 } }, { slot: "身體", name: "旅者披風", element: null, bonuses: { defense: 2, resistance: 1 } }, { slot: "腳", name: "輕皮靴", element: null, bonuses: { speed: 2 } }],
-    "馴獸師": [{ slot: "主手", name: "祈禱短杖", element: "日", bonuses: { magic: 3, resistance: 2, maxMp: 8 } }, { slot: "身體", name: "旅者披風", element: null, bonuses: { defense: 2, resistance: 1 } }],
   },
   itemCatalog: {
+    cloth_robe: { key: "cloth_robe", name: "布衣", type: "equipment", price: 12, slot: "身體", armorClass: "一般裝甲", element: null, description: "最基礎的布製上衣。", bonuses: { defense: 1 } },
+    cloth_pants: { key: "cloth_pants", name: "布褲", type: "equipment", price: 12, slot: "腿", armorClass: "一般裝甲", element: null, description: "最基礎的布製褲裝。", bonuses: { defense: 1 } },
+    grass_shoes: { key: "grass_shoes", name: "草鞋", type: "equipment", price: 10, slot: "腳", armorClass: "一般裝甲", element: null, description: "最基礎的鞋子。", bonuses: { speed: 1 } },
+    wood_sword: { key: "wood_sword", name: "木劍", type: "equipment", price: 15, slot: "主手", weaponType: "劍", element: null, description: "遊戲初始木製劍。", bonuses: { attack: 5 } },
+    wood_dagger: { key: "wood_dagger", name: "木匕首", type: "equipment", price: 15, slot: "主手", weaponType: "匕首", element: null, description: "適合靈活戰鬥的初階匕首。", bonuses: { attack: 5, speed: 1 } },
+    wood_long_staff: { key: "wood_long_staff", name: "木長杖", type: "equipment", price: 15, slot: "主手", weaponType: "長杖", element: null, description: "偏重魔法輸出的初始長杖。", bonuses: { magic: 5 } },
+    wood_short_staff: { key: "wood_short_staff", name: "木短杖", type: "equipment", price: 15, slot: "主手", weaponType: "短杖", element: null, description: "偏重恢復與穩定性的初始短杖。", bonuses: { magic: 3, resistance: 2 } },
+    wood_gauntlet: { key: "wood_gauntlet", name: "木拳套", type: "equipment", price: 15, slot: "主手", weaponType: "拳套", element: null, description: "武鬥家入門木製拳套。", bonuses: { attack: 5, speed: 1 } },
+    copper_sword: { key: "copper_sword", name: "銅劍", type: "equipment", price: 40, slot: "主手", weaponType: "劍", element: null, description: "比木劍更穩定的攻擊提升。", bonuses: { attack: 10 } },
+    iron_sword: { key: "iron_sword", name: "鐵劍", type: "equipment", price: 85, slot: "主手", weaponType: "劍", element: null, description: "中期近戰的實用劍。", bonuses: { attack: 20 } },
     potion_hp_s: { key: "potion_hp_s", name: "小型生命藥水", type: "consumable", price: 18, description: "回復 45 HP。", healHp: 45 },
     potion_mp_s: { key: "potion_mp_s", name: "小型魔力藥水", type: "consumable", price: 20, description: "回復 30 MP。", healMp: 30 },
-    leather_cap: { key: "leather_cap", name: "皮帽", type: "equipment", price: 40, slot: "頭", element: null, description: "基礎防具。", bonuses: { defense: 1, speed: 1 } },
+    leather_cap: { key: "leather_cap", name: "皮帽", type: "equipment", price: 40, slot: "頭", armorClass: "輕型裝甲", element: null, description: "基礎輕裝頭部防具。", bonuses: { defense: 1, speed: 1 } },
     stone_ring: { key: "stone_ring", name: "岩環", type: "equipment", price: 55, slot: "飾品1", element: "地", description: "提高防禦與抵抗。", bonuses: { defense: 2, resistance: 1 } },
-    ember_blade: { key: "ember_blade", name: "餘燼短劍", type: "equipment", price: 70, slot: "主手", element: "火", description: "帶火屬性的輕型武器。", bonuses: { attack: 5 } },
+    ember_blade: { key: "ember_blade", name: "餘燼短劍", type: "equipment", price: 70, slot: "主手", weaponType: "劍", element: "火", description: "帶火屬性的輕型武器。", bonuses: { attack: 5 } },
     moon_charm: { key: "moon_charm", name: "月影護符", type: "equipment", price: 72, slot: "飾品2", element: "月", description: "提高運氣與魔法。", bonuses: { magic: 2, luck: 2 } },
-    gale_boots: { key: "gale_boots", name: "疾風靴", type: "equipment", price: 68, slot: "腳", element: "風", description: "讓步伐更輕盈。", bonuses: { speed: 3 } },
+    gale_boots: { key: "gale_boots", name: "疾風靴", type: "equipment", price: 68, slot: "腳", armorClass: "輕型裝甲", element: "風", description: "讓步伐更輕盈。", bonuses: { speed: 3 } },
     sun_emblem: { key: "sun_emblem", name: "日耀徽章", type: "equipment", price: 75, slot: "飾品3", element: "日", description: "強化天法與抗性。", bonuses: { magic: 2, resistance: 2 } },
+    mage_staff: { key: "mage_staff", name: "魔法師之杖", type: "equipment", price: 45, slot: "主手", weaponType: "長杖", element: null, description: "比木長杖更強的法術輸出武器。", bonuses: { magic: 10 } },
+    prayer_short_staff: { key: "prayer_short_staff", name: "祈禱短杖", type: "equipment", price: 45, slot: "主手", weaponType: "短杖", element: null, description: "支援型職業適用的短杖。", bonuses: { magic: 6, resistance: 4 } },
   },
-  shopItems: ["potion_hp_s", "potion_mp_s", "leather_cap", "stone_ring", "ember_blade", "gale_boots", "sun_emblem"],
+  shopItems: ["potion_hp_s", "potion_mp_s", "copper_sword", "iron_sword", "mage_staff", "prayer_short_staff", "leather_cap", "stone_ring", "ember_blade", "gale_boots", "sun_emblem"],
   monsters: [
     { code: "slime", name: "草原史萊姆", category: "normal", level: 1, elements: ["水"], hp: 55, mp: 10, attack: 8, defense: 5, magic: 6, resistance: 6, speed: 7, luck: 4, exp: 20, gold: 8, note: "黏液衝擊", drops: ["potion_hp_s", "potion_mp_s"] },
     { code: "wolf", name: "狂牙野狼", category: "normal", level: 2, elements: ["風"], hp: 70, mp: 10, attack: 12, defense: 7, magic: 4, resistance: 5, speed: 12, luck: 5, exp: 28, gold: 12, note: "撕裂撲擊", drops: ["potion_hp_s", "leather_cap"] },
@@ -89,7 +139,6 @@ const classAutoGrowth = {
   "僧侶": { maxHp: 10, maxMp: 11, attack: 1, defense: 2, magic: 3, resistance: 3, speed: 1, luck: 1 },
   "旅行者": { maxHp: 11, maxMp: 8, attack: 2, defense: 2, magic: 2, resistance: 2, speed: 2, luck: 2 },
   "盜賊": { maxHp: 10, maxMp: 5, attack: 3, defense: 1, magic: 1, resistance: 1, speed: 4, luck: 2 },
-  "馴獸師": { maxHp: 12, maxMp: 8, attack: 2, defense: 2, magic: 2, resistance: 2, speed: 2, luck: 1 },
 };
 
 const state = { db: null, currentPlayer: null, battle: null, screen: "landing" };
@@ -372,6 +421,8 @@ function renderInventory(message = "") {
         <div class="choice-card">
           <h4>${item.name}</h4>
           <p>${item.description || ""}</p>
+          ${item.weaponType ? `<p>武器種類：${item.weaponType}</p>` : ""}
+          ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
           ${item.type === "equipment" ? `<p>強度評分：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p><p>${compareItemAgainstEquipped(item, player.equipment)}</p>` : ""}
           <p>種類：${item.type === "consumable" ? "消耗品" : "裝備"}${item.quantity ? ` | 數量 ${item.quantity}` : ""}</p>
           ${item.element ? `<p class="${elementClassName(item.element)}">屬性：${item.element}</p>` : ""}
@@ -446,6 +497,8 @@ function renderShop(message = "") {
           <div class="choice-card">
             <h4>${item.name}</h4>
             <p>${item.description}</p>
+            ${item.weaponType ? `<p>武器種類：${item.weaponType}</p>` : ""}
+            ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
             ${item.type === "equipment" ? `<p>強度評分：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p><p>${compareItemAgainstEquipped(item, player.equipment)}</p>` : ""}
             <p>價格：${item.price} 金幣</p>
             ${item.element ? `<p class="${elementClassName(item.element)}">屬性：${item.element}</p>` : ""}
@@ -595,7 +648,8 @@ async function startBattle(category) {
     monsterHp: monster.hp,
     turn: 1,
     log: [`遭遇 ${monster.name}！`],
-    buffs: { attack: 0, defense: 0, resistance: 0, evade: 0, dragon: 0 },
+    buffs: { attack: 0, defense: 0, magic: 0, resistance: 0, speed: 0, evade: 0, dragon: 0 },
+    monsterAilments: createMonsterAilments(),
     dwarfGuardUsed: false,
     companions: (player.companions || []).map(companion => ({ ...structuredClone(companion) })),
   };
@@ -632,6 +686,7 @@ function renderBattle() {
           <h4>${monster.name}</h4>
           <p>HP ${battle.monsterHp} / ${monster.hp}</p>
           <p>屬性 ${monster.elements.join(" / ")}</p>
+          <p>狀態 ${formatMonsterAilments(battle.monsterAilments)}</p>
           <p>技能 ${monster.note}</p>
         </div>
         <div class="battle-actions">
@@ -703,7 +758,7 @@ async function performBattleTurn(action) {
     battle.log.push("你已倒下，由同伴接手戰鬥。");
   } else if (action.type === "attack") {
     const weapon = player.equipment.find(item => item.slot === "主手");
-    const damage = dealDamage(stats.attack, monster.defense, 1 + dualWieldBonus(player), weapon?.element, monster);
+    const damage = dealDamage(stats.attack, monsterBattleStats(monster, battle).defense, 1 + dualWieldBonus(player), weapon?.element, monster);
     battle.monsterHp = Math.max(0, battle.monsterHp - damage);
     battle.log.push(`${player.name} 的普通攻擊造成 ${damage} 點傷害。`);
     applyLifesteal(player, damage, battle);
@@ -741,6 +796,11 @@ async function performBattleTurn(action) {
   }
 
   monsterTurn(player, battle, monster, defend);
+  if (battle.monsterHp <= 0) {
+    syncBattleCompanions(player, battle);
+    await finishVictory();
+    return;
+  }
   if (partyDefeated(player, battle)) {
     battle.log.push("全隊倒下了，戰鬥失敗。");
     player.hp = Math.max(1, Math.floor(player.maxHp / 4));
@@ -763,42 +823,158 @@ async function performBattleTurn(action) {
 }
 
 function handleSkill(skill, player, battle, monster, stats) {
+  const monsterStats = monsterBattleStats(monster, battle);
+
   if (skill.kind === "attack") {
-    const targetDefense = skill.stat === "magic" ? monster.resistance : monster.defense;
-    const damage = dealDamage(stats[skill.stat], targetDefense, skill.power, skill.element, monster);
-    battle.monsterHp = Math.max(0, battle.monsterHp - damage);
-    battle.log.push(`${player.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
-    applyLifesteal(player, damage, battle);
-    if (player.raceName === "精靈" && skill.stat === "magic" && Math.random() < 0.35) {
-      player.mp = Math.min(effectiveStats(player).maxMp, player.mp + 5);
-      battle.log.push("自然共鳴發動，回復 5 MP。");
-    }
+    return castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+  }
+  if (skill.kind === "attackDebuffDefense") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    applyMonsterAilment(battle, "defenseDown", skill.duration || 3, `${monster.name} 的防禦被削弱。`);
+    return;
+  }
+  if (skill.kind === "attackDebuffAttack") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    applyMonsterAilment(battle, "attackDown", skill.duration || 3, `${monster.name} 的攻擊被壓制。`);
+    return;
+  }
+  if (skill.kind === "attackDebuffResistance") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    applyMonsterAilment(battle, "resistanceDown", skill.duration || 3, `${monster.name} 的魔法抗性下降。`);
+    return;
+  }
+  if (skill.kind === "attackDebuffSpeed") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    applyMonsterAilment(battle, "speedDown", skill.duration || 3, `${monster.name} 的行動變慢了。`);
+    return;
+  }
+  if (skill.kind === "attackStun") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    tryApplyChanceAilment(battle, "stun", skill, monster.name, "被震得暈頭轉向");
+    return;
+  }
+  if (skill.kind === "attackFreeze") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    tryApplyChanceAilment(battle, "freeze", skill, monster.name, "被寒氣凍結");
+    return;
+  }
+  if (skill.kind === "attackBurn") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    tryApplyChanceAilment(battle, "burn", skill, monster.name, "陷入灼燒");
+    return;
+  }
+  if (skill.kind === "attackParalyze") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    tryApplyChanceAilment(battle, "paralyze", skill, monster.name, "陷入麻痺");
+    return;
+  }
+  if (skill.kind === "attackDrain") {
+    const damage = castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    const heal = Math.max(1, Math.floor(damage * 0.35));
+    player.hp = Math.min(stats.maxHp, player.hp + heal);
+    battle.log.push(`${skill.name} 吸收月力，回復 ${heal} HP。`);
+    return;
+  }
+  if (skill.kind === "attackBuffSpeed") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    battle.buffs.speed = Math.max(battle.buffs.speed, 3);
+    battle.buffs.evade = Math.max(battle.buffs.evade, 0.1);
+    battle.log.push(`${player.name} 的步調變得更加輕盈。`);
     return;
   }
   if (skill.kind === "heal") {
-    let heal = Math.floor(stats.magic * skill.power + randomInt(4, 10));
-    if (player.raceName === "天翼族") heal = Math.floor(heal * 1.2);
+    const heal = holyHealAmount(player, skill, stats, skill.power, 4, 10);
     player.hp = Math.min(stats.maxHp, player.hp + heal);
     battle.log.push(`${player.name} 施放 ${skill.name}，回復 ${heal} HP。`);
     return;
   }
+  if (skill.kind === "cleanse") {
+    const heal = holyHealAmount(player, skill, stats, 0.6, 0, 4);
+    player.hp = Math.min(stats.maxHp, player.hp + heal);
+    battle.log.push(`${player.name} 施放 ${skill.name}，驅散負面氣息並回復 ${heal} HP。`);
+    return;
+  }
+  if (skill.kind === "cleanseAll") {
+    const heal = holyHealAmount(player, skill, stats, 0.55, 2, 6);
+    player.hp = Math.min(stats.maxHp, player.hp + heal);
+    (battle.companions || []).forEach(companion => {
+      companion.hp = Math.min(companion.maxHp, companion.hp + heal);
+    });
+    battle.log.push(`${player.name} 施放 ${skill.name}，淨化全隊並回復 ${heal} HP。`);
+    return;
+  }
+  if (skill.kind === "healAll") {
+    const amount = holyHealAmount(player, skill, stats, skill.power, 6, 12);
+    player.hp = Math.min(stats.maxHp, player.hp + amount);
+    (battle.companions || []).forEach(companion => {
+      companion.hp = Math.min(companion.maxHp, companion.hp + amount);
+    });
+    battle.log.push(`${player.name} 施放 ${skill.name}，全隊回復 ${amount} HP。`);
+    return;
+  }
+  if (skill.kind === "fullHeal") {
+    player.hp = stats.maxHp;
+    player.mp = Math.min(stats.maxMp, player.mp + Math.floor(stats.maxMp * 0.25));
+    (battle.companions || []).forEach(companion => {
+      companion.hp = companion.maxHp;
+    });
+    battle.log.push(`${player.name} 施放 ${skill.name}，全隊恢復到最佳狀態。`);
+    return;
+  }
   if (skill.kind === "buffAttack") {
-    battle.buffs.attack = 3;
+    battle.buffs.attack = Math.max(battle.buffs.attack, 3);
     battle.log.push(`${player.name} 的攻擊提升 3 回合。`);
     return;
   }
   if (skill.kind === "buffDefense") {
-    battle.buffs.defense = 3;
+    battle.buffs.defense = Math.max(battle.buffs.defense, 3);
     battle.log.push(`${player.name} 的防禦提升 3 回合。`);
     return;
   }
   if (skill.kind === "buffResistance") {
-    battle.buffs.resistance = 3;
+    battle.buffs.resistance = Math.max(battle.buffs.resistance, 3);
     battle.log.push(`${player.name} 的抵抗提升 3 回合。`);
     return;
   }
+  if (skill.kind === "buffAttackParty") {
+    battle.buffs.attack = Math.max(battle.buffs.attack, 3);
+    battle.log.push(`${player.name} 施放 ${skill.name}，全隊攻擊氣勢高漲。`);
+    return;
+  }
+  if (skill.kind === "buffAttackDefense") {
+    battle.buffs.attack = Math.max(battle.buffs.attack, 3);
+    battle.buffs.defense = Math.max(battle.buffs.defense, 3);
+    battle.log.push(`${player.name} 施放 ${skill.name}，攻擊與防禦同步提升。`);
+    return;
+  }
+  if (skill.kind === "buffMagicResistance") {
+    battle.buffs.magic = Math.max(battle.buffs.magic, 3);
+    battle.buffs.resistance = Math.max(battle.buffs.resistance, 3);
+    battle.log.push(`${player.name} 施放 ${skill.name}，魔法與抵抗同步提升。`);
+    return;
+  }
+  if (skill.kind === "buffSpeedParty") {
+    battle.buffs.speed = Math.max(battle.buffs.speed, 3);
+    battle.buffs.evade = Math.max(battle.buffs.evade, 0.2);
+    battle.log.push(`${player.name} 施放 ${skill.name}，全隊行動更敏捷。`);
+    return;
+  }
+  if (skill.kind === "revive") {
+    const fallen = [player].concat(battle.companions || []).filter(member => member.hp <= 0);
+    if (!fallen.length) {
+      battle.log.push(`${skill.name} 沒有找到可復活的目標。`);
+      return;
+    }
+    fallen.forEach(member => {
+      member.hp = Math.floor(member.maxHp * 0.45);
+      member.mp = Math.floor(member.maxMp * 0.35);
+    });
+    battle.log.push(`${player.name} 施放 ${skill.name}，倒下的同伴重新站起來了。`);
+    return;
+  }
   if (skill.kind === "evade") {
-    battle.buffs.evade = 0.2;
+    battle.buffs.speed = Math.max(battle.buffs.speed, 2);
+    battle.buffs.evade = Math.max(battle.buffs.evade, 0.2);
     battle.log.push(`${player.name} 的閃避率大幅提高。`);
   }
 }
@@ -822,18 +998,28 @@ function handleRaceSkill(player, battle) {
 }
 
 function monsterTurn(player, battle, monster, defend) {
-  const partyTargets = [{ type: "player", actor: player, stats: battleStats(player, battle), defend }].concat(
-    (battle.companions || [])
-      .filter(companion => companion.hp > 0)
-      .map(companion => ({ type: "companion", actor: companion, stats: companionStats(companion), defend: false }))
-  );
+  const ailmentResult = processMonsterAilments(battle, monster);
+  if (ailmentResult === "defeated") return;
+  if (ailmentResult === "skip") return;
+
+  const monsterStats = monsterBattleStats(monster, battle);
+  const partyTargets = [];
+  if (player.hp > 0) {
+    partyTargets.push({ type: "player", actor: player, stats: battleStats(player, battle), defend });
+  }
+  (battle.companions || [])
+    .filter(companion => companion.hp > 0)
+    .forEach(companion => {
+      partyTargets.push({ type: "companion", actor: companion, stats: companionStats(companion, battle), defend: false });
+    });
+  if (!partyTargets.length) return;
   const target = partyTargets[Math.floor(Math.random() * partyTargets.length)];
-  const evadeRate = Math.min(0.35, 0.05 + Math.max(0, target.stats.speed - monster.speed) * 0.01 + (target.type === "player" ? battle.buffs.evade : 0));
+  const evadeRate = Math.min(0.5, 0.05 + Math.max(0, target.stats.speed - monsterStats.speed) * 0.01 + battle.buffs.evade);
   if (Math.random() < evadeRate) {
     battle.log.push(`${target.actor.name} 閃過了 ${monster.name} 的攻擊。`);
     return;
   }
-  let damage = Math.max(1, monster.attack - Math.floor(target.stats.defense / 2) + randomInt(0, 4));
+  let damage = Math.max(1, monsterStats.attack - Math.floor(target.stats.defense / 2) + randomInt(0, 4));
   if (target.defend) damage = Math.floor(damage * 0.65);
   if (target.type === "player" && player.raceName === "矮人" && !battle.dwarfGuardUsed) {
     damage = Math.floor(damage * 0.7);
@@ -918,7 +1104,7 @@ function buildPlayer(name, raceCode, classCode) {
     ...stats,
     gold: 30,
     branches: job.branches.map(name => ({ name, level: 0 })),
-    equipment: structuredClone(data.equipment[job.name] || []),
+    equipment: starterEquipmentForClass(job.name),
     companions: [],
     inventory: [
       { ...structuredClone(data.itemCatalog.potion_hp_s), quantity: 2 },
@@ -954,7 +1140,9 @@ function battleStats(player, battle) {
   if (player.raceName === "獸人" && player.hp <= stats.maxHp * 0.4) stats.attack += 5;
   if (battle.buffs.attack) stats.attack += 5;
   if (battle.buffs.defense) stats.defense += 5;
+  if (battle.buffs.magic) stats.magic += 5;
   if (battle.buffs.resistance) stats.resistance += 5;
+  if (battle.buffs.speed) stats.speed += 5;
   if (battle.buffs.dragon) {
     stats.attack += 6;
     stats.magic += 6;
@@ -986,17 +1174,95 @@ function dualWieldBonus(player) {
 }
 
 function skillCost(player, skill) {
-  if (player.raceName === "天翼族" && skill.element === "日" && ["heal", "buffResistance"].includes(skill.kind)) {
+  if (player.raceName === "天翼族" && skill.school === "天法") {
     return Math.max(1, Math.floor(skill.cost * 0.8));
   }
   return skill.cost;
 }
 
+function createMonsterAilments() {
+  return { burn: 0, freeze: 0, paralyze: 0, stun: 0, attackDown: 0, defenseDown: 0, resistanceDown: 0, speedDown: 0 };
+}
+
+function monsterBattleStats(monster, battle) {
+  const ailments = battle?.monsterAilments || createMonsterAilments();
+  return {
+    attack: Math.max(1, monster.attack - (ailments.attackDown ? 5 : 0)),
+    defense: Math.max(0, monster.defense - (ailments.defenseDown ? 6 : 0)),
+    resistance: Math.max(0, monster.resistance - (ailments.resistanceDown ? 6 : 0)),
+    speed: Math.max(1, monster.speed - (ailments.speedDown ? 5 : 0) - (ailments.freeze ? 4 : 0)),
+  };
+}
+
+function castAttackSkill(skill, player, battle, monster, stats, monsterStats) {
+  const targetDefense = skill.stat === "magic" ? monsterStats.resistance : monsterStats.defense;
+  const damage = dealDamage(stats[skill.stat], targetDefense, skill.power, skill.element, monster);
+  battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+  battle.log.push(`${player.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
+  applyLifesteal(player, damage, battle);
+  if (player.raceName === "精靈" && skill.stat === "magic" && Math.random() < 0.35) {
+    player.mp = Math.min(effectiveStats(player).maxMp, player.mp + 5);
+    battle.log.push("自然共鳴發動，回復 5 MP。");
+  }
+  return damage;
+}
+
+function holyHealAmount(player, skill, stats, power, bonusMin, bonusMax) {
+  let heal = Math.floor(stats.magic * power + randomInt(bonusMin, bonusMax));
+  if (player.raceName === "天翼族" && skill.school === "天法") {
+    heal = Math.floor(heal * 1.2);
+  }
+  return heal;
+}
+
+function applyMonsterAilment(battle, key, duration, message) {
+  if (!battle.monsterAilments) battle.monsterAilments = createMonsterAilments();
+  battle.monsterAilments[key] = Math.max(battle.monsterAilments[key] || 0, duration);
+  if (message) battle.log.push(message);
+}
+
+function tryApplyChanceAilment(battle, key, skill, monsterName, detail) {
+  if (Math.random() >= (skill.chance || 0)) return;
+  applyMonsterAilment(battle, key, skill.duration || 2, `${monsterName} ${detail}。`);
+}
+
+function processMonsterAilments(battle, monster) {
+  const ailments = battle.monsterAilments || createMonsterAilments();
+  if (ailments.burn > 0) {
+    const damage = Math.max(4, Math.floor(monster.hp * 0.06) + randomInt(1, 4));
+    battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+    battle.log.push(`${monster.name} 受到灼燒傷害 ${damage} 點。`);
+    if (battle.monsterHp <= 0) return "defeated";
+  }
+  if (ailments.stun > 0) {
+    battle.log.push(`${monster.name} 仍在暈眩中，行動失敗。`);
+    return "skip";
+  }
+  if (ailments.freeze > 0 && Math.random() < 0.55) {
+    battle.log.push(`${monster.name} 被冰封牽制，無法順利出手。`);
+    return "skip";
+  }
+  if (ailments.paralyze > 0 && Math.random() < 0.4) {
+    battle.log.push(`${monster.name} 因麻痺而動作停滯。`);
+    return "skip";
+  }
+  return "act";
+}
+
+function formatMonsterAilments(ailments = {}) {
+  const labels = { burn: "灼燒", freeze: "冰凍", paralyze: "麻痺", stun: "暈眩", attackDown: "攻擊下降", defenseDown: "防禦下降", resistanceDown: "抗性下降", speedDown: "速度下降" };
+  const active = Object.entries(ailments).filter(([, value]) => value > 0).map(([key, value]) => `${labels[key]} ${value}`);
+  return active.length ? active.join(" / ") : "無";
+}
+
 function tickBuffs(battle) {
-  ["attack", "defense", "resistance", "dragon"].forEach(key => {
+  ["attack", "defense", "magic", "resistance", "speed", "dragon"].forEach(key => {
     if (battle.buffs[key] > 0) battle.buffs[key] -= 1;
   });
   battle.buffs.evade = Math.max(0, battle.buffs.evade - 0.15);
+  Object.keys(battle.monsterAilments || {}).forEach(key => {
+    if (battle.monsterAilments[key] > 0) battle.monsterAilments[key] -= 1;
+  });
 }
 
 async function restPlayer() {
@@ -1072,6 +1338,23 @@ function normalizePlayer(player) {
   player.companions = player.companions.map(companion => ({ ...companion, level: companion.level || 1, classLevel: companion.classLevel || 1 }));
 }
 
+function starterEquipmentForClass(className) {
+  const basicArmor = [
+    structuredClone(data.itemCatalog.cloth_robe),
+    structuredClone(data.itemCatalog.cloth_pants),
+    structuredClone(data.itemCatalog.grass_shoes),
+  ];
+  const weapons = {
+    "戰士": [structuredClone(data.itemCatalog.wood_sword)],
+    "武鬥家": [structuredClone(data.itemCatalog.wood_gauntlet)],
+    "魔法師": [structuredClone(data.itemCatalog.wood_long_staff)],
+    "僧侶": [structuredClone(data.itemCatalog.wood_short_staff)],
+    "旅行者": [structuredClone(data.itemCatalog.wood_sword)],
+    "盜賊": [structuredClone(data.itemCatalog.wood_dagger), { ...structuredClone(data.itemCatalog.wood_dagger), slot: "副手" }],
+  };
+  return basicArmor.concat(weapons[className] || []);
+}
+
 function rollDrop(monster) {
   if (!monster.drops?.length) return null;
   const rate = monster.category === "story" ? 1 : monster.category === "dungeon" ? 0.8 : 0.55;
@@ -1114,6 +1397,8 @@ function equipInventoryItem(index) {
   const item = player.inventory[index];
   if (!item) return "找不到這個物品。";
   if (item.type !== "equipment") return "這個物品不是裝備。";
+  const equipCheck = canEquipItem(player.className, item);
+  if (equipCheck !== true) return equipCheck;
   const equipIndex = player.equipment.findIndex(equip => equip.slot === item.slot);
   if (equipIndex >= 0) {
     player.inventory.push(player.equipment[equipIndex]);
@@ -1194,8 +1479,8 @@ function applyClassLevelGrowth(target, className) {
   });
 }
 
-function companionStats(companion) {
-  return {
+function companionStats(companion, battle = null) {
+  const stats = {
     maxHp: companion.maxHp,
     maxMp: companion.maxMp,
     attack: companion.attack,
@@ -1205,6 +1490,12 @@ function companionStats(companion) {
     speed: companion.speed,
     luck: companion.luck,
   };
+  if (battle?.buffs?.attack) stats.attack += 5;
+  if (battle?.buffs?.defense) stats.defense += 5;
+  if (battle?.buffs?.magic) stats.magic += 5;
+  if (battle?.buffs?.resistance) stats.resistance += 5;
+  if (battle?.buffs?.speed) stats.speed += 5;
+  return stats;
 }
 
 function companionTurn(battle, monster) {
@@ -1212,25 +1503,29 @@ function companionTurn(battle, monster) {
     if (battle.monsterHp <= 0) return;
     const skill = data.classSkills[companion.className]?.[0];
     if (skill && companion.mp >= skill.cost && Math.random() < 0.45) {
+      const stats = companionStats(companion, battle);
       companion.mp -= skill.cost;
       if (skill.kind === "attack") {
-        const damage = dealDamage(companion[skill.stat], skill.stat === "magic" ? monster.resistance : monster.defense, skill.power, skill.element, monster);
+        const monsterStats = monsterBattleStats(monster, battle);
+        const damage = dealDamage(stats[skill.stat], skill.stat === "magic" ? monsterStats.resistance : monsterStats.defense, skill.power, skill.element, monster);
         battle.monsterHp = Math.max(0, battle.monsterHp - damage);
         battle.log.push(`${companion.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
       } else if (skill.kind === "heal") {
         const target = lowestHpPartyMember(state.currentPlayer, battle);
         if (target) {
-          const heal = Math.floor(companion.magic * skill.power + randomInt(4, 8));
+          const heal = Math.floor(stats.magic * skill.power + randomInt(4, 8));
           target.hp = Math.min(target.maxHp, target.hp + heal);
           battle.log.push(`${companion.name} 施放 ${skill.name}，替 ${target.name} 回復 ${heal} HP。`);
         }
       } else {
-        const damage = Math.max(1, Math.floor(companion.attack * 1.1));
+        const damage = Math.max(1, Math.floor(stats.attack * 1.1));
         battle.monsterHp = Math.max(0, battle.monsterHp - damage);
         battle.log.push(`${companion.name} 趁勢追擊，造成 ${damage} 點傷害。`);
       }
     } else {
-      const damage = Math.max(1, Math.floor(companion.attack - monster.defense / 2 + randomInt(0, 4)));
+      const monsterStats = monsterBattleStats(monster, battle);
+      const stats = companionStats(companion, battle);
+      const damage = Math.max(1, Math.floor(stats.attack - monsterStats.defense / 2 + randomInt(0, 4)));
       battle.monsterHp = Math.max(0, battle.monsterHp - damage);
       battle.log.push(`${companion.name} 協力攻擊，造成 ${damage} 點傷害。`);
     }
@@ -1251,7 +1546,7 @@ function partyDefeated(player, battle) {
 }
 
 function renderEquipmentCard(item) {
-  return `<div class="stat ${item.element ? elementClassName(item.element) : ""}"><strong>${item.slot}</strong><p>${item.name}${item.element ? ` [${item.element}]` : ""}</p><p>強度：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p></div>`;
+  return `<div class="stat ${item.element ? elementClassName(item.element) : ""}"><strong>${item.slot}</strong><p>${item.name}${item.element ? ` [${item.element}]` : ""}</p>${item.weaponType ? `<p>武器：${item.weaponType}</p>` : ""}${item.armorClass ? `<p>裝甲：${item.armorClass}</p>` : ""}<p>強度：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p></div>`;
 }
 
 function elementClassName(element) {
@@ -1321,6 +1616,32 @@ function renderPageLinks(active) {
       ${links.map(([key, label]) => `<button class="page-link ${active === key ? "active" : ""}" type="button" data-page-link="${key}">${label}</button>`).join("")}
     </div>
   `;
+}
+
+function canEquipItem(className, item) {
+  const weaponRules = {
+    "戰士": ["劍", "斧", "鎚", "雙手劍"],
+    "武鬥家": ["拳套"],
+    "魔法師": ["長杖"],
+    "僧侶": ["短杖", "鎚"],
+    "旅行者": ["劍", "短杖"],
+    "盜賊": ["匕首"],
+  };
+  const armorRules = {
+    "戰士": ["重型裝甲", "一般裝甲"],
+    "武鬥家": ["輕型裝甲", "一般裝甲"],
+    "魔法師": ["魔法裝甲", "一般裝甲"],
+    "僧侶": ["輕型裝甲", "魔法裝甲", "一般裝甲"],
+    "旅行者": ["重型裝甲", "輕型裝甲", "魔法裝甲", "一般裝甲"],
+    "盜賊": ["輕型裝甲", "一般裝甲"],
+  };
+  if (item.weaponType && !(weaponRules[className] || []).includes(item.weaponType)) {
+    return `${className} 無法裝備 ${item.weaponType}。`;
+  }
+  if (item.armorClass && !(armorRules[className] || []).includes(item.armorClass)) {
+    return `${className} 無法裝備 ${item.armorClass}。`;
+  }
+  return true;
 }
 
 function attachPageLinks() {

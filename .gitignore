@@ -6,6 +6,9 @@ data/game.db
 
 tools/python-3.12.3-embeddable-amd64.zip
 tools/sqlite-tools-win-x64-3510100.zip
+tools/dearpygui-*.whl
+tools/dearpygui/
+tools/get-pip.py
 tools/python312/
 tools/sqlite/
 
