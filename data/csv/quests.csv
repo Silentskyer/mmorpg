@@ -1,0 +1,9 @@
+﻿quest_id,story_stage,chapter_id,title,objective_type,target_code,target_count,description,reward_exp,reward_gold,reward_item,is_main
+main_1,1,chapter_1,討伐裂口巨狼王,defeat,wolf_king,1,前往裂口之森並擊敗裂口巨狼王，恢復新手道路安全。,60,35,wood_shield,1
+main_2,2,chapter_2,淨化腐化樹靈,defeat,tree_spirit,1,進入腐根林地，擊敗腐化樹靈並讓林地恢復生機。,95,55,moon_charm,1
+main_3,3,chapter_3,突破砂暴峽口,defeat,desert_rex,1,在砂暴峽口擊倒砂塵暴君，重新打通商隊往來要道。,150,90,steel_axe_fire,1
+main_4,4,chapter_4,平息深潮海眼,defeat,sea_serpent,1,討伐深潮海蛇，解除沿海區域的潮雷災害。,190,120,frost_ring,1
+main_5,5,chapter_5,奪回天穹航路,defeat,sky_tyrant,1,擊敗蒼穹霸鳥，讓高空航路重新開放。,235,150,storm_greatsword,1
+main_6,6,chapter_6,封鎖月蝕墓園,defeat,moon_reaper,1,深入蝕月墓園擊敗月蝕收割者，阻止亡影持續外溢。,290,190,moon_greatsword,1
+main_7,7,chapter_7,奪回日輪核心,defeat,sun_hierophant,1,在日輪神壇打倒大祭司，奪回被扭曲的日輪力量。,340,230,saint_robe,1
+main_8,8,chapter_8,討伐虛蝕龍王,defeat,void_dragon,1,前往虛蝕龍域最深處，完成最終決戰並終結世界異變。,520,360,dragon_eye,1

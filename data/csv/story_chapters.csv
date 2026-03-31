@@ -1,0 +1,9 @@
+﻿chapter_id,story_stage,title,area_id,boss_code,summary,reward_gold,reward_item
+chapter_1,1,裂口巨狼的呼號,story_1,wolf_king,冒險者公會委託你調查綠原平野外圍的裂口之森，討伐襲擊商隊的狼王。,35,wood_shield
+chapter_2,2,腐根林地的低語,story_2,tree_spirit,樹靈遭到月屬性污染，林地失去生機，你必須深入腐根林地淨化暴走核心。,55,moon_charm
+chapter_3,3,砂暴峽口的暴君,story_3,desert_rex,峽口商路被砂塵暴君封鎖，必須突破灼熱沙暴並擊退巨獸。,90,steel_axe_fire
+chapter_4,4,深潮海眼的咆哮,story_4,sea_serpent,海蛇自深潮海眼甦醒，港鎮漁隊無法出海，你受命前往海眼平息災厄。,120,frost_ring
+chapter_5,5,天穹裂谷的王影,story_5,sky_tyrant,飛禽霸主盤據高空裂谷，切斷山道與王都聯繫，必須在暴風中奪回天空航路。,150,storm_greatsword
+chapter_6,6,蝕月墓園的收割者,story_6,moon_reaper,墓園深處的月蝕收割者持續召喚亡影，王都要求立即封鎖並討伐。,190,moon_greatsword
+chapter_7,7,日輪神壇的審判,story_7,sun_hierophant,日輪大祭司以扭曲的聖光阻擋前路，你必須突破神壇結界，奪回日輪核心。,230,saint_robe
+chapter_8,8,虛蝕龍域的終末,story_8,void_dragon,所有異象的源頭終於顯現，虛蝕龍王吞噬七屬之力，最終決戰正式展開。,360,dragon_eye

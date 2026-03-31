@@ -1,0 +1,3 @@
+﻿key,name,type,price,heal_hp,heal_mp,description
+potion_hp_s,小型生命藥水,consumable,18,45,0,回復 45 HP。
+potion_mp_s,小型魔力藥水,consumable,20,0,30,回復 30 MP。

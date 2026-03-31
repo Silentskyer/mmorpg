@@ -26,6 +26,143 @@ body {
     radial-gradient(circle at bottom right, rgba(115, 58, 43, 0.18), transparent 24%),
     linear-gradient(135deg, #f7f3eb, #eadbc4 55%, #e7d2b5);
   min-height: 100vh;
+  transition: background 260ms ease, color 180ms ease;
+}
+
+body[data-area-theme="title"] {
+  background:
+    radial-gradient(circle at top left, rgba(219, 172, 101, 0.28), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(115, 58, 43, 0.18), transparent 24%),
+    linear-gradient(135deg, #f7f3eb, #eadbc4 55%, #e7d2b5);
+}
+
+body[data-area-theme="meadow"] {
+  --panel: #f7fff3;
+  --panel-strong: #ddf0d1;
+  --line: #b7d2a6;
+  --accent: #427a37;
+  --accent-strong: #2d5b26;
+  background:
+    radial-gradient(circle at top left, rgba(154, 209, 119, 0.3), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(103, 156, 88, 0.16), transparent 22%),
+    linear-gradient(135deg, #f7fff3, #d8efc5 55%, #c3e2a6);
+}
+
+body[data-area-theme="forest"],
+body[data-area-theme="corrupted"] {
+  --panel: #f4fbf2;
+  --panel-strong: #d6ead2;
+  --line: #a5c19f;
+  --accent: #3d6f4c;
+  --accent-strong: #254a31;
+  background:
+    radial-gradient(circle at top left, rgba(84, 131, 82, 0.34), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(43, 79, 51, 0.22), transparent 26%),
+    linear-gradient(145deg, #edf7ec, #cfe3c8 52%, #a9c198);
+}
+
+body[data-area-theme="corrupted"] {
+  --panel: #f6f2f7;
+  --panel-strong: #dfd4e4;
+  --line: #baa8c5;
+  --accent: #6f5377;
+  --accent-strong: #50365a;
+  background:
+    radial-gradient(circle at top left, rgba(102, 74, 116, 0.34), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(56, 39, 66, 0.24), transparent 26%),
+    linear-gradient(145deg, #f3eef6, #d7c6dc 52%, #b5a0bc);
+}
+
+body[data-area-theme="ember"],
+body[data-area-theme="lava"] {
+  --panel: #fff5ed;
+  --panel-strong: #f3d3be;
+  --line: #d6a283;
+  --accent: #b24e23;
+  --accent-strong: #7f2f11;
+  background:
+    radial-gradient(circle at top left, rgba(255, 155, 84, 0.34), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(162, 53, 18, 0.26), transparent 25%),
+    linear-gradient(145deg, #fff1e7, #f0c6a3 55%, #d97f56);
+}
+
+body[data-area-theme="desert"],
+body[data-area-theme="mine"] {
+  --panel: #fff9ee;
+  --panel-strong: #ecdab9;
+  --line: #d5b98d;
+  --accent: #9a6b26;
+  --accent-strong: #714b10;
+  background:
+    radial-gradient(circle at top left, rgba(221, 190, 117, 0.28), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(137, 104, 44, 0.2), transparent 26%),
+    linear-gradient(145deg, #fff8ea, #ead5ad 55%, #c9ad73);
+}
+
+body[data-area-theme="abyss"],
+body[data-area-theme="frost"] {
+  --panel: #f3fbff;
+  --panel-strong: #d6ebf2;
+  --line: #a8c8d5;
+  --accent: #2b7398;
+  --accent-strong: #184a67;
+  background:
+    radial-gradient(circle at top left, rgba(128, 193, 225, 0.28), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(26, 75, 111, 0.22), transparent 26%),
+    linear-gradient(145deg, #f2fbff, #d0e7f2 55%, #a8c8d8);
+}
+
+body[data-area-theme="sky"],
+body[data-area-theme="storm"] {
+  --panel: #f6fbff;
+  --panel-strong: #dbe5f6;
+  --line: #b6c6e2;
+  --accent: #4767a8;
+  --accent-strong: #304b81;
+  background:
+    radial-gradient(circle at top left, rgba(161, 188, 255, 0.28), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(67, 95, 163, 0.2), transparent 24%),
+    linear-gradient(145deg, #f8fbff, #d7e3f7 55%, #b6c8eb);
+}
+
+body[data-area-theme="twilight"],
+body[data-area-theme="moon"],
+body[data-area-theme="grave"] {
+  --panel: #f8f4ff;
+  --panel-strong: #e4d8f0;
+  --line: #c6b1da;
+  --accent: #6e52a5;
+  --accent-strong: #4c387a;
+  background:
+    radial-gradient(circle at top left, rgba(170, 134, 219, 0.28), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(74, 48, 114, 0.24), transparent 24%),
+    linear-gradient(145deg, #f8f3ff, #e0d3f0 52%, #c3aedf);
+}
+
+body[data-area-theme="sun"],
+body[data-area-theme="sanctum"] {
+  --panel: #fffcef;
+  --panel-strong: #f5e6b1;
+  --line: #dcc47f;
+  --accent: #b98d20;
+  --accent-strong: #896211;
+  background:
+    radial-gradient(circle at top left, rgba(255, 222, 111, 0.3), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(186, 139, 21, 0.2), transparent 24%),
+    linear-gradient(145deg, #fffdf2, #f6e8b7 52%, #eed37f);
+}
+
+body[data-area-theme="dragon"],
+body[data-area-theme="void"] {
+  --panel: #f6f4fb;
+  --panel-strong: #ddd7e9;
+  --line: #b8add1;
+  --accent: #6749a1;
+  --accent-strong: #422a73;
+  background:
+    radial-gradient(circle at top left, rgba(116, 88, 168, 0.32), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(34, 22, 58, 0.26), transparent 24%),
+    linear-gradient(145deg, #f4f1fb, #d7cfea 52%, #a793d1);
 }
 
 .shell {
@@ -166,6 +303,11 @@ body {
 .choice-card.selected {
   border-color: var(--accent);
   background: #fff2ea;
+}
+
+.area-current {
+  border-color: var(--accent);
+  box-shadow: 0 10px 26px rgba(63, 41, 20, 0.12);
 }
 
 .choice-card h4,

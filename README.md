@@ -1,34 +1,52 @@
-# 單機文字 MMORPG
+# 文字 MMORPG
+
+這個專案目前已收斂為「網頁版遊戲 + CSV/SQLite 資料工具」。
 
 ## 啟動方式
 
-直接雙擊專案中的 `index.html`，或用任何瀏覽器開啟它。
+直接開啟 [index.html](./index.html)。
 
-這個版本已改為點擊式操作，不需要 PowerShell 或 `cmd`。
+- 不需要 PowerShell、`cmd` 或桌面 GUI
+- 遊戲主介面由 [app.js](./app.js) 與 [styles.css](./styles.css) 驅動
+- 瀏覽器存檔使用本機儲存機制
 
-如果要啟動另一個桌面 GUI 視窗版：
+## 主要結構
 
-1. 先安裝 `requirements-desktop.txt`
-2. 執行 `python desktop_gui.py`
+- `index.html`
+  網頁版入口
+- `app.js`
+  遊戲主邏輯
+- `styles.css`
+  介面樣式
+- `data/csv/`
+  遊戲主資料表
+- `schema.sql`
+  對應 CSV 結構的 SQLite schema
+- `tools/import_csv_to_sqlite.py`
+  將 CSV 匯入 SQLite
+- `tools/export_sqlite_to_csv.py`
+  將 SQLite 匯出回 CSV
 
-## 目前版本內容
+## SQLite 同步
 
-- 點擊式圖形介面
-- 建立角色與讀取角色
-- 7 個種族
-- 7 個基礎職業
-- 背包與裝備替換
-- 商店系統
-- 自訂招募同伴，最多 3 位
-- 4 人隊伍戰鬥
-- 技能樹分支升級
-- 升級依職業自動成長
-- 職業等級上限 100
-- 野外、副本、主線戰鬥
-- 本機資料庫存檔
-- DearPyGui 桌面視窗版
+匯入 CSV 到 SQLite：
 
-## 資料儲存
+```powershell
+.\tools\python312\python.exe .\tools\import_csv_to_sqlite.py
+```
 
-- 新版資料儲存在瀏覽器的 IndexedDB
-- 舊版 Python / SQLite 檔案仍保留在專案中，方便後續延伸或比對
+匯出 SQLite 回 CSV：
+
+```powershell
+.\tools\python312\python.exe .\tools\export_sqlite_to_csv.py
+```
+
+預設資料庫檔案：
+
+- [data/game_from_csv.db](./data/game_from_csv.db)
+
+## 目前方向
+
+- 以網頁版為唯一主線版本
+- 遊戲資料優先維護於 `data/csv`
+- 需要結構化查詢或備份時，再同步到 SQLite

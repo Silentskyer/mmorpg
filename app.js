@@ -27,76 +27,101 @@ const data = {
   classes: [
     { code: "warrior", name: "戰士", armorType: "重型裝甲", description: "高生存近戰，擅長承受傷害。", advantage: "優勢：穩定扛傷，適合正面作戰。", bonuses: { maxHp: 20, attack: 5, defense: 5, resistance: 2, speed: -1 }, branches: ["守護系", "斬擊系", "反擊系"] },
     { code: "martial", name: "武鬥家", armorType: "輕型裝甲", description: "高速連擊與單體爆發。", advantage: "優勢：手感俐落，單體連打很強。", bonuses: { maxHp: 10, maxMp: 5, attack: 4, defense: 1, resistance: 1, speed: 5, luck: 1 }, branches: ["拳擊系", "氣功系", "連段系"] },
-    { code: "mage", name: "魔法師", armorType: "魔法裝甲", description: "操控多屬性魔法的法術專家。", advantage: "優勢：屬性魔法多樣，範圍輸出強。", bonuses: { maxHp: -5, maxMp: 30, defense: -2, magic: 8, resistance: 3, speed: 1 }, branches: ["大地系", "冰水系", "火焰系", "狂風系", "雷霆系"] },
+    { code: "mage", name: "魔法師", armorType: "魔法裝甲", description: "操控火焰、冰水與增幅魔法的法術專家。", advantage: "優勢：元素輸出穩定，還能用增幅法術強化節奏。", bonuses: { maxHp: -5, maxMp: 30, defense: -2, magic: 8, resistance: 3, speed: 1 }, branches: ["火焰系", "冰水系", "增幅系"] },
     { code: "monk", name: "僧侶", armorType: "輕型裝甲", description: "恢復、祈禱與增幅的支援核心。", advantage: "優勢：恢復與淨化能力最穩定。", bonuses: { maxHp: 5, maxMp: 25, defense: 1, magic: 5, resistance: 6, luck: 1 }, branches: ["天法系", "增幅系", "聖護系"] },
-    { code: "traveler", name: "旅行者", armorType: "一般裝甲", description: "平均泛用，兼具探索與輔助。", advantage: "優勢：適應性高，玩法彈性大。", bonuses: { maxHp: 5, maxMp: 10, attack: 2, defense: 2, magic: 2, resistance: 2, speed: 2, luck: 2 }, branches: ["求生系", "輔助系", "探索系"] },
-    { code: "rogue", name: "盜賊", armorType: "輕型裝甲", description: "高速暴擊與雙匕首靈活戰鬥。", advantage: "優勢：速度快，暴擊與雙持特色鮮明。", bonuses: { maxMp: 5, attack: 3, resistance: 1, speed: 7, luck: 4 }, branches: ["暗殺系", "影步系", "詭計系"] },
+    { code: "traveler", name: "旅行者", armorType: "一般裝甲", description: "平均泛用，兼具求生、斬擊與狂風技巧。", advantage: "優勢：生存彈性高，也能兼顧近戰與風屬性輸出。", bonuses: { maxHp: 5, maxMp: 10, attack: 2, defense: 2, magic: 2, resistance: 2, speed: 2, luck: 2 }, branches: ["求生系", "斬擊系", "狂風系"] },
+    { code: "rogue", name: "盜賊", armorType: "輕型裝甲", description: "高速暴擊與異常控制的靈活刺客。", advantage: "優勢：狀態妨害多，能靠影步與詭計掌控節奏。", bonuses: { maxMp: 5, attack: 3, resistance: 1, speed: 7, luck: 4 }, branches: ["異常系", "影步系", "詭計系"] },
   ],
   branchEffects: {
     "守護系": ["defense", 2], "斬擊系": ["attack", 2], "反擊系": ["luck", 1],
     "拳擊系": ["attack", 2], "氣功系": ["magic", 2], "連段系": ["speed", 2],
-    "火焰系": ["magic", 2], "冰水系": ["resistance", 2], "大地系": ["defense", 2], "狂風系": ["speed", 2], "雷霆系": ["magic", 2],
-    "天法系": ["magic", 2], "增幅系": ["maxMp", 5], "聖護系": ["resistance", 2],
-    "求生系": ["maxHp", 5], "輔助系": ["resistance", 1], "探索系": ["luck", 2],
-    "暗殺系": ["attack", 2], "影步系": ["speed", 2], "詭計系": ["luck", 2],
+    "火焰系": ["magic", 2], "冰水系": ["resistance", 2], "天法系": ["magic", 2], "增幅系": ["maxMp", 5], "聖護系": ["resistance", 2],
+    "求生系": ["maxHp", 5], "斬擊系": ["attack", 2], "狂風系": ["speed", 2],
+    "異常系": ["luck", 2], "影步系": ["speed", 2], "詭計系": ["luck", 2],
   },
   classSkills: {
-    "戰士": [{ name: "重斬", cost: 8, power: 1.75, kind: "attack", stat: "attack", element: null }, { name: "防禦姿態", cost: 6, power: 0, kind: "buffDefense", stat: "defense", element: null }],
-    "武鬥家": [{ name: "三連擊", cost: 9, power: 1.55, kind: "attack", stat: "attack", element: "風" }, { name: "聚氣", cost: 6, power: 0, kind: "buffAttack", stat: "attack", element: null }],
+    "戰士": [
+      { name: "護盾", cost: 5, power: 0, kind: "guardShield", stat: "defense", element: null },
+      { name: "防禦姿態", cost: 6, power: 0, kind: "buffDefense", stat: "defense", element: null },
+      { name: "群體嘲諷", cost: 8, power: 0, kind: "taunt", stat: "defense", element: null },
+      { name: "重斬", cost: 8, power: 1.75, kind: "attack", stat: "attack", element: null },
+      { name: "火焰斬", cost: 10, power: 1.9, kind: "attackBurn", stat: "attack", element: "火", chance: 0.3, duration: 2 },
+      { name: "旋風斬", cost: 12, power: 1.85, kind: "attack", stat: "attack", element: "風" },
+      { name: "隼斬", cost: 14, power: 0.95, kind: "multiHit", stat: "attack", hits: 2, element: null },
+      { name: "格擋反擊", cost: 8, power: 0, kind: "counterStance", stat: "defense", element: null },
+      { name: "戰意回復", cost: 10, power: 0.2, kind: "healPercent", stat: "attack", element: null },
+      { name: "決死反攻", cost: 0, power: 0, kind: "passiveDesperation", stat: "attack", element: null }
+    ],
+    "武鬥家": [
+      { name: "直拳", cost: 6, power: 1.45, kind: "attack", stat: "attack", element: null },
+      { name: "碎骨拳", cost: 9, power: 1.65, kind: "attackDebuffDefense", stat: "attack", element: null, duration: 3 },
+      { name: "貫突", cost: 10, power: 1.5, kind: "attackIgnoreDefense", stat: "attack", element: null },
+      { name: "聚氣", cost: 6, power: 0, kind: "chargeUp", stat: "attack", element: null },
+      { name: "氣彈", cost: 10, power: 1.7, kind: "chiBlast", stat: "attack", element: null },
+      { name: "真氣爆發", cost: 0, power: 0, kind: "passiveChiOnHit", stat: "attack", element: null },
+      { name: "三連擊", cost: 9, power: 0.68, kind: "multiHit", stat: "attack", hits: 3, element: null },
+      { name: "追打", cost: 11, power: 0.72, kind: "multiHit", stat: "attack", hits: 3, element: null },
+      { name: "極限連舞", cost: 16, power: 0.62, kind: "multiHit", stat: "attack", hits: 5, element: null }
+    ],
     "魔法師": [
-      { name: "碎石波", cost: 8, power: 1.45, kind: "attack", stat: "magic", element: "地" },
-      { name: "岩刺", cost: 10, power: 1.6, kind: "attackDebuffDefense", stat: "magic", element: "地", duration: 3 },
-      { name: "大地之槍", cost: 12, power: 1.9, kind: "attack", stat: "magic", element: "地" },
-      { name: "大地震", cost: 16, power: 2.1, kind: "attackStun", stat: "magic", element: "地", chance: 0.35, duration: 1 },
-      { name: "蓋亞之怒", cost: 22, power: 2.8, kind: "attackDebuffDefense", stat: "magic", element: "地", duration: 4 },
       { name: "水槍", cost: 8, power: 1.45, kind: "attack", stat: "magic", element: "水" },
-      { name: "酸雨", cost: 10, power: 1.55, kind: "attackDebuffResistance", stat: "magic", element: "水", duration: 3 },
+      { name: "酸雨", cost: 10, power: 1.55, kind: "attackPoison", stat: "magic", element: "水", chance: 0.2, duration: 3 },
       { name: "吹雪", cost: 12, power: 1.7, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.35, duration: 2 },
       { name: "暴風雪", cost: 14, power: 2.0, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.45, duration: 2 },
       { name: "霜天葬送", cost: 22, power: 2.85, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.65, duration: 3 },
-      { name: "火球", cost: 10, power: 1.8, kind: "attack", stat: "magic", element: "火" },
-      { name: "豪火柱", cost: 12, power: 1.95, kind: "attack", stat: "magic", element: "火" },
-      { name: "火焰之槍", cost: 14, power: 2.05, kind: "attack", stat: "magic", element: "火" },
+      { name: "火球", cost: 10, power: 1.8, kind: "attackBurn", stat: "magic", element: "火", chance: 0.2, duration: 2 },
+      { name: "豪火柱", cost: 12, power: 1.95, kind: "attackBurn", stat: "magic", element: "火", chance: 0.2, duration: 2 },
+      { name: "火焰之槍", cost: 14, power: 2.05, kind: "attackBurn", stat: "magic", element: "火", chance: 0.2, duration: 2 },
       { name: "焦土", cost: 14, power: 2.1, kind: "attackBurn", stat: "magic", element: "火", chance: 0.6, duration: 3 },
       { name: "焚天神兵", cost: 24, power: 3.0, kind: "attackBurn", stat: "magic", element: "火", chance: 0.8, duration: 4 },
-      { name: "風刃", cost: 8, power: 1.45, kind: "attack", stat: "magic", element: "風" },
-      { name: "旋風", cost: 10, power: 1.55, kind: "attackDebuffSpeed", stat: "magic", element: "風", duration: 3 },
-      { name: "狂嵐", cost: 12, power: 1.8, kind: "attackDebuffAttack", stat: "magic", element: "風", duration: 3 },
-      { name: "嵐天風暴", cost: 14, power: 2.0, kind: "attackDebuffSpeed", stat: "magic", element: "風", duration: 4 },
-      { name: "龍捲風", cost: 22, power: 2.7, kind: "attackStun", stat: "magic", element: "風", chance: 0.5, duration: 1 },
-      { name: "落雷", cost: 10, power: 1.75, kind: "attack", stat: "magic", element: "雷" },
-      { name: "雷電", cost: 12, power: 1.95, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.35, duration: 2 },
-      { name: "閃電球", cost: 14, power: 2.05, kind: "attack", stat: "magic", element: "雷" },
-      { name: "雷電牢獄", cost: 18, power: 2.25, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.55, duration: 2 },
-      { name: "神罰天雷", cost: 26, power: 3.05, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.75, duration: 3 },
-      { name: "陽光射線", cost: 10, power: 1.8, kind: "attack", stat: "magic", element: "日" },
-      { name: "日冕", cost: 12, power: 1.95, kind: "attackDebuffAttack", stat: "magic", element: "日", duration: 3 },
-      { name: "太陽球", cost: 14, power: 2.05, kind: "attack", stat: "magic", element: "日" },
-      { name: "烈日恆天", cost: 18, power: 2.2, kind: "attackDebuffResistance", stat: "magic", element: "日", duration: 4 },
-      { name: "太陽風", cost: 16, power: 2.0, kind: "attackDebuffDefense", stat: "magic", element: "日", duration: 3 },
-      { name: "太陽面爆發", cost: 26, power: 3.1, kind: "attackBurn", stat: "magic", element: "日", chance: 0.8, duration: 4 },
-      { name: "新月", cost: 10, power: 1.8, kind: "attack", stat: "magic", element: "月" },
-      { name: "上弦月", cost: 12, power: 1.95, kind: "attackDebuffDefense", stat: "magic", element: "月", duration: 3 },
-      { name: "下弦月", cost: 12, power: 1.95, kind: "attackDebuffAttack", stat: "magic", element: "月", duration: 3 },
-      { name: "滿月", cost: 16, power: 2.15, kind: "attackDrain", stat: "magic", element: "月" },
-      { name: "無月", cost: 18, power: 2.2, kind: "attackDebuffResistance", stat: "magic", element: "月", duration: 4 },
-      { name: "月亮追逐者", cost: 24, power: 2.85, kind: "attackBuffSpeed", stat: "magic", element: "月" }
+      { name: "魔法強化", cost: 10, power: 0, kind: "buffMagicResistance", stat: "magic", element: null },
+      { name: "疾走", cost: 8, power: 0, kind: "buffSpeedParty", stat: "magic", element: null },
+      { name: "魔力聚流", cost: 10, power: 0, kind: "buffMagic", stat: "magic", element: null }
     ],
     "僧侶": [
       { name: "治療", cost: 8, power: 1.3, kind: "heal", stat: "magic", element: "日", school: "天法" },
-      { name: "祝福", cost: 6, power: 0, kind: "buffAttackDefense", stat: "magic", element: "日", school: "天法" },
+      { name: "祝福", cost: 6, power: 0, kind: "cleanse", stat: "magic", element: "日", school: "天法" },
       { name: "大治療", cost: 14, power: 2.0, kind: "heal", stat: "magic", element: "日", school: "天法" },
       { name: "完全淨化", cost: 14, power: 0, kind: "cleanseAll", stat: "magic", element: "日", school: "天法" },
-      { name: "祝聖", cost: 12, power: 0, kind: "buffMagicResistance", stat: "magic", element: "日", school: "天法" },
+      { name: "祝聖", cost: 12, power: 0, kind: "buffAttackParty", stat: "magic", element: "日", school: "天法" },
       { name: "群體治療", cost: 18, power: 1.4, kind: "healAll", stat: "magic", element: "日", school: "天法" },
-      { name: "完全治療", cost: 20, power: 0, kind: "fullHeal", stat: "magic", element: "日", school: "天法" },
-      { name: "奇蹟", cost: 24, power: 0, kind: "revive", stat: "magic", element: "日", school: "天法" },
-      { name: "物理強化", cost: 10, power: 0, kind: "buffAttackParty", stat: "magic", element: null, school: "增幅" },
-      { name: "魔法強化", cost: 10, power: 0, kind: "buffMagicResistance", stat: "magic", element: null, school: "增幅" },
-      { name: "疾走", cost: 8, power: 0, kind: "buffSpeedParty", stat: "magic", element: null, school: "增幅" }
+      { name: "完全治療", cost: 20, power: 0, kind: "fullHealSingle", stat: "magic", element: "日", school: "天法" },
+      { name: "奇蹟", cost: 24, power: 0, kind: "reviveOne", stat: "magic", element: "日", school: "天法" },
+      { name: "物理強化", cost: 10, power: 0, kind: "buffAttackDefenseSingle", stat: "magic", element: null, school: "增幅" },
+      { name: "魔法強化", cost: 10, power: 0, kind: "buffMagicResistanceSingle", stat: "magic", element: null, school: "增幅" },
+      { name: "疾走", cost: 8, power: 0, kind: "buffSpeedSingle", stat: "magic", element: null, school: "增幅" },
+      { name: "聖盾", cost: 10, power: 0, kind: "buffResistanceSingle", stat: "magic", element: "日", school: "聖護" },
+      { name: "祈禱戰歌", cost: 12, power: 0, kind: "buffAttackSingleStrong", stat: "magic", element: "日", school: "聖護" },
+      { name: "祈禱結界", cost: 16, power: 0, kind: "statusWardParty", stat: "magic", element: "日", school: "聖護" },
+      { name: "和平聖域", cost: 22, power: 0, kind: "sanctuary", stat: "magic", element: "日", school: "聖護" }
     ],
-    "旅行者": [{ name: "急救", cost: 8, power: 1.2, kind: "heal", stat: "magic", element: "日" }, { name: "疾走", cost: 6, power: 0, kind: "evade", stat: "speed", element: null }],
-    "盜賊": [{ name: "背刺", cost: 8, power: 1.7, kind: "attack", stat: "attack", element: "月" }, { name: "煙幕", cost: 6, power: 0, kind: "evade", stat: "speed", element: null }],
+    "旅行者": [
+      { name: "急救", cost: 8, power: 1.2, kind: "heal", stat: "magic", element: "日" },
+      { name: "應援", cost: 8, power: 0, kind: "buffAttackSingle", stat: "magic", element: null },
+      { name: "戰傷救護", cost: 12, power: 1.8, kind: "heal", stat: "magic", element: "日" },
+      { name: "耐力提升", cost: 8, power: 0, kind: "buffDefenseSingle", stat: "magic", element: null },
+      { name: "重斬", cost: 8, power: 1.75, kind: "attack", stat: "attack", element: null },
+      { name: "火焰斬", cost: 10, power: 1.9, kind: "attackBurn", stat: "attack", element: "火", chance: 0.3, duration: 2 },
+      { name: "旋風斬", cost: 12, power: 1.85, kind: "attack", stat: "attack", element: "風" },
+      { name: "隼斬", cost: 14, power: 0.95, kind: "multiHit", stat: "attack", hits: 2, element: null },
+      { name: "風刃", cost: 8, power: 1.45, kind: "attack", stat: "magic", element: "風" },
+      { name: "旋風", cost: 10, power: 1.55, kind: "attack", stat: "magic", element: "風" },
+      { name: "狂嵐", cost: 12, power: 1.8, kind: "attack", stat: "magic", element: "風" },
+      { name: "嵐天風暴", cost: 14, power: 2.0, kind: "attack", stat: "magic", element: "風" },
+      { name: "龍捲風", cost: 22, power: 2.7, kind: "attackStun", stat: "magic", element: "風", chance: 0.5, duration: 1 }
+    ],
+    "盜賊": [
+      { name: "麻痺短劍", cost: 8, power: 1.45, kind: "attackParalyze", stat: "attack", element: null, chance: 0.3, duration: 3 },
+      { name: "劇毒短劍", cost: 8, power: 1.45, kind: "attackPoison", stat: "attack", element: null, chance: 0.3, duration: 5 },
+      { name: "睡眠短劍", cost: 8, power: 1.45, kind: "attackSleep", stat: "attack", element: null, chance: 0.3, duration: 3 },
+      { name: "疾走", cost: 6, power: 0, kind: "buffSpeedSingle", stat: "speed", element: null },
+      { name: "殘影", cost: 8, power: 0, kind: "afterimage", stat: "speed", element: null },
+      { name: "影襲", cost: 10, power: 1.8, kind: "attackAfterimage", stat: "attack", element: null },
+      { name: "竊盜", cost: 8, power: 0, kind: "steal", stat: "luck", element: null },
+      { name: "投毒", cost: 10, power: 1.25, kind: "attackPoison", stat: "attack", element: null, chance: 0.3, duration: 5 },
+      { name: "煙幕", cost: 8, power: 0, kind: "attackBlind", stat: "attack", element: null, chance: 0.3, duration: 5 },
+      { name: "陷阱干擾", cost: 10, power: 0, kind: "attackTrap", stat: "attack", element: null, duration: 2 }
+    ],
   },
   itemCatalog: {
     cloth_robe: { key: "cloth_robe", name: "布衣", type: "equipment", price: 12, slot: "身體", armorClass: "一般裝甲", element: null, description: "最基礎的布製上衣。", bonuses: { defense: 1 } },
@@ -112,15 +137,21 @@ const data = {
     potion_hp_s: { key: "potion_hp_s", name: "小型生命藥水", type: "consumable", price: 18, description: "回復 45 HP。", healHp: 45 },
     potion_mp_s: { key: "potion_mp_s", name: "小型魔力藥水", type: "consumable", price: 20, description: "回復 30 MP。", healMp: 30 },
     leather_cap: { key: "leather_cap", name: "皮帽", type: "equipment", price: 40, slot: "頭", armorClass: "輕型裝甲", element: null, description: "基礎輕裝頭部防具。", bonuses: { defense: 1, speed: 1 } },
+    padded_vest: { key: "padded_vest", name: "襯墊皮甲", type: "equipment", price: 52, slot: "身體", armorClass: "輕型裝甲", element: null, description: "適合靈活戰士的輕型護甲。", bonuses: { defense: 3, speed: 1 } },
+    chain_armor: { key: "chain_armor", name: "鎖子甲", type: "equipment", price: 70, slot: "身體", armorClass: "重型裝甲", element: null, description: "戰士常用的基礎重甲。", bonuses: { defense: 5, resistance: 1 } },
+    apprentice_robe: { key: "apprentice_robe", name: "見習法袍", type: "equipment", price: 58, slot: "身體", armorClass: "魔法裝甲", element: null, description: "強化施法穩定性的入門法袍。", bonuses: { magic: 3, resistance: 2 } },
     stone_ring: { key: "stone_ring", name: "岩環", type: "equipment", price: 55, slot: "飾品1", element: "地", description: "提高防禦與抵抗。", bonuses: { defense: 2, resistance: 1 } },
     ember_blade: { key: "ember_blade", name: "餘燼短劍", type: "equipment", price: 70, slot: "主手", weaponType: "劍", element: "火", description: "帶火屬性的輕型武器。", bonuses: { attack: 5 } },
+    bronze_dagger: { key: "bronze_dagger", name: "青銅匕首", type: "equipment", price: 48, slot: "主手", weaponType: "匕首", element: null, description: "比木匕首更適合刺殺與偷襲。", bonuses: { attack: 7, speed: 1 } },
+    training_mace: { key: "training_mace", name: "修習鎚", type: "equipment", price: 54, slot: "主手", weaponType: "鎚", element: null, description: "僧侶與近戰支援都能使用的訓練鎚。", bonuses: { attack: 4, resistance: 2 } },
+    oak_staff: { key: "oak_staff", name: "橡木長杖", type: "equipment", price: 52, slot: "主手", weaponType: "長杖", element: null, description: "比木長杖更成熟的施法武器。", bonuses: { magic: 8 } },
     moon_charm: { key: "moon_charm", name: "月影護符", type: "equipment", price: 72, slot: "飾品2", element: "月", description: "提高運氣與魔法。", bonuses: { magic: 2, luck: 2 } },
     gale_boots: { key: "gale_boots", name: "疾風靴", type: "equipment", price: 68, slot: "腳", armorClass: "輕型裝甲", element: "風", description: "讓步伐更輕盈。", bonuses: { speed: 3 } },
     sun_emblem: { key: "sun_emblem", name: "日耀徽章", type: "equipment", price: 75, slot: "飾品3", element: "日", description: "強化天法與抗性。", bonuses: { magic: 2, resistance: 2 } },
     mage_staff: { key: "mage_staff", name: "魔法師之杖", type: "equipment", price: 45, slot: "主手", weaponType: "長杖", element: null, description: "比木長杖更強的法術輸出武器。", bonuses: { magic: 10 } },
     prayer_short_staff: { key: "prayer_short_staff", name: "祈禱短杖", type: "equipment", price: 45, slot: "主手", weaponType: "短杖", element: null, description: "支援型職業適用的短杖。", bonuses: { magic: 6, resistance: 4 } },
   },
-  shopItems: ["potion_hp_s", "potion_mp_s", "copper_sword", "iron_sword", "mage_staff", "prayer_short_staff", "leather_cap", "stone_ring", "ember_blade", "gale_boots", "sun_emblem"],
+  shopItems: ["potion_hp_s", "potion_mp_s", "copper_sword", "iron_sword", "mage_staff", "oak_staff", "prayer_short_staff", "bronze_dagger", "training_mace", "leather_cap", "padded_vest", "chain_armor", "apprentice_robe", "stone_ring", "ember_blade", "gale_boots", "sun_emblem"],
   monsters: [
     { code: "slime", name: "草原史萊姆", category: "normal", level: 1, elements: ["水"], hp: 55, mp: 10, attack: 8, defense: 5, magic: 6, resistance: 6, speed: 7, luck: 4, exp: 20, gold: 8, note: "黏液衝擊", drops: ["potion_hp_s", "potion_mp_s"] },
     { code: "wolf", name: "狂牙野狼", category: "normal", level: 2, elements: ["風"], hp: 70, mp: 10, attack: 12, defense: 7, magic: 4, resistance: 5, speed: 12, luck: 5, exp: 28, gold: 12, note: "撕裂撲擊", drops: ["potion_hp_s", "leather_cap"] },
@@ -130,6 +161,12 @@ const data = {
     { code: "wolf_king", name: "裂口巨狼王", category: "story", storyOrder: 1, level: 3, elements: ["風"], hp: 120, mp: 10, attack: 17, defense: 10, magic: 4, resistance: 8, speed: 16, luck: 6, exp: 60, gold: 35, note: "狂亂咬殺", drops: ["leather_cap", "potion_hp_s"] },
     { code: "tree_spirit", name: "腐化樹靈", category: "story", storyOrder: 2, level: 5, elements: ["地", "月"], hp: 165, mp: 25, attack: 16, defense: 16, magic: 18, resistance: 15, speed: 9, luck: 5, exp: 95, gold: 55, note: "腐根纏縛", drops: ["moon_charm", "stone_ring"] },
   ],
+  areas: [],
+  storyChapters: [],
+  quests: [],
+  monsterSkills: {},
+  shopPools: {},
+  dropTables: {},
 };
 
 const classAutoGrowth = {
@@ -141,7 +178,68 @@ const classAutoGrowth = {
   "盜賊": { maxHp: 10, maxMp: 5, attack: 3, defense: 1, magic: 1, resistance: 1, speed: 4, luck: 2 },
 };
 
-const state = { db: null, currentPlayer: null, battle: null, screen: "landing" };
+const classSkillUnlocks = {
+  "戰士": {
+    "護盾": ["守護系", 0], "防禦姿態": ["守護系", 3], "群體嘲諷": ["守護系", 6],
+    "重斬": ["斬擊系", 0], "火焰斬": ["斬擊系", 3], "旋風斬": ["斬擊系", 6], "隼斬": ["斬擊系", 9],
+    "格擋反擊": ["反擊系", 0], "戰意回復": ["反擊系", 3], "決死反攻": ["反擊系", 6],
+  },
+  "武鬥家": {
+    "直拳": ["拳擊系", 0], "碎骨拳": ["拳擊系", 3], "貫突": ["拳擊系", 6],
+    "聚氣": ["氣功系", 0], "氣彈": ["氣功系", 3], "真氣爆發": ["氣功系", 6],
+    "三連擊": ["連段系", 0], "追打": ["連段系", 3], "極限連舞": ["連段系", 6],
+  },
+  "魔法師": {
+    "水槍": ["冰水系", 0], "酸雨": ["冰水系", 3], "吹雪": ["冰水系", 6], "暴風雪": ["冰水系", 9], "霜天葬送": ["冰水系", 12],
+    "火球": ["火焰系", 0], "豪火柱": ["火焰系", 3], "火焰之槍": ["火焰系", 6], "焦土": ["火焰系", 9], "焚天神兵": ["火焰系", 12],
+    "魔法強化": ["增幅系", 0], "疾走": ["增幅系", 3], "魔力聚流": ["增幅系", 6],
+  },
+  "僧侶": {
+    "治療": ["天法系", 0], "祝福": ["天法系", 3], "大治療": ["天法系", 6], "完全淨化": ["天法系", 9], "祝聖": ["天法系", 12],
+    "物理強化": ["增幅系", 0], "魔法強化": ["增幅系", 3], "疾走": ["增幅系", 6],
+    "聖盾": ["聖護系", 0], "祈禱戰歌": ["聖護系", 3], "祈禱結界": ["聖護系", 6], "和平聖域": ["聖護系", 9],
+    "群體治療": ["聖護系", 12], "完全治療": ["天法系", 12], "奇蹟": ["天法系", 15],
+  },
+  "旅行者": {
+    "急救": ["求生系", 0], "應援": ["求生系", 3], "戰傷救護": ["求生系", 6], "耐力提升": ["求生系", 9],
+    "重斬": ["斬擊系", 0], "火焰斬": ["斬擊系", 3], "旋風斬": ["斬擊系", 6], "隼斬": ["斬擊系", 9],
+    "風刃": ["狂風系", 0], "旋風": ["狂風系", 3], "狂嵐": ["狂風系", 6], "嵐天風暴": ["狂風系", 9], "龍捲風": ["狂風系", 12],
+  },
+  "盜賊": {
+    "麻痺短劍": ["異常系", 0], "劇毒短劍": ["異常系", 3], "睡眠短劍": ["異常系", 6],
+    "疾走": ["影步系", 0], "殘影": ["影步系", 3], "影襲": ["影步系", 6],
+    "竊盜": ["詭計系", 0], "投毒": ["詭計系", 3], "煙幕": ["詭計系", 6], "陷阱干擾": ["詭計系", 9],
+  },
+};
+
+Object.entries(classSkillUnlocks).forEach(([className, mapping]) => {
+  (data.classSkills[className] || []).forEach(skill => {
+    const [branch, requiredPoints] = mapping[skill.name] || [null, 0];
+    skill.branch = branch;
+    skill.requiredPoints = requiredPoints;
+  });
+});
+
+const defaultEquipRules = {
+  weaponRules: {
+    "戰士": ["劍", "斧", "鎚", "雙手劍"],
+    "武鬥家": ["拳套"],
+    "魔法師": ["長杖"],
+    "僧侶": ["短杖", "鎚"],
+    "旅行者": ["劍", "短杖", "鎚"],
+    "盜賊": ["匕首"],
+  },
+  armorRules: {
+    "戰士": ["重型裝甲", "輕型裝甲", "一般裝甲"],
+    "武鬥家": ["輕型裝甲", "一般裝甲"],
+    "魔法師": ["魔法裝甲", "一般裝甲"],
+    "僧侶": ["輕型裝甲", "魔法裝甲", "一般裝甲"],
+    "旅行者": ["重型裝甲", "輕型裝甲", "魔法裝甲", "一般裝甲"],
+    "盜賊": ["輕型裝甲", "一般裝甲"],
+  },
+};
+
+const state = { db: null, currentPlayer: null, battle: null, screen: "landing", shopStock: [], equipRules: structuredClone(defaultEquipRules), classGrowth: structuredClone(classAutoGrowth), csvLoaded: false };
 
 const dbApi = {
   async open() {
@@ -179,6 +277,384 @@ function transaction(storeName, mode, action) {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+    if (char === "\"") {
+      if (inQuotes && next === "\"") {
+        cell += "\"";
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      row.push(cell);
+      cell = "";
+    } else if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") i += 1;
+      row.push(cell);
+      if (row.some(value => value !== "")) rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+  if (cell !== "" || row.length) {
+    row.push(cell);
+    if (row.some(value => value !== "")) rows.push(row);
+  }
+  const [headers, ...body] = rows;
+  return (body || []).map(values => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])));
+}
+
+async function loadCsvRows(path) {
+  const response = await fetch(path, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`無法讀取 ${path}`);
+  }
+  return parseCsv(await response.text());
+}
+
+function toNumber(value) {
+  if (value === "" || value == null) return 0;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function csvItemToCatalogEntry(row) {
+  const bonuses = {};
+  const mapping = {
+    max_hp_bonus: "maxHp",
+    max_mp_bonus: "maxMp",
+    attack_bonus: "attack",
+    defense_bonus: "defense",
+    magic_bonus: "magic",
+    resistance_bonus: "resistance",
+    speed_bonus: "speed",
+    luck_bonus: "luck",
+  };
+  Object.entries(mapping).forEach(([csvKey, statKey]) => {
+    const amount = toNumber(row[csvKey]);
+    if (amount) bonuses[statKey] = amount;
+  });
+  const entry = {
+    key: row.key,
+    name: row.name,
+    type: row.type,
+    price: toNumber(row.price),
+    description: row.description,
+  };
+  if (row.slot) entry.slot = row.slot;
+  if (row.weapon_type) entry.weaponType = row.weapon_type;
+  if (row.armor_class) entry.armorClass = row.armor_class;
+  if (row.element) entry.element = row.element;
+  if (Object.keys(bonuses).length) entry.bonuses = bonuses;
+  if (row.type === "consumable") {
+    if (toNumber(row.heal_hp)) entry.healHp = toNumber(row.heal_hp);
+    if (toNumber(row.heal_mp)) entry.healMp = toNumber(row.heal_mp);
+  }
+  return entry;
+}
+
+function csvMonsterToEntry(row) {
+  return {
+    code: row.code,
+    name: row.name,
+    category: row.category,
+    ...(row.story_order ? { storyOrder: toNumber(row.story_order) } : {}),
+    level: toNumber(row.level),
+    elements: row.elements ? row.elements.split("|") : [],
+    hp: toNumber(row.hp),
+    mp: toNumber(row.mp),
+    attack: toNumber(row.attack),
+    defense: toNumber(row.defense),
+    magic: toNumber(row.magic),
+    resistance: toNumber(row.resistance),
+    speed: toNumber(row.speed),
+    luck: toNumber(row.luck),
+    exp: toNumber(row.exp),
+    gold: toNumber(row.gold),
+    note: row.note,
+    dropTable: row.drop_table || "",
+    drops: row.drops ? row.drops.split("|") : [],
+  };
+}
+
+function csvAreaToEntry(row) {
+  return {
+    id: row.area_id,
+    name: row.name,
+    category: row.category,
+    storyStage: toNumber(row.story_stage),
+    minLevel: toNumber(row.min_level),
+    recommendedLevel: toNumber(row.recommended_level),
+    monsterCodes: row.monster_codes ? row.monster_codes.split("|") : [],
+    shopPool: row.shop_pool || "",
+    theme: row.theme || "meadow",
+    description: row.description || "",
+  };
+}
+
+function csvStoryChapterToEntry(row) {
+  return {
+    id: row.chapter_id,
+    storyStage: toNumber(row.story_stage),
+    title: row.title,
+    areaId: row.area_id,
+    bossCode: row.boss_code,
+    summary: row.summary || "",
+    rewardGold: toNumber(row.reward_gold),
+    rewardItem: row.reward_item || "",
+  };
+}
+
+function csvQuestToEntry(row) {
+  return {
+    id: row.quest_id,
+    storyStage: toNumber(row.story_stage),
+    chapterId: row.chapter_id,
+    title: row.title,
+    objectiveType: row.objective_type,
+    targetCode: row.target_code,
+    targetCount: toNumber(row.target_count, 1),
+    description: row.description || "",
+    rewardExp: toNumber(row.reward_exp),
+    rewardGold: toNumber(row.reward_gold),
+    rewardItem: row.reward_item || "",
+    isMain: toNumber(row.is_main, 1) === 1,
+  };
+}
+
+function csvMonsterSkillToEntry(row) {
+  const skill = {
+    name: row.name,
+    kind: row.kind,
+    stat: row.stat,
+    power: toNumber(row.power),
+    element: row.element || null,
+    cost: toNumber(row.cost),
+    targetScope: row.target_scope || "single",
+    weight: toNumber(row.weight, 1),
+  };
+  if (row.chance !== "") skill.chance = toNumber(row.chance);
+  if (row.duration !== "") skill.duration = toNumber(row.duration);
+  if (row.hits !== "") skill.hits = toNumber(row.hits);
+  return skill;
+}
+
+function csvSkillToEntry(row) {
+  const skill = {
+    name: row.name,
+    cost: toNumber(row.cost),
+    power: toNumber(row.power),
+    kind: row.kind,
+    stat: row.stat,
+    element: row.element || null,
+  };
+  if (row.chance !== "") skill.chance = toNumber(row.chance);
+  if (row.duration !== "") skill.duration = toNumber(row.duration);
+  if (row.hits !== "") skill.hits = toNumber(row.hits);
+  if (row.school) skill.school = row.school;
+  if (row.branch) skill.branch = row.branch;
+  if (row.required_points !== "") skill.requiredPoints = toNumber(row.required_points);
+  return skill;
+}
+
+function csvRaceToEntry(row) {
+  return {
+    code: row.code,
+    name: row.name,
+    description: row.description,
+    advantage: row.advantage,
+    skillName: row.skill_name,
+    skillType: row.skill_type,
+    skillDescription: row.skill_description,
+    bonuses: {
+      maxHp: toNumber(row.max_hp_bonus),
+      maxMp: toNumber(row.max_mp_bonus),
+      attack: toNumber(row.attack_bonus),
+      defense: toNumber(row.defense_bonus),
+      magic: toNumber(row.magic_bonus),
+      resistance: toNumber(row.resistance_bonus),
+      speed: toNumber(row.speed_bonus),
+      luck: toNumber(row.luck_bonus),
+    },
+  };
+}
+
+function csvClassToEntry(row) {
+  return {
+    code: row.code,
+    name: row.name,
+    armorType: row.armor_type,
+    description: row.description,
+    advantage: row.advantage,
+    branches: row.branches ? row.branches.split("|") : [],
+    bonuses: {
+      maxHp: toNumber(row.max_hp_bonus),
+      maxMp: toNumber(row.max_mp_bonus),
+      attack: toNumber(row.attack_bonus),
+      defense: toNumber(row.defense_bonus),
+      magic: toNumber(row.magic_bonus),
+      resistance: toNumber(row.resistance_bonus),
+      speed: toNumber(row.speed_bonus),
+      luck: toNumber(row.luck_bonus),
+    },
+  };
+}
+
+function buildEquipRules(rows) {
+  const weaponRules = {};
+  const armorRules = {};
+  rows.forEach(row => {
+    weaponRules[row.class_name] = row.weapon_types ? row.weapon_types.split("|") : [];
+    armorRules[row.class_name] = row.armor_classes ? row.armor_classes.split("|") : [];
+  });
+  return { weaponRules, armorRules };
+}
+
+function buildShopPools(rows) {
+  return rows.reduce((acc, row) => {
+    if (!acc[row.pool_id]) acc[row.pool_id] = [];
+    acc[row.pool_id].push({
+      itemKey: row.item_key,
+      weight: Math.max(1, toNumber(row.weight)),
+      minLevel: toNumber(row.min_level),
+      maxLevel: toNumber(row.max_level) || 999,
+    });
+    return acc;
+  }, {});
+}
+
+function buildDropTables(rows) {
+  return rows.reduce((acc, row) => {
+    if (!acc[row.table_id]) acc[row.table_id] = [];
+    acc[row.table_id].push({
+      itemKey: row.item_key,
+      weight: Math.max(1, toNumber(row.weight)),
+      minQty: Math.max(1, toNumber(row.min_qty) || 1),
+      maxQty: Math.max(1, toNumber(row.max_qty) || 1),
+    });
+    return acc;
+  }, {});
+}
+
+function buildClassSkills(rows) {
+  return rows.reduce((acc, row) => {
+    if (!acc[row.class_name]) acc[row.class_name] = [];
+    acc[row.class_name].push(csvSkillToEntry(row));
+    return acc;
+  }, {});
+}
+
+function buildBranchEffects(rows) {
+  return rows.reduce((acc, row) => {
+    acc[row.branch_name] = [row.stat_key, toNumber(row.value)];
+    return acc;
+  }, {});
+}
+
+function buildClassGrowth(rows) {
+  return rows.reduce((acc, row) => {
+    acc[row.class_name] = {
+      maxHp: toNumber(row.max_hp),
+      maxMp: toNumber(row.max_mp),
+      attack: toNumber(row.attack),
+      defense: toNumber(row.defense),
+      magic: toNumber(row.magic),
+      resistance: toNumber(row.resistance),
+      speed: toNumber(row.speed),
+      luck: toNumber(row.luck),
+    };
+    return acc;
+  }, {});
+}
+
+function buildMonsterSkills(rows) {
+  return rows.reduce((acc, row) => {
+    if (!acc[row.monster_code]) acc[row.monster_code] = [];
+    acc[row.monster_code].push(csvMonsterSkillToEntry(row));
+    return acc;
+  }, {});
+}
+
+async function loadCsvDatabases() {
+  try {
+    const [raceRows, classRows, branchRows, growthRows, equipmentRows, consumableRows, monsterRows, equipRuleRows, shopRows, dropRows, areaRows, skillRows, chapterRows, questRows, monsterSkillRows] = await Promise.all([
+      loadCsvRows("data/csv/races.csv"),
+      loadCsvRows("data/csv/classes.csv"),
+      loadCsvRows("data/csv/branch_effects.csv"),
+      loadCsvRows("data/csv/class_growth.csv"),
+      loadCsvRows("data/csv/equipment.csv"),
+      loadCsvRows("data/csv/consumables.csv"),
+      loadCsvRows("data/csv/monsters.csv"),
+      loadCsvRows("data/csv/equip_rules.csv"),
+      loadCsvRows("data/csv/shop_items.csv"),
+      loadCsvRows("data/csv/drop_tables.csv"),
+      loadCsvRows("data/csv/areas.csv"),
+      loadCsvRows("data/csv/skills.csv"),
+      loadCsvRows("data/csv/story_chapters.csv"),
+      loadCsvRows("data/csv/quests.csv"),
+      loadCsvRows("data/csv/monster_skills.csv"),
+    ]);
+    if (raceRows.length) {
+      data.races = raceRows.map(csvRaceToEntry);
+    }
+    if (classRows.length) {
+      data.classes = classRows.map(csvClassToEntry);
+    }
+    if (branchRows.length) {
+      data.branchEffects = buildBranchEffects(branchRows);
+    }
+    if (growthRows.length) {
+      state.classGrowth = buildClassGrowth(growthRows);
+    }
+    const itemEntries = {}
+    equipmentRows.concat(consumableRows).forEach(row => {
+      itemEntries[row.key] = csvItemToCatalogEntry(row);
+    });
+    if (Object.keys(itemEntries).length) {
+      data.itemCatalog = itemEntries;
+      data.shopItems = equipmentRows.filter(row => toNumber(row.price) > 0 && row.slot).slice(0, 24).map(row => row.key);
+      if (!data.shopItems.includes("potion_hp_s")) data.shopItems.unshift("potion_hp_s");
+      if (!data.shopItems.includes("potion_mp_s")) data.shopItems.splice(1, 0, "potion_mp_s");
+    }
+    if (monsterRows.length) {
+      data.monsters = monsterRows.map(csvMonsterToEntry);
+    }
+    if (skillRows.length) {
+      data.classSkills = buildClassSkills(skillRows);
+    }
+    if (equipRuleRows.length) {
+      state.equipRules = buildEquipRules(equipRuleRows);
+    }
+    data.shopPools = buildShopPools(shopRows);
+    data.dropTables = buildDropTables(dropRows);
+    data.areas = areaRows.map(csvAreaToEntry);
+    data.storyChapters = chapterRows.map(csvStoryChapterToEntry);
+    data.quests = questRows.map(csvQuestToEntry);
+    data.monsterSkills = buildMonsterSkills(monsterSkillRows);
+    state.csvLoaded = true;
+  } catch (error) {
+    console.warn("CSV 資料載入失敗，改用內建資料。", error);
+    state.csvLoaded = false;
+    state.equipRules = structuredClone(defaultEquipRules);
+    state.classGrowth = structuredClone(classAutoGrowth);
+    data.shopPools = {};
+    data.dropTables = {};
+    data.areas = [];
+    data.storyChapters = [];
+    data.quests = [];
+    data.monsterSkills = {};
+  }
 }
 
 function renderMenu() {
@@ -228,10 +704,12 @@ function renderMenu() {
 
 function renderHome() {
   state.screen = "landing";
+  applyAreaTheme(null);
   renderMenu();
   app.innerHTML = `
     <h3>標題頁</h3>
     <p class="hint">這個版本改為滑鼠點擊操作，不需要 PowerShell 或 cmd。直接雙擊 <strong>index.html</strong> 即可打開。</p>
+    <p class="hint">${state.csvLoaded ? "CSV 資料庫已載入，目前遊戲會優先使用 data/csv 內的資料。" : "目前使用內建資料。若瀏覽器允許讀取本機 CSV，會自動改用 data/csv 內的資料。"}</p>
     <div class="card-grid">
       <div class="stat"><strong>開始方式</strong><p>先建立角色或讀取角色，進入後才會看到遊戲內功能頁面。</p></div>
       <div class="stat"><strong>存檔方式</strong><p>所有角色資料都會存在你的瀏覽器 IndexedDB。</p></div>
@@ -242,6 +720,7 @@ function renderHome() {
 
 function renderCreateCharacter() {
   state.screen = "create";
+  applyAreaTheme(null);
   renderMenu();
   const raceCards = data.races.map(race => choiceCard(race.name, race.description, race.advantage, "race", race.code)).join("");
   const classCards = data.classes.map(job => choiceCard(job.name, job.description, job.advantage, "class", job.code)).join("");
@@ -279,6 +758,7 @@ function renderCreateCharacter() {
 
 function renderLoadGame() {
   state.screen = "load";
+  applyAreaTheme(null);
   renderMenu();
   dbApi.getAllPlayers().then(players => {
     if (!players.length) {
@@ -308,11 +788,79 @@ function renderLoadGame() {
   });
 }
 
+function availableAreas(category, player) {
+  if (!data.areas?.length) return [];
+  return data.areas.filter(area => {
+    if (area.category !== category) return false;
+    if (category === "story") return area.storyStage === player.storyStage;
+    if (area.storyStage && area.storyStage > player.storyStage) return false;
+    return player.level >= Math.max(1, area.minLevel || 1);
+  });
+}
+
+function getAreaById(areaId) {
+  return data.areas?.find(area => area.id === areaId) || null;
+}
+
+function currentAreaForPlayer(player) {
+  if (!player) return null;
+  const preferred = getAreaById(player.currentAreaId);
+  if (preferred) {
+    if (preferred.category === "story") {
+      if (preferred.storyStage === player.storyStage) return preferred;
+    } else if (player.level >= Math.max(1, preferred.minLevel || 1)) {
+      return preferred;
+    }
+  }
+  return availableAreas("story", player)[0] || availableAreas("normal", player)[0] || availableAreas("dungeon", player)[0] || null;
+}
+
+function currentStoryChapter(player) {
+  return data.storyChapters?.find(chapter => chapter.storyStage === player.storyStage) || null;
+}
+
+function currentMainQuest(player) {
+  return data.quests?.find(quest => quest.storyStage === player.storyStage && quest.isMain) || null;
+}
+
+function applyAreaTheme(area) {
+  document.body.dataset.areaTheme = area?.theme || "title";
+}
+
+function currentShopPoolId(player) {
+  const currentArea = currentAreaForPlayer(player);
+  if (currentArea?.shopPool) return currentArea.shopPool;
+  const available = data.areas?.length
+    ? data.areas
+        .filter(area => area.shopPool && area.category !== "story" && player.level >= Math.max(1, area.minLevel || 1))
+        .sort((a, b) => (a.recommendedLevel || 0) - (b.recommendedLevel || 0))
+    : [];
+  return available.length ? available[available.length - 1].shopPool : "";
+}
+
+function weightedPick(entries) {
+  const total = entries.reduce((sum, entry) => sum + Math.max(1, entry.weight || 0), 0);
+  let roll = Math.random() * total;
+  for (const entry of entries) {
+    roll -= Math.max(1, entry.weight || 0);
+    if (roll <= 0) return entry;
+  }
+  return entries[entries.length - 1] || null;
+}
+
 function renderGameHub(message = "") {
   if (!state.currentPlayer) return renderHome();
   state.screen = "hub";
   renderMenu();
   const player = state.currentPlayer;
+  const normalAreas = availableAreas("normal", player);
+  const dungeonAreas = availableAreas("dungeon", player);
+  const storyAreas = availableAreas("story", player);
+  const currentArea = currentAreaForPlayer(player);
+  const chapter = currentStoryChapter(player);
+  const quest = currentMainQuest(player);
+  const travelAreas = [...normalAreas, ...dungeonAreas, ...storyAreas];
+  applyAreaTheme(currentArea);
   app.innerHTML = `
     <h3>冒險首頁</h3>
     ${message ? `<p class="success">${message}</p>` : ""}
@@ -332,6 +880,28 @@ function renderGameHub(message = "") {
         <p>查看狀態、培養技能、野外探索、副本挑戰或推進主線。</p>
       </div>
     </div>
+    ${state.csvLoaded ? `
+      <div class="spacer"></div>
+      <div class="card-grid">
+        <div class="stat"><strong>目前所在區域</strong><p>${currentArea ? currentArea.name : "未設定"}</p><p>${currentArea?.description || "尚未選定地區。"}</p></div>
+        <div class="stat"><strong>目前主線章節</strong><p>${chapter ? chapter.title : "主線已完成"}</p><p>${chapter?.summary || "目前沒有進行中的章節。"}</p></div>
+        <div class="stat"><strong>目前任務</strong><p>${quest ? quest.title : "自由探索"}</p><p>${quest?.description || "可以自由探索現有區域。"}</p></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="card">
+        <h4>地區移動</h4>
+        <div class="card-grid">
+          ${travelAreas.length ? travelAreas.map(area => `
+            <div class="stat ${currentArea?.id === area.id ? "area-current" : ""}">
+              <strong>${area.name}</strong>
+              <p>${area.category === "normal" ? "野外" : area.category === "dungeon" ? "副本" : `主線 ${area.storyStage}`}</p>
+              <p>${area.description}</p>
+              <button class="secondary" type="button" data-travel-area="${area.id}">${currentArea?.id === area.id ? "目前所在" : "前往此區域"}</button>
+            </div>
+          `).join("") : `<p class="hint">目前沒有可移動的地區。</p>`}
+        </div>
+      </div>
+    ` : ""}
     <div class="spacer"></div>
     <div class="action-grid">
       <button class="primary" type="button" id="hub-status">角色狀態</button>
@@ -354,6 +924,13 @@ function renderGameHub(message = "") {
   document.querySelector("#hub-normal").addEventListener("click", () => startBattle("normal"));
   document.querySelector("#hub-dungeon").addEventListener("click", () => startBattle("dungeon"));
   document.querySelector("#hub-story").addEventListener("click", () => startBattle("story"));
+  app.querySelectorAll("[data-travel-area]").forEach(button => {
+    button.addEventListener("click", async () => {
+      player.currentAreaId = button.dataset.travelArea;
+      await saveCurrentPlayer(false);
+      renderGameHub(`你已移動到 ${getAreaById(player.currentAreaId)?.name || "新區域"}。`);
+    });
+  });
 }
 
 function renderStatus(message = "") {
@@ -485,13 +1062,19 @@ function renderShop(message = "") {
   state.screen = "shop";
   renderMenu();
   const player = state.currentPlayer;
+  const stock = ensureShopStock();
   app.innerHTML = `
     <h3>商店</h3>
     ${message ? `<p class="success">${message}</p>` : ""}
     ${renderPageLinks("shop")}
-    <p><span class="pill">持有金幣 ${player.gold}</span></p>
+    <p><span class="pill">持有金幣 ${player.gold}</span> <span class="pill">刷新費用 8 金幣</span></p>
+    <div class="inline-actions">
+      <button class="action" type="button" id="refresh-shop">刷新商品</button>
+    </div>
+    <div class="spacer"></div>
+    <h4>本次商品</h4>
     <div class="card-grid">
-      ${data.shopItems.map(key => {
+      ${stock.map(key => {
         const item = data.itemCatalog[key];
         return `
           <div class="choice-card">
@@ -507,10 +1090,59 @@ function renderShop(message = "") {
         `;
       }).join("")}
     </div>
+    <div class="spacer"></div>
+    <h4>販賣背包物品</h4>
+    <div class="card-grid">
+      ${(player.inventory || []).length ? player.inventory.map((item, index) => `
+        <div class="choice-card ${item.element ? elementClassName(item.element) : ""}">
+          <h4>${item.name}</h4>
+          <p>${item.description || ""}</p>
+          ${item.weaponType ? `<p>武器種類：${item.weaponType}</p>` : ""}
+          ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
+          ${item.type === "equipment" ? `<p>強度評分：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p>` : ""}
+          <p>售價：${sellPrice(item)} 金幣${item.quantity ? ` | 數量 ${item.quantity}` : ""}</p>
+          <button type="button" data-sell-inventory-index="${index}">販賣</button>
+        </div>
+      `).join("") : `<div class="stat"><p>背包沒有可販賣物品。</p></div>`}
+    </div>
+    <div class="spacer"></div>
+    <h4>販賣已裝備物品</h4>
+    <div class="card-grid">
+      ${(player.equipment || []).length ? player.equipment.map((item, index) => `
+        <div class="choice-card ${item.element ? elementClassName(item.element) : ""}">
+          <h4>${item.slot}：${item.name}</h4>
+          ${item.weaponType ? `<p>武器種類：${item.weaponType}</p>` : ""}
+          ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
+          <p>強度評分：${itemPower(item)}</p>
+          <p>${formatItemBonuses(item.bonuses)}</p>
+          <p>售價：${sellPrice(item)} 金幣</p>
+          <button type="button" data-sell-equipment-index="${index}">卸下並販賣</button>
+        </div>
+      `).join("") : `<div class="stat"><p>目前沒有已裝備物品可販賣。</p></div>`}
+    </div>
   `;
+  document.querySelector("#refresh-shop").addEventListener("click", async () => {
+    const result = refreshShopStock();
+    await saveCurrentPlayer(false);
+    renderShop(result);
+  });
   app.querySelectorAll("[data-buy-key]").forEach(button => {
     button.addEventListener("click", async () => {
       const result = buyShopItem(button.dataset.buyKey);
+      await saveCurrentPlayer(false);
+      renderShop(result);
+    });
+  });
+  app.querySelectorAll("[data-sell-inventory-index]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const result = sellInventoryItem(Number(button.dataset.sellInventoryIndex));
+      await saveCurrentPlayer(false);
+      renderShop(result);
+    });
+  });
+  app.querySelectorAll("[data-sell-equipment-index]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const result = sellEquippedItem(Number(button.dataset.sellEquipmentIndex));
       await saveCurrentPlayer(false);
       renderShop(result);
     });
@@ -576,7 +1208,7 @@ function renderSkillTree() {
   const player = state.currentPlayer;
   app.innerHTML = `
     <h3>技能樹</h3>
-    <p class="hint">點擊升級分支。每次升級都會永久提升角色能力。</p>
+    <p class="hint">點擊升級分支。每次升級都會永久提升角色能力，技能解鎖則改看對應分支投入點數。</p>
     ${renderPageLinks("skills")}
     <p><span class="pill">可用技能點 ${player.skillPoints}</span></p>
     <div class="card-grid">
@@ -595,11 +1227,13 @@ function renderSkillTree() {
     <div class="spacer"></div>
     <h3>職業技能</h3>
     <div class="card-grid">
-      ${data.classSkills[player.className].map(skill => `
+      ${data.classSkills[player.className].map((skill, index) => `
         <div class="stat">
           <strong>${skill.name}</strong>
           <p>MP ${skill.cost} | 屬性 ${skill.element || "無"}</p>
-          <p>${skill.kind === "attack" ? "攻擊技能" : skill.kind === "heal" ? "回復技能" : "輔助技能"}</p>
+          <p>${skillKindText(skill.kind)}</p>
+          <p>${skill.branch ? `綁定分支 ${skill.branch}` : "無分支限制"}</p>
+          <p>${isSkillUnlocked(player, index) ? `已解鎖` : skillUnlockText(player, skill)}</p>
         </div>
       `).join("")}
     </div>
@@ -632,27 +1266,50 @@ async function startBattle(category) {
     return toast("請先建立或讀取角色。", "warning");
   }
   const player = state.currentPlayer;
-  let monster;
+  let enemies = [];
+  let areaName = "";
+  let chosenArea = null;
   if (category === "story") {
-    monster = data.monsters.find(item => item.category === "story" && item.storyOrder === player.storyStage);
-    if (!monster) {
-      return toast("目前主線內容已暫時完成。", "success");
-    }
+    chosenArea = availableAreas("story", player)[0] || null;
+    const pool = chosenArea?.monsterCodes?.length
+      ? data.monsters.filter(item => chosenArea.monsterCodes.includes(item.code))
+      : data.monsters.filter(item => item.category === "story" && item.storyOrder === player.storyStage);
+    const monster = pool[0];
+    if (!monster) return toast("目前主線內容已暫時完成。", "success");
+    areaName = chosenArea?.name || monster.name;
+    enemies = [buildBattleEnemy(monster)];
   } else {
-    const pool = data.monsters.filter(item => item.category === category);
-    monster = structuredClone(pool[Math.floor(Math.random() * pool.length)]);
+    const areas = availableAreas(category, player);
+    const currentArea = currentAreaForPlayer(player);
+    chosenArea = currentArea?.category === category && areas.some(area => area.id === currentArea.id)
+      ? currentArea
+      : (areas[0] || null);
+    const pool = chosenArea?.monsterCodes?.length
+      ? data.monsters.filter(item => chosenArea.monsterCodes.includes(item.code))
+      : data.monsters.filter(item => item.category === category);
+    areaName = chosenArea?.name || (category === "normal" ? "野外" : "副本");
+    if (!pool.length) {
+      return toast(category === "normal" ? "目前沒有可探索的區域。" : "目前沒有可挑戰的副本。", "warning");
+    }
+    const enemyCount = category === "dungeon" ? randomInt(2, 3) : randomInt(1, 3);
+    enemies = Array.from({ length: enemyCount }, () => buildBattleEnemy(pool[Math.floor(Math.random() * pool.length)]));
   }
+  if (chosenArea?.id) player.currentAreaId = chosenArea.id;
   state.battle = {
     type: category,
-    monster: structuredClone(monster),
-    monsterHp: monster.hp,
+    areaId: chosenArea?.id || "",
+    areaName,
+    enemies,
+    selectedEnemy: 0,
+    targetMode: null,
     turn: 1,
-    log: [`遭遇 ${monster.name}！`],
+    log: [`你來到 ${areaName || "未知區域"}。`, `遭遇 ${enemies.map(enemy => enemy.name).join("、")}！`],
     buffs: { attack: 0, defense: 0, magic: 0, resistance: 0, speed: 0, evade: 0, dragon: 0 },
-    monsterAilments: createMonsterAilments(),
+    selfBuffs: createBattleBuffs(),
     dwarfGuardUsed: false,
-    companions: (player.companions || []).map(companion => ({ ...structuredClone(companion) })),
+    companions: (player.companions || []).map(companion => ({ ...structuredClone(companion), battleBuffs: createBattleBuffs() })),
   };
+  applyAreaTheme(chosenArea);
   state.screen = "battle";
   renderMenu();
   renderBattle();
@@ -662,10 +1319,37 @@ function renderBattle() {
   const player = state.currentPlayer;
   const battle = state.battle;
   const stats = battleStats(player, battle);
-  const monster = battle.monster;
-  const battleEnded = battle.monsterHp <= 0 || partyDefeated(player, battle);
+  const monster = selectedEnemy(battle);
+  const battleEnded = !livingEnemies(battle).length || partyDefeated(player, battle);
+  const enemyCards = (battle.enemies || []).map((enemy, index) => `
+    <button class="choice-card ${battle.selectedEnemy === index ? "selected" : ""}" type="button" data-battle-enemy="${index}">
+      <h4>${enemy.name}</h4>
+      <p>HP ${Math.max(0, enemy.currentHp)} / ${enemy.maxHp}</p>
+      <p>${enemy.elements.join(" / ")}</p>
+      <p>${formatMonsterAilments(enemy.ailments)}</p>
+    </button>
+  `).join("");
+  const targetPanel = battle.targetMode ? `
+    <div class="spacer"></div>
+    <div class="card">
+      <h4>請選擇目標</h4>
+      <div class="inline-actions">
+        ${battle.targetMode.type === "enemy"
+          ? livingEnemies(battle).map(enemy => {
+              const realIndex = battle.enemies.indexOf(enemy);
+              return `<button class="action" type="button" data-target-enemy="${realIndex}">${enemy.name} HP ${enemy.currentHp}/${enemy.maxHp}</button>`;
+            }).join("")
+          : allyTargets(player, battle, battle.targetMode.type === "fallen_ally")
+              .map((member, index) => ({ member, index }))
+              .filter(({ member }) => battle.targetMode.type !== "fallen_ally" || member.hp <= 0)
+              .map(({ member, index }) => `<button class="action" type="button" data-target-ally="${index}">${member.name} HP ${member.hp}/${member.maxHp}</button>`).join("")}
+        <button class="action" type="button" data-action="cancel-target">取消指向</button>
+      </div>
+    </div>
+  ` : "";
   app.innerHTML = `
     <h3>${battle.type === "normal" ? "野外戰鬥" : battle.type === "dungeon" ? "副本戰鬥" : "主線戰鬥"}</h3>
+    <p class="hint">目前區域：${battle.areaName || "未設定"}</p>
     <div class="battle-layout">
       <div>
         <div class="battle-player">
@@ -682,12 +1366,17 @@ function renderBattle() {
           </div>
         `).join("")}</div>` : ""}
         <div class="spacer"></div>
+        <div class="card">
+          <h4>敵方陣列</h4>
+          <div class="card-grid">${enemyCards}</div>
+        </div>
+        <div class="spacer"></div>
         <div class="battle-monster">
-          <h4>${monster.name}</h4>
-          <p>HP ${battle.monsterHp} / ${monster.hp}</p>
-          <p>屬性 ${monster.elements.join(" / ")}</p>
-          <p>狀態 ${formatMonsterAilments(battle.monsterAilments)}</p>
-          <p>技能 ${monster.note}</p>
+          <h4>目前目標：${monster ? monster.name : "無"}</h4>
+          <p>HP ${monster ? Math.max(0, monster.currentHp) : 0} / ${monster ? monster.maxHp : 0}</p>
+          <p>屬性 ${monster ? monster.elements.join(" / ") : "無"}</p>
+          <p>狀態 ${monster ? formatMonsterAilments(monster.ailments) : "無"}</p>
+          <p>技能 ${monster ? formatMonsterSkillList(monster) : "無"}</p>
         </div>
         <div class="battle-actions">
           ${battleEnded ? `
@@ -705,14 +1394,38 @@ function renderBattle() {
           `}
         </div>
         <div class="inline-actions" id="skill-panel"></div>
+        ${targetPanel}
       </div>
       <div>
         <div class="log">${battle.log.join("\n")}</div>
       </div>
     </div>
   `;
+  app.querySelectorAll("[data-battle-enemy]").forEach(button => {
+    button.addEventListener("click", () => {
+      battle.selectedEnemy = Number(button.dataset.battleEnemy);
+      renderBattle();
+    });
+  });
   app.querySelectorAll("[data-action]").forEach(button => {
     button.addEventListener("click", () => handleBattleAction(button.dataset.action));
+  });
+  app.querySelectorAll("[data-target-enemy]").forEach(button => {
+    button.addEventListener("click", () => {
+      const targetIndex = Number(button.dataset.targetEnemy);
+      const mode = battle.targetMode;
+      battle.targetMode = null;
+      if (mode?.action === "attack") performBattleTurn({ type: "attack", targetIndex });
+      if (mode?.action === "skill") performBattleTurn({ type: "skill", index: mode.index, targetIndex });
+    });
+  });
+  app.querySelectorAll("[data-target-ally]").forEach(button => {
+    button.addEventListener("click", () => {
+      const allyIndex = Number(button.dataset.targetAlly);
+      const mode = battle.targetMode;
+      battle.targetMode = null;
+      if (mode?.action === "skill") performBattleTurn({ type: "skill", index: mode.index, allyIndex });
+    });
   });
 }
 
@@ -728,6 +1441,10 @@ function handleBattleAction(action) {
     state.battle = null;
     return renderStatus("已返回冒險畫面。");
   }
+  if (action === "cancel-target") {
+    state.battle.targetMode = null;
+    return renderBattle();
+  }
   if (action === "skills") return renderSkillButtons();
   if (action === "ally-turn") return performBattleTurn({ type: "allyTurn" });
   if (action === "attack") return performBattleTurn({ type: "attack" });
@@ -738,9 +1455,13 @@ function handleBattleAction(action) {
 
 function renderSkillButtons() {
   const panel = document.querySelector("#skill-panel");
-  panel.innerHTML = data.classSkills[state.currentPlayer.className]
-    .map((skill, index) => `<button class="skill-button" type="button" data-skill-index="${index}">${skill.name}<br><small>MP ${skill.cost}</small></button>`)
+  panel.innerHTML = availableSkills(state.currentPlayer)
+    .map(({ skill, index }) => `<button class="skill-button" type="button" data-skill-index="${index}">${skill.name}<br><small>MP ${skillCost(state.currentPlayer, skill)}</small></button>`)
     .join("");
+  if (!panel.innerHTML) {
+    panel.innerHTML = `<div class="stat">目前沒有可用技能。</div>`;
+    return;
+  }
   panel.querySelectorAll("[data-skill-index]").forEach(button => {
     button.addEventListener("click", () => performBattleTurn({ type: "skill", index: Number(button.dataset.skillIndex) }));
   });
@@ -749,7 +1470,8 @@ function renderSkillButtons() {
 async function performBattleTurn(action) {
   const player = state.currentPlayer;
   const battle = state.battle;
-  const monster = battle.monster;
+  const rawTarget = action.targetIndex !== undefined ? battle.enemies[action.targetIndex] : selectedEnemy(battle);
+  const monster = rawTarget && rawTarget.currentHp > 0 ? rawTarget : selectedEnemy(battle);
   const stats = battleStats(player, battle);
   let defend = false;
   let acted = true;
@@ -757,20 +1479,79 @@ async function performBattleTurn(action) {
   if (action.type === "allyTurn") {
     battle.log.push("你已倒下，由同伴接手戰鬥。");
   } else if (action.type === "attack") {
+    if (!monster) {
+      battle.log.push("目前沒有可攻擊的敵人。");
+      acted = false;
+      return renderBattle();
+    }
+    if (livingEnemies(battle).length > 1 && action.targetIndex === undefined) {
+      battle.targetMode = { action: "attack", type: "enemy" };
+      battle.log.push("請選擇普通攻擊的目標。");
+      return renderBattle();
+    }
     const weapon = player.equipment.find(item => item.slot === "主手");
     const damage = dealDamage(stats.attack, monsterBattleStats(monster, battle).defense, 1 + dualWieldBonus(player), weapon?.element, monster);
-    battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+    monster.currentHp = Math.max(0, monster.currentHp - damage);
     battle.log.push(`${player.name} 的普通攻擊造成 ${damage} 點傷害。`);
     applyLifesteal(player, damage, battle);
   } else if (action.type === "skill") {
     const skill = data.classSkills[player.className][action.index];
-    const realCost = skillCost(player, skill);
+    if (!skill || !isSkillUnlocked(player, action.index)) {
+      battle.log.push("這個技能尚未解鎖。");
+      acted = false;
+      return renderBattle();
+    }
+    const targetType = skillTargetType(skill);
+    if (targetType === "enemy" && action.targetIndex === undefined) {
+      const targets = livingEnemies(battle);
+      if (!targets.length) {
+        battle.log.push("目前沒有可指定的敵人。");
+        acted = false;
+        return renderBattle();
+      }
+      if (targets.length > 1) {
+        battle.targetMode = { action: "skill", type: "enemy", index: action.index };
+        battle.log.push(`請選擇 ${skill.name} 的目標。`);
+        return renderBattle();
+      }
+      action.targetIndex = battle.enemies.indexOf(targets[0]);
+    }
+    if (targetType === "enemy" && !monster) {
+      battle.log.push("目前沒有可指定的敵人。");
+      acted = false;
+      return renderBattle();
+    }
+    if (targetType === "ally" && action.allyIndex === undefined) {
+      const targets = allyTargets(player, battle);
+      if (targets.length > 1) {
+        battle.targetMode = { action: "skill", type: "ally", index: action.index };
+        battle.log.push(`請選擇 ${skill.name} 的施放對象。`);
+        return renderBattle();
+      }
+      action.allyIndex = 0;
+    }
+    if (targetType === "fallen_ally" && action.allyIndex === undefined) {
+      const allTargets = allyTargets(player, battle, true);
+      const fallenTargets = allTargets.filter(member => member.hp <= 0);
+      if (!fallenTargets.length) {
+        battle.log.push("目前沒有可復活的目標。");
+        acted = false;
+        return renderBattle();
+      }
+      if (fallenTargets.length > 1) {
+        battle.targetMode = { action: "skill", type: "fallen_ally", index: action.index };
+        battle.log.push(`請選擇 ${skill.name} 的目標。`);
+        return renderBattle();
+      }
+      action.allyIndex = allTargets.indexOf(fallenTargets[0]);
+    }
+    const realCost = skill.kind === "chiBlast" && (battle.selfBuffs.chi || 0) > 0 ? 0 : skillCost(player, skill);
     if (player.mp < realCost) {
       battle.log.push("MP 不足，技能施放失敗。");
       acted = false;
     } else {
       player.mp -= realCost;
-      handleSkill(skill, player, battle, monster, stats);
+      handleSkill(skill, player, battle, monster, stats, action);
     }
   } else if (action.type === "race") {
     handleRaceSkill(player, battle);
@@ -782,21 +1563,21 @@ async function performBattleTurn(action) {
   if (!acted) {
     return renderBattle();
   }
-  if (battle.monsterHp <= 0) {
+  if (!livingEnemies(battle).length) {
     syncBattleCompanions(player, battle);
     await finishVictory();
     return;
   }
 
-  companionTurn(battle, monster);
-  if (battle.monsterHp <= 0) {
+  companionTurn(battle);
+  if (!livingEnemies(battle).length) {
     syncBattleCompanions(player, battle);
     await finishVictory();
     return;
   }
 
-  monsterTurn(player, battle, monster, defend);
-  if (battle.monsterHp <= 0) {
+  monsterTurn(player, battle, defend);
+  if (!livingEnemies(battle).length) {
     syncBattleCompanions(player, battle);
     await finishVictory();
     return;
@@ -822,50 +1603,91 @@ async function performBattleTurn(action) {
   renderBattle();
 }
 
-function handleSkill(skill, player, battle, monster, stats) {
-  const monsterStats = monsterBattleStats(monster, battle);
+function handleSkill(skill, player, battle, monster, stats, action = {}) {
+  const monsterStats = monster ? monsterBattleStats(monster, battle) : null;
+  const targetType = skillTargetType(skill);
+  const allyPool = allyTargets(player, battle, targetType === "fallen_ally");
+  const targetAlly = action.allyIndex !== undefined ? allyPool[action.allyIndex] : player;
 
-  if (skill.kind === "attack") {
-    return castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-  }
+  if (skill.kind === "attack") return castAttackSkill(skill, player, battle, monster, stats, monsterStats);
   if (skill.kind === "attackDebuffDefense") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(battle, "defenseDown", skill.duration || 3, `${monster.name} 的防禦被削弱。`);
+    applyMonsterAilment(monster, "defenseDown", skill.duration || 3, `${monster.name} 的防禦被削弱。`, battle);
     return;
   }
   if (skill.kind === "attackDebuffAttack") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(battle, "attackDown", skill.duration || 3, `${monster.name} 的攻擊被壓制。`);
+    applyMonsterAilment(monster, "attackDown", skill.duration || 3, `${monster.name} 的攻擊被壓制。`, battle);
     return;
   }
   if (skill.kind === "attackDebuffResistance") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(battle, "resistanceDown", skill.duration || 3, `${monster.name} 的魔法抗性下降。`);
+    applyMonsterAilment(monster, "resistanceDown", skill.duration || 3, `${monster.name} 的魔法抗性下降。`, battle);
+    return;
+  }
+  if (skill.kind === "attackPoison") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    tryApplyChanceAilment(monster, "poison", skill, monster.name, "陷入中毒", battle);
+    return;
+  }
+  if (skill.kind === "attackSleep") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    tryApplyChanceAilment(monster, "sleep", skill, monster.name, "陷入睡眠", battle);
+    return;
+  }
+  if (skill.kind === "attackBlind") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    tryApplyChanceAilment(monster, "blind", skill, monster.name, "陷入失明", battle);
+    return;
+  }
+  if (skill.kind === "attackTrap") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    applyMonsterAilment(monster, "trap", skill.duration || 2, `${monster.name} 被布下陷阱。`, battle);
     return;
   }
   if (skill.kind === "attackDebuffSpeed") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(battle, "speedDown", skill.duration || 3, `${monster.name} 的行動變慢了。`);
+    applyMonsterAilment(monster, "speedDown", skill.duration || 3, `${monster.name} 的行動變慢了。`, battle);
     return;
   }
   if (skill.kind === "attackStun") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(battle, "stun", skill, monster.name, "被震得暈頭轉向");
+    tryApplyChanceAilment(monster, "stun", skill, monster.name, "被震得暈頭轉向", battle);
     return;
   }
   if (skill.kind === "attackFreeze") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(battle, "freeze", skill, monster.name, "被寒氣凍結");
+    tryApplyChanceAilment(monster, "freeze", skill, monster.name, "被寒氣凍結", battle);
     return;
   }
   if (skill.kind === "attackBurn") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(battle, "burn", skill, monster.name, "陷入灼燒");
+    tryApplyChanceAilment(monster, "burn", skill, monster.name, "陷入灼燒", battle);
+    return;
+  }
+  if (skill.kind === "multiHit") {
+    const hits = skill.hits || 2;
+    let total = 0;
+    for (let i = 0; i < hits && monster.currentHp > 0; i += 1) {
+      total += castAttackSkill({ ...skill, name: `${skill.name}(${i + 1})` }, player, battle, monster, stats, monsterStats);
+      if (monster.ailments.sleep > 0 && Math.random() < 0.3) {
+        monster.ailments.sleep = 0;
+        battle.log.push(`${monster.name} 被攻擊驚醒了。`);
+      }
+    }
+    battle.log.push(`${skill.name} 總共造成 ${total} 點傷害。`);
+    return;
+  }
+  if (skill.kind === "attackIgnoreDefense") {
+    const damage = dealDamage(stats[skill.stat], 0, skill.power, skill.element, monster);
+    monster.currentHp = Math.max(0, monster.currentHp - damage);
+    battle.log.push(`${player.name} 施放 ${skill.name}，無視防禦造成 ${damage} 點傷害。`);
+    applyLifesteal(player, damage, battle);
     return;
   }
   if (skill.kind === "attackParalyze") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(battle, "paralyze", skill, monster.name, "陷入麻痺");
+    tryApplyChanceAilment(monster, "paralyze", skill, monster.name, "陷入麻痺", battle);
     return;
   }
   if (skill.kind === "attackDrain") {
@@ -884,56 +1706,101 @@ function handleSkill(skill, player, battle, monster, stats) {
   }
   if (skill.kind === "heal") {
     const heal = holyHealAmount(player, skill, stats, skill.power, 4, 10);
-    player.hp = Math.min(stats.maxHp, player.hp + heal);
-    battle.log.push(`${player.name} 施放 ${skill.name}，回復 ${heal} HP。`);
+    targetAlly.hp = Math.min(targetAlly.maxHp, targetAlly.hp + heal);
+    battle.log.push(`${player.name} 施放 ${skill.name}，使 ${targetAlly.name} 回復 ${heal} HP。`);
     return;
   }
   if (skill.kind === "cleanse") {
-    const heal = holyHealAmount(player, skill, stats, 0.6, 0, 4);
-    player.hp = Math.min(stats.maxHp, player.hp + heal);
-    battle.log.push(`${player.name} 施放 ${skill.name}，驅散負面氣息並回復 ${heal} HP。`);
+    battle.log.push(`${player.name} 施放 ${skill.name}，清除了中毒、燒傷與凍結。`);
     return;
   }
   if (skill.kind === "cleanseAll") {
-    const heal = holyHealAmount(player, skill, stats, 0.55, 2, 6);
-    player.hp = Math.min(stats.maxHp, player.hp + heal);
-    (battle.companions || []).forEach(companion => {
-      companion.hp = Math.min(companion.maxHp, companion.hp + heal);
-    });
-    battle.log.push(`${player.name} 施放 ${skill.name}，淨化全隊並回復 ${heal} HP。`);
+    battle.log.push(`${player.name} 施放 ${skill.name}，清除了全隊所有異常狀態。`);
     return;
   }
   if (skill.kind === "healAll") {
     const amount = holyHealAmount(player, skill, stats, skill.power, 6, 12);
-    player.hp = Math.min(stats.maxHp, player.hp + amount);
-    (battle.companions || []).forEach(companion => {
-      companion.hp = Math.min(companion.maxHp, companion.hp + amount);
+    [player].concat(battle.companions || []).forEach(member => {
+      member.hp = Math.min(member.maxHp, member.hp + amount);
     });
     battle.log.push(`${player.name} 施放 ${skill.name}，全隊回復 ${amount} HP。`);
     return;
   }
   if (skill.kind === "fullHeal") {
-    player.hp = stats.maxHp;
-    player.mp = Math.min(stats.maxMp, player.mp + Math.floor(stats.maxMp * 0.25));
-    (battle.companions || []).forEach(companion => {
-      companion.hp = companion.maxHp;
+    [player].concat(battle.companions || []).forEach(member => {
+      member.hp = member.maxHp;
     });
+    player.mp = Math.min(stats.maxMp, player.mp + Math.floor(stats.maxMp * 0.25));
     battle.log.push(`${player.name} 施放 ${skill.name}，全隊恢復到最佳狀態。`);
     return;
   }
+  if (skill.kind === "fullHealSingle") {
+    targetAlly.hp = targetAlly.maxHp;
+    battle.log.push(`${player.name} 施放 ${skill.name}，使 ${targetAlly.name} 完全恢復。`);
+    return;
+  }
   if (skill.kind === "buffAttack") {
-    battle.buffs.attack = Math.max(battle.buffs.attack, 3);
+    battle.selfBuffs.attack = Math.max(battle.selfBuffs.attack, 3);
     battle.log.push(`${player.name} 的攻擊提升 3 回合。`);
     return;
   }
+  if (skill.kind === "guardShield") {
+    battle.selfBuffs.shield = Math.max(battle.selfBuffs.shield, 2);
+    battle.log.push(`${player.name} 展開護盾，本次防禦效果更強。`);
+    return;
+  }
+  if (skill.kind === "taunt") {
+    battle.selfBuffs.taunt = Math.max(battle.selfBuffs.taunt, 3);
+    battle.log.push(`${player.name} 成功吸引魔物仇恨。`);
+    return;
+  }
+  if (skill.kind === "counterStance") {
+    battle.selfBuffs.counter = Math.max(battle.selfBuffs.counter, 3);
+    battle.log.push(`${player.name} 擺出格擋反擊架勢。`);
+    return;
+  }
+  if (skill.kind === "healPercent") {
+    const heal = Math.max(1, Math.floor(stats.maxHp * skill.power));
+    player.hp = Math.min(stats.maxHp, player.hp + heal);
+    battle.log.push(`${player.name} 恢復了 ${heal} HP。`);
+    return;
+  }
+  if (skill.kind === "buffMagic") {
+    battle.selfBuffs.magic = Math.max(battle.selfBuffs.magic, 3);
+    battle.log.push(`${player.name} 的魔法輸出提升 3 回合。`);
+    return;
+  }
   if (skill.kind === "buffDefense") {
-    battle.buffs.defense = Math.max(battle.buffs.defense, 3);
+    battle.selfBuffs.defense = Math.max(battle.selfBuffs.defense, 3);
     battle.log.push(`${player.name} 的防禦提升 3 回合。`);
     return;
   }
   if (skill.kind === "buffResistance") {
-    battle.buffs.resistance = Math.max(battle.buffs.resistance, 3);
+    battle.selfBuffs.resistance = Math.max(battle.selfBuffs.resistance, 3);
     battle.log.push(`${player.name} 的抵抗提升 3 回合。`);
+    return;
+  }
+  if (["buffAttackDefenseSingle", "buffAttackSingle", "buffDefenseSingle", "buffMagicResistanceSingle", "buffSpeedSingle", "buffResistanceSingle", "buffAttackSingleStrong"].includes(skill.kind)) {
+    const buffStore = targetAlly === player ? battle.selfBuffs : targetAlly.battleBuffs;
+    if (skill.kind === "buffAttackDefenseSingle") {
+      buffStore.attack = Math.max(buffStore.attack, 3);
+      buffStore.defense = Math.max(buffStore.defense, 3);
+    } else if (skill.kind === "buffAttackSingle") {
+      buffStore.attack = Math.max(buffStore.attack, 3);
+    } else if (skill.kind === "buffDefenseSingle") {
+      buffStore.defense = Math.max(buffStore.defense, 3);
+    } else if (skill.kind === "buffMagicResistanceSingle") {
+      buffStore.magic = Math.max(buffStore.magic, 3);
+      buffStore.resistance = Math.max(buffStore.resistance, 3);
+    } else if (skill.kind === "buffSpeedSingle") {
+      buffStore.speed = Math.max(buffStore.speed, 3);
+      buffStore.evade = Math.max(buffStore.evade, 0.2);
+    } else if (skill.kind === "buffResistanceSingle") {
+      buffStore.resistance = Math.max(buffStore.resistance, 3);
+    } else if (skill.kind === "buffAttackSingleStrong") {
+      buffStore.attack = Math.max(buffStore.attack, 4);
+    }
+    battle.log.push(`${player.name} 施放 ${skill.name}，${targetAlly.name} 獲得增幅。`);
     return;
   }
   if (skill.kind === "buffAttackParty") {
@@ -959,6 +1826,17 @@ function handleSkill(skill, player, battle, monster, stats) {
     battle.log.push(`${player.name} 施放 ${skill.name}，全隊行動更敏捷。`);
     return;
   }
+  if (skill.kind === "statusWardParty") {
+    battle.selfBuffs.statusWard = Math.max(battle.selfBuffs.statusWard, 3);
+    battle.log.push(`${player.name} 張開祈禱結界，短時間免疫異常。`);
+    return;
+  }
+  if (skill.kind === "sanctuary") {
+    battle.selfBuffs.sanctuary = Math.max(battle.selfBuffs.sanctuary, 5);
+    battle.selfBuffs.regen = Math.max(battle.selfBuffs.regen, 5);
+    battle.log.push(`${player.name} 展開和平聖域，全隊受到的傷害減半。`);
+    return;
+  }
   if (skill.kind === "revive") {
     const fallen = [player].concat(battle.companions || []).filter(member => member.hp <= 0);
     if (!fallen.length) {
@@ -972,9 +1850,54 @@ function handleSkill(skill, player, battle, monster, stats) {
     battle.log.push(`${player.name} 施放 ${skill.name}，倒下的同伴重新站起來了。`);
     return;
   }
+  if (skill.kind === "reviveOne") {
+    if (!targetAlly || targetAlly.hp > 0) {
+      battle.log.push(`${skill.name} 沒有找到可復活的同伴。`);
+      return;
+    }
+    targetAlly.hp = Math.floor(targetAlly.maxHp * 0.4);
+    targetAlly.mp = Math.floor(targetAlly.maxMp * 0.3);
+    battle.log.push(`${player.name} 施放 ${skill.name}，${targetAlly.name} 重返戰場。`);
+    return;
+  }
+  if (skill.kind === "chargeUp") {
+    battle.selfBuffs.chi = Math.min(5, (battle.selfBuffs.chi || 0) + 1);
+    battle.log.push(`${player.name} 聚氣成功，目前累積 ${battle.selfBuffs.chi} 層。`);
+    return;
+  }
+  if (skill.kind === "chiBlast") {
+    const bonus = battle.selfBuffs.chi || 0;
+    const damage = dealDamage(stats.attack + bonus * 4, monsterStats.resistance, skill.power + bonus * 0.25, skill.element, monster);
+    monster.currentHp = Math.max(0, monster.currentHp - damage);
+    battle.log.push(`${player.name} 以 ${skill.name} 造成 ${damage} 點傷害並驅散敵方減益。`);
+    ["attackDown", "defenseDown", "resistanceDown", "speedDown"].forEach(key => { monster.ailments[key] = 0; });
+    battle.selfBuffs.chi = 0;
+    return;
+  }
+  if (skill.kind === "afterimage") {
+    battle.selfBuffs.afterimage = Math.max(battle.selfBuffs.afterimage, 1);
+    battle.log.push(`${player.name} 進入殘影狀態，將迴避下一次攻擊。`);
+    return;
+  }
+  if (skill.kind === "attackAfterimage") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    battle.selfBuffs.afterimage = Math.max(battle.selfBuffs.afterimage, 1);
+    battle.log.push(`${player.name} 攻擊後留下殘影。`);
+    return;
+  }
+  if (skill.kind === "steal") {
+    if (Math.random() < 0.55) {
+      const stolenGold = randomInt(5, 18);
+      player.gold += stolenGold;
+      battle.log.push(`${player.name} 竊盜成功，取得 ${stolenGold} 金幣。`);
+    } else {
+      battle.log.push(`${player.name} 竊盜失敗。`);
+    }
+    return;
+  }
   if (skill.kind === "evade") {
-    battle.buffs.speed = Math.max(battle.buffs.speed, 2);
-    battle.buffs.evade = Math.max(battle.buffs.evade, 0.2);
+    battle.selfBuffs.speed = Math.max(battle.selfBuffs.speed, 2);
+    battle.selfBuffs.evade = Math.max(battle.selfBuffs.evade, 0.2);
     battle.log.push(`${player.name} 的閃避率大幅提高。`);
   }
 }
@@ -997,51 +1920,46 @@ function handleRaceSkill(player, battle) {
   battle.log.push("這個種族技能是被動效果，戰鬥中會自動生效。");
 }
 
-function monsterTurn(player, battle, monster, defend) {
-  const ailmentResult = processMonsterAilments(battle, monster);
-  if (ailmentResult === "defeated") return;
-  if (ailmentResult === "skip") return;
-
-  const monsterStats = monsterBattleStats(monster, battle);
-  const partyTargets = [];
-  if (player.hp > 0) {
-    partyTargets.push({ type: "player", actor: player, stats: battleStats(player, battle), defend });
-  }
-  (battle.companions || [])
-    .filter(companion => companion.hp > 0)
-    .forEach(companion => {
-      partyTargets.push({ type: "companion", actor: companion, stats: companionStats(companion, battle), defend: false });
-    });
-  if (!partyTargets.length) return;
-  const target = partyTargets[Math.floor(Math.random() * partyTargets.length)];
-  const evadeRate = Math.min(0.5, 0.05 + Math.max(0, target.stats.speed - monsterStats.speed) * 0.01 + battle.buffs.evade);
-  if (Math.random() < evadeRate) {
-    battle.log.push(`${target.actor.name} 閃過了 ${monster.name} 的攻擊。`);
-    return;
-  }
-  let damage = Math.max(1, monsterStats.attack - Math.floor(target.stats.defense / 2) + randomInt(0, 4));
-  if (target.defend) damage = Math.floor(damage * 0.65);
-  if (target.type === "player" && player.raceName === "矮人" && !battle.dwarfGuardUsed) {
-    damage = Math.floor(damage * 0.7);
-    battle.dwarfGuardUsed = true;
-    battle.log.push("鋼鐵體魄發動，首次重擊傷害被削減。");
-  }
-  target.actor.hp = Math.max(0, target.actor.hp - damage);
-  battle.log.push(`${monster.name} 對 ${target.actor.name} 使用 ${monster.note}，造成 ${damage} 點傷害。`);
+function monsterTurn(player, battle, defend) {
+  livingEnemies(battle).forEach(monster => {
+    const ailmentResult = processMonsterAilments(battle, monster);
+    if (ailmentResult === "defeated" || ailmentResult === "skip") return;
+    const monsterStats = monsterBattleStats(monster, battle);
+    const partyTargets = [];
+    if (player.hp > 0) {
+      partyTargets.push({ type: "player", actor: player, stats: battleStats(player, battle), defend });
+    }
+    (battle.companions || [])
+      .filter(companion => companion.hp > 0)
+      .forEach(companion => {
+        partyTargets.push({ type: "companion", actor: companion, stats: companionStats(companion, battle), defend: false });
+      });
+    if (!partyTargets.length) return;
+    const skill = chooseMonsterSkill(monster, battle);
+    if (skill && monster.mp >= (skill.cost || 0)) {
+      monster.mp -= skill.cost || 0;
+      executeMonsterSkill(monster, skill, player, battle, partyTargets, defend);
+    } else {
+      executeMonsterSkill(monster, { name: monster.note || "普通攻擊", kind: "attack", stat: "attack", power: 1, targetScope: "single" }, player, battle, partyTargets, defend);
+    }
+  });
 }
 
 async function finishVictory() {
   const player = state.currentPlayer;
   const battle = state.battle;
-  const monster = battle.monster;
-  player.exp += monster.exp;
-  player.gold += monster.gold;
-  battle.log.push(`你擊敗了 ${monster.name}，獲得 EXP ${monster.exp}、金幣 ${monster.gold}。`);
-  const droppedItemKey = rollDrop(monster);
-  if (droppedItemKey) {
-    const droppedItem = addItemToInventory(player, droppedItemKey);
-    battle.log.push(`掉落物品：${droppedItem.name}`);
-  }
+  const totalExp = (battle.enemies || []).reduce((sum, enemy) => sum + enemy.exp, 0);
+  const totalGold = (battle.enemies || []).reduce((sum, enemy) => sum + enemy.gold, 0);
+  player.exp += totalExp;
+  player.gold += totalGold;
+  battle.log.push(`你擊敗了本次敵群，獲得 EXP ${totalExp}、金幣 ${totalGold}。`);
+  (battle.enemies || []).forEach(enemy => {
+    const droppedItemKey = rollDrop(enemy);
+    if (droppedItemKey) {
+      const droppedItem = addItemToInventory(player, droppedItemKey);
+      battle.log.push(`掉落物品：${droppedItem.name}`);
+    }
+  });
   while (player.exp >= nextLevelExp(player.level)) {
     player.exp -= nextLevelExp(player.level);
     player.level += 1;
@@ -1055,6 +1973,10 @@ async function finishVictory() {
   }
   if (battle.type === "story") {
     player.storyStage += 1;
+    const nextStoryArea = availableAreas("story", player)[0];
+    if (nextStoryArea?.id) {
+      player.currentAreaId = nextStoryArea.id;
+    }
   }
   if (battle.type === "dungeon") {
     player.dungeonClears += 1;
@@ -1099,6 +2021,7 @@ function buildPlayer(name, raceCode, classCode) {
     skillPoints: 1,
     storyStage: 1,
     dungeonClears: 0,
+    currentAreaId: "green_fields",
     hp: stats.maxHp,
     mp: stats.maxMp,
     ...stats,
@@ -1143,6 +2066,12 @@ function battleStats(player, battle) {
   if (battle.buffs.magic) stats.magic += 5;
   if (battle.buffs.resistance) stats.resistance += 5;
   if (battle.buffs.speed) stats.speed += 5;
+  if (battle.selfBuffs?.attack) stats.attack += 5;
+  if (battle.selfBuffs?.defense) stats.defense += 5;
+  if (battle.selfBuffs?.magic) stats.magic += 5;
+  if (battle.selfBuffs?.resistance) stats.resistance += 5;
+  if (battle.selfBuffs?.speed) stats.speed += 5;
+  if (skillKnown(player, "決死反攻") && player.hp <= stats.maxHp * 0.4) stats.attack += 8;
   if (battle.buffs.dragon) {
     stats.attack += 6;
     stats.magic += 6;
@@ -1153,6 +2082,125 @@ function battleStats(player, battle) {
 function dealDamage(attackValue, defenseValue, power, element, monster) {
   const base = Math.max(1, Math.floor(attackValue * power - defenseValue / 2 + randomInt(0, 5)));
   return Math.max(1, Math.floor(base * elementMultiplier(element, monster.elements)));
+}
+
+function chooseMonsterSkill(monster, battle) {
+  const skills = (monster.skills || []).filter(skill => monster.mp >= (skill.cost || 0));
+  if (!skills.length) return null;
+  const hpRatio = monster.currentHp / Math.max(1, monster.maxHp);
+  const weighted = skills.map(skill => {
+    let weight = Math.max(1, skill.weight || 1);
+    if (skill.kind === "healSelf") {
+      weight = hpRatio <= 0.45 ? weight * 4 : Math.max(1, Math.floor(weight * 0.4));
+    }
+    if (["buffAttackSelf", "buffDefenseSelf", "buffMagicSelf"].includes(skill.kind)) {
+      const key = skill.kind === "buffAttackSelf" ? "attack" : skill.kind === "buffDefenseSelf" ? "defense" : "magic";
+      weight = monster.battleBuffs?.[key] > 0 ? 1 : (battle.turn <= 3 ? weight * 2 : weight);
+    }
+    if (skill.targetScope === "all_party" && livingEnemies(battle).length === 1) {
+      weight += 1;
+    }
+    return { ...skill, weight };
+  });
+  return weightedPick(weighted);
+}
+
+function chooseMonsterTarget(monster, partyTargets, battle) {
+  const forcedPlayer = battle.selfBuffs.taunt > 0 && state.currentPlayer?.hp > 0;
+  if (forcedPlayer) {
+    return partyTargets.find(item => item.type === "player") || partyTargets[0];
+  }
+  return partyTargets[Math.floor(Math.random() * partyTargets.length)];
+}
+
+function monsterHitTarget(monster, skill, target, battle, defend) {
+  const monsterStats = monsterBattleStats(monster, battle);
+  const blindPenalty = monster.ailments.blind > 0 ? 0.5 : 0;
+  const evadeRate = Math.min(0.85, 0.05 + Math.max(0, target.stats.speed - monsterStats.speed) * 0.01 + battle.buffs.evade + (target.type === "player" ? battle.selfBuffs.evade : (target.actor.battleBuffs?.evade || 0)) + blindPenalty);
+  if (Math.random() < evadeRate) {
+    battle.log.push(`${target.actor.name} 閃過了 ${monster.name} 的 ${skill.name}。`);
+    return;
+  }
+  if (target.type === "player" && battle.selfBuffs.afterimage > 0) {
+    battle.selfBuffs.afterimage = 0;
+    battle.log.push(`${target.actor.name} 的殘影替身化解了 ${skill.name}。`);
+    return;
+  }
+  if (target.type === "companion" && target.actor.battleBuffs?.afterimage > 0) {
+    target.actor.battleBuffs.afterimage = 0;
+    battle.log.push(`${target.actor.name} 的殘影化解了 ${skill.name}。`);
+    return;
+  }
+  const attackStat = skill.stat === "magic" ? monsterStats.magic : monsterStats.attack;
+  const defenseStat = skill.stat === "magic" ? target.stats.resistance : target.stats.defense;
+  let damage = skill.kind === "attackIgnoreDefense"
+    ? Math.max(1, Math.floor(attackStat * skill.power + randomInt(0, 4)))
+    : Math.max(1, Math.floor(attackStat * skill.power - defenseStat / 2 + randomInt(0, 4)));
+  damage = Math.max(1, Math.floor(damage * elementMultiplier(skill.element, target.actor.elements || [])));
+  if (target.defend) damage = Math.floor(damage * (battle.selfBuffs.shield > 0 ? 0.4 : 0.65));
+  if (battle.selfBuffs.sanctuary > 0) damage = Math.floor(damage * 0.5);
+  if (target.type === "player" && target.actor.raceName === "矮人" && !battle.dwarfGuardUsed) {
+    damage = Math.floor(damage * 0.7);
+    battle.dwarfGuardUsed = true;
+    battle.log.push("鋼鐵體魄發動，首次重擊傷害被削減。");
+  }
+  target.actor.hp = Math.max(0, target.actor.hp - damage);
+  battle.log.push(`${monster.name} 對 ${target.actor.name} 使用 ${skill.name}，造成 ${damage} 點傷害。`);
+  if (skill.kind === "attackDrain") {
+    const heal = Math.max(1, Math.floor(damage * 0.3));
+    monster.currentHp = Math.min(monster.maxHp, monster.currentHp + heal);
+    battle.log.push(`${monster.name} 吸收了 ${heal} HP。`);
+  }
+  if (target.type === "player" && target.actor.className === "武鬥家" && skillKnown(target.actor, "真氣爆發")) {
+    battle.selfBuffs.chi = Math.min(5, (battle.selfBuffs.chi || 0) + 1);
+    battle.log.push("真氣爆發觸發，獲得 1 層聚氣。");
+  }
+  if (target.type === "player" && battle.selfBuffs.counter > 0 && Math.random() < 0.3) {
+    const counterDamage = Math.max(1, Math.floor(battleStats(target.actor, battle).attack * 0.9));
+    monster.currentHp = Math.max(0, monster.currentHp - counterDamage);
+    battle.log.push(`${target.actor.name} 反擊成功，造成 ${counterDamage} 點傷害。`);
+  }
+}
+
+function executeMonsterSkill(monster, skill, player, battle, partyTargets, defend) {
+  if (skill.kind === "healSelf") {
+    const amount = Math.max(8, Math.floor(monster.magic * Math.max(0.2, skill.power || 0.2)) + randomInt(6, 12));
+    monster.currentHp = Math.min(monster.maxHp, monster.currentHp + amount);
+    battle.log.push(`${monster.name} 使用 ${skill.name}，回復 ${amount} HP。`);
+    return;
+  }
+  if (skill.kind === "buffAttackSelf") {
+    monster.battleBuffs.attack = Math.max(monster.battleBuffs.attack, 3);
+    battle.log.push(`${monster.name} 使用 ${skill.name}，攻擊力提升。`);
+    return;
+  }
+  if (skill.kind === "buffDefenseSelf") {
+    monster.battleBuffs.defense = Math.max(monster.battleBuffs.defense, 3);
+    battle.log.push(`${monster.name} 使用 ${skill.name}，防禦力提升。`);
+    return;
+  }
+  if (skill.kind === "buffMagicSelf") {
+    monster.battleBuffs.magic = Math.max(monster.battleBuffs.magic, 3);
+    battle.log.push(`${monster.name} 使用 ${skill.name}，魔法力提升。`);
+    return;
+  }
+  if (skill.kind === "multiHit") {
+    const target = chooseMonsterTarget(monster, partyTargets, battle);
+    const hitCount = Math.max(2, skill.hits || 2);
+    for (let i = 0; i < hitCount; i += 1) {
+      if (target.actor.hp <= 0) break;
+      monsterHitTarget(monster, skill, target, battle, defend);
+    }
+    return;
+  }
+  if (skill.targetScope === "all_party" || skill.kind === "attackAll") {
+    partyTargets.forEach(target => {
+      if (target.actor.hp > 0) monsterHitTarget(monster, { ...skill, kind: "attack" }, target, battle, defend);
+    });
+    return;
+  }
+  const target = chooseMonsterTarget(monster, partyTargets, battle);
+  monsterHitTarget(monster, skill, target, battle, defend);
 }
 
 function elementMultiplier(attackElement, monsterElements) {
@@ -1181,24 +2229,75 @@ function skillCost(player, skill) {
 }
 
 function createMonsterAilments() {
-  return { burn: 0, freeze: 0, paralyze: 0, stun: 0, attackDown: 0, defenseDown: 0, resistanceDown: 0, speedDown: 0 };
+  return { burn: 0, poison: 0, freeze: 0, paralyze: 0, blind: 0, sleep: 0, trap: 0, stun: 0, attackDown: 0, defenseDown: 0, resistanceDown: 0, speedDown: 0 };
+}
+
+function createBattleBuffs() {
+  return { attack: 0, defense: 0, magic: 0, resistance: 0, speed: 0, evade: 0, shield: 0, counter: 0, afterimage: 0, statusWard: 0, sanctuary: 0, regen: 0, taunt: 0, chi: 0 };
+}
+
+function buildBattleEnemy(monster) {
+  return {
+    ...structuredClone(monster),
+    currentHp: monster.hp,
+    maxHp: monster.hp,
+    ailments: createMonsterAilments(),
+    battleBuffs: createBattleBuffs(),
+    skills: (data.monsterSkills[monster.code] || []).map(skill => ({ ...structuredClone(skill) })),
+  };
+}
+
+function livingEnemies(battle) {
+  return (battle.enemies || []).filter(enemy => enemy.currentHp > 0);
+}
+
+function selectedEnemy(battle) {
+  const enemies = battle.enemies || [];
+  if (!enemies.length) return null;
+  const current = enemies[battle.selectedEnemy ?? 0];
+  if (current && current.currentHp > 0) return current;
+  const nextIndex = enemies.findIndex(enemy => enemy.currentHp > 0);
+  if (nextIndex >= 0) {
+    battle.selectedEnemy = nextIndex;
+    return enemies[nextIndex];
+  }
+  return null;
+}
+
+function allyTargets(player, battle, includeFallen = false) {
+  return [player].concat(battle.companions || []).filter(member => includeFallen || member.hp > 0);
+}
+
+function skillTargetType(skill) {
+  const enemyKinds = new Set(["attack", "attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance", "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze", "attackBurn", "multiHit", "attackIgnoreDefense", "attackParalyze", "attackDrain", "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal"]);
+  const allyKinds = new Set(["heal", "fullHealSingle", "buffAttackSingle", "buffDefenseSingle", "buffResistanceSingle", "buffAttackSingleStrong", "buffAttackDefenseSingle", "buffMagicResistanceSingle", "buffSpeedSingle"]);
+  if (enemyKinds.has(skill.kind)) return "enemy";
+  if (allyKinds.has(skill.kind)) return "ally";
+  if (skill.kind === "reviveOne") return "fallen_ally";
+  return "none";
 }
 
 function monsterBattleStats(monster, battle) {
-  const ailments = battle?.monsterAilments || createMonsterAilments();
+  const ailments = monster?.ailments || createMonsterAilments();
+  const buffs = monster?.battleBuffs || createBattleBuffs();
   return {
-    attack: Math.max(1, monster.attack - (ailments.attackDown ? 5 : 0)),
-    defense: Math.max(0, monster.defense - (ailments.defenseDown ? 6 : 0)),
-    resistance: Math.max(0, monster.resistance - (ailments.resistanceDown ? 6 : 0)),
-    speed: Math.max(1, monster.speed - (ailments.speedDown ? 5 : 0) - (ailments.freeze ? 4 : 0)),
+    attack: Math.max(1, monster.attack - (ailments.attackDown ? 5 : 0) + (buffs.attack ? 5 : 0)),
+    defense: Math.max(0, monster.defense - (ailments.defenseDown ? 6 : 0) + (buffs.defense ? 5 : 0)),
+    magic: Math.max(1, monster.magic + (buffs.magic ? 5 : 0)),
+    resistance: Math.max(0, monster.resistance - (ailments.resistanceDown ? 6 : 0) - (ailments.burn ? 3 : 0) - (ailments.freeze ? 3 : 0) + (buffs.resistance ? 5 : 0)),
+    speed: Math.max(1, monster.speed - (ailments.speedDown ? 5 : 0) - (ailments.freeze ? 4 : 0) + (buffs.speed ? 5 : 0)),
   };
 }
 
 function castAttackSkill(skill, player, battle, monster, stats, monsterStats) {
   const targetDefense = skill.stat === "magic" ? monsterStats.resistance : monsterStats.defense;
   const damage = dealDamage(stats[skill.stat], targetDefense, skill.power, skill.element, monster);
-  battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+  monster.currentHp = Math.max(0, monster.currentHp - damage);
   battle.log.push(`${player.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
+  if (monster.ailments.sleep > 0 && Math.random() < 0.3) {
+    monster.ailments.sleep = 0;
+    battle.log.push(`${monster.name} 被攻擊驚醒了。`);
+  }
   applyLifesteal(player, damage, battle);
   if (player.raceName === "精靈" && skill.stat === "magic" && Math.random() < 0.35) {
     player.mp = Math.min(effectiveStats(player).maxMp, player.mp + 5);
@@ -1215,24 +2314,39 @@ function holyHealAmount(player, skill, stats, power, bonusMin, bonusMax) {
   return heal;
 }
 
-function applyMonsterAilment(battle, key, duration, message) {
-  if (!battle.monsterAilments) battle.monsterAilments = createMonsterAilments();
-  battle.monsterAilments[key] = Math.max(battle.monsterAilments[key] || 0, duration);
+function applyMonsterAilment(monster, key, duration, message, battle) {
+  if (!monster.ailments) monster.ailments = createMonsterAilments();
+  monster.ailments[key] = Math.max(monster.ailments[key] || 0, duration);
   if (message) battle.log.push(message);
 }
 
-function tryApplyChanceAilment(battle, key, skill, monsterName, detail) {
+function tryApplyChanceAilment(monster, key, skill, monsterName, detail, battle) {
   if (Math.random() >= (skill.chance || 0)) return;
-  applyMonsterAilment(battle, key, skill.duration || 2, `${monsterName} ${detail}。`);
+  applyMonsterAilment(monster, key, skill.duration || 2, `${monsterName} ${detail}。`, battle);
 }
 
 function processMonsterAilments(battle, monster) {
-  const ailments = battle.monsterAilments || createMonsterAilments();
+  const ailments = monster.ailments || createMonsterAilments();
   if (ailments.burn > 0) {
-    const damage = Math.max(4, Math.floor(monster.hp * 0.06) + randomInt(1, 4));
-    battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+    const damage = Math.max(4, Math.floor(monster.maxHp * 0.06) + randomInt(1, 4));
+    monster.currentHp = Math.max(0, monster.currentHp - damage);
     battle.log.push(`${monster.name} 受到灼燒傷害 ${damage} 點。`);
-    if (battle.monsterHp <= 0) return "defeated";
+    if (monster.currentHp <= 0) return "defeated";
+  }
+  if (ailments.poison > 0) {
+    const damage = Math.max(3, Math.floor(monster.maxHp * 0.1) + randomInt(1, 3));
+    monster.currentHp = Math.max(0, monster.currentHp - damage);
+    battle.log.push(`${monster.name} 受到中毒傷害 ${damage} 點。`);
+    if (monster.currentHp <= 0) return "defeated";
+  }
+  if (ailments.trap > 0) {
+    monster.currentHp = Math.max(0, monster.currentHp - 50);
+    battle.log.push(`${monster.name} 踩中陷阱，受到 50 點傷害。`);
+    if (monster.currentHp <= 0) return "defeated";
+  }
+  if (ailments.sleep > 0) {
+    battle.log.push(`${monster.name} 陷入睡眠，無法行動。`);
+    return "skip";
   }
   if (ailments.stun > 0) {
     battle.log.push(`${monster.name} 仍在暈眩中，行動失敗。`);
@@ -1250,9 +2364,14 @@ function processMonsterAilments(battle, monster) {
 }
 
 function formatMonsterAilments(ailments = {}) {
-  const labels = { burn: "灼燒", freeze: "冰凍", paralyze: "麻痺", stun: "暈眩", attackDown: "攻擊下降", defenseDown: "防禦下降", resistanceDown: "抗性下降", speedDown: "速度下降" };
+  const labels = { burn: "灼燒", poison: "中毒", freeze: "凍結", paralyze: "麻痺", blind: "失明", sleep: "睡眠", trap: "陷阱", stun: "暈眩", attackDown: "攻擊下降", defenseDown: "防禦下降", resistanceDown: "抗性下降", speedDown: "速度下降" };
   const active = Object.entries(ailments).filter(([, value]) => value > 0).map(([key, value]) => `${labels[key]} ${value}`);
   return active.length ? active.join(" / ") : "無";
+}
+
+function formatMonsterSkillList(monster) {
+  const names = (monster?.skills || []).map(skill => skill.name);
+  return names.length ? names.join("、") : (monster?.note || "普通攻擊");
 }
 
 function tickBuffs(battle) {
@@ -1260,8 +2379,32 @@ function tickBuffs(battle) {
     if (battle.buffs[key] > 0) battle.buffs[key] -= 1;
   });
   battle.buffs.evade = Math.max(0, battle.buffs.evade - 0.15);
-  Object.keys(battle.monsterAilments || {}).forEach(key => {
-    if (battle.monsterAilments[key] > 0) battle.monsterAilments[key] -= 1;
+  ["attack", "defense", "magic", "resistance", "speed", "shield", "counter", "afterimage", "statusWard", "sanctuary", "regen", "taunt"].forEach(key => {
+    if (battle.selfBuffs?.[key] > 0) battle.selfBuffs[key] -= 1;
+  });
+  if (battle.selfBuffs?.regen > 0 && state.currentPlayer) {
+    const stats = battleStats(state.currentPlayer, battle);
+    const heal = Math.max(1, Math.floor(stats.maxHp * 0.1));
+    state.currentPlayer.hp = Math.min(stats.maxHp, state.currentPlayer.hp + heal);
+    battle.log.push(`和平聖域回復 ${heal} HP。`);
+  }
+  if (battle.selfBuffs) battle.selfBuffs.evade = Math.max(0, battle.selfBuffs.evade - 0.15);
+  (battle.companions || []).forEach(companion => {
+    if (!companion.battleBuffs) return;
+    ["attack", "defense", "magic", "resistance", "speed", "shield", "counter", "afterimage", "statusWard", "sanctuary", "regen", "taunt"].forEach(key => {
+      if (companion.battleBuffs[key] > 0) companion.battleBuffs[key] -= 1;
+    });
+    companion.battleBuffs.evade = Math.max(0, (companion.battleBuffs.evade || 0) - 0.15);
+  });
+  (battle.enemies || []).forEach(enemy => {
+    Object.keys(enemy.ailments || {}).forEach(key => {
+      if (enemy.ailments[key] > 0) enemy.ailments[key] -= 1;
+    });
+    if (enemy.battleBuffs) {
+      ["attack", "defense", "magic", "resistance", "speed", "shield", "counter", "afterimage", "statusWard", "sanctuary", "regen", "taunt"].forEach(key => {
+        if (enemy.battleBuffs[key] > 0) enemy.battleBuffs[key] -= 1;
+      });
+    }
   });
 }
 
@@ -1283,6 +2426,43 @@ async function saveCurrentPlayer(showMessage = true) {
 
 function nextLevelExp(level) {
   return 100 + (level - 1) * 40;
+}
+
+function spentSkillPoints(player) {
+  return (player.branches || []).reduce((sum, branch) => sum + (branch.level || 0), 0);
+}
+
+function branchLevel(player, branchName) {
+  return (player.branches || []).find(branch => branch.name === branchName)?.level || 0;
+}
+
+function isSkillUnlocked(player, index) {
+  const skill = (data.classSkills[player.className] || [])[index];
+  if (!skill) return false;
+  if (!skill.branch) return true;
+  return branchLevel(player, skill.branch) >= (skill.requiredPoints || 0);
+}
+
+function availableSkills(player) {
+  return (data.classSkills[player.className] || [])
+    .map((skill, index) => ({ skill, index }))
+    .filter(({ skill, index }) => (!skill.branch || isSkillUnlocked(player, index)) && !skill.kind.startsWith("passive"));
+}
+
+function skillKnown(player, skillName) {
+  return (data.classSkills[player.className] || []).some((skill, index) => skill.name === skillName && isSkillUnlocked(player, index));
+}
+
+function skillUnlockText(player, skill) {
+  if (!skill.branch) return "已解鎖";
+  const current = branchLevel(player, skill.branch);
+  return `需 ${skill.branch} 投入 ${skill.requiredPoints || 0} 點，目前 ${current} 點`;
+}
+
+function skillKindText(kind) {
+  if (kind.startsWith("attack")) return "攻擊技能";
+  if (kind.includes("heal") || kind.includes("cleanse") || kind === "revive") return "回復技能";
+  return "輔助技能";
 }
 
 function applyBonuses(target, bonuses) {
@@ -1326,14 +2506,27 @@ function randomInt(min, max) {
 function leaveCurrentPlayer() {
   state.currentPlayer = null;
   state.battle = null;
+  state.shopStock = [];
   renderHome();
 }
 
 function normalizePlayer(player) {
   if (!player) return;
+  const job = data.classes.find(item => item.name === player.className || item.code === player.classCode);
+  player.skillPoints ??= 1;
   player.inventory ??= [];
   player.equipment ??= [];
   player.companions ??= [];
+   player.currentAreaId ??= "green_fields";
+   if (!getAreaById(player.currentAreaId)) {
+     player.currentAreaId = "green_fields";
+   }
+  if (!player.branches || player.branches.length !== (job?.branches || []).length || player.branches.some((branch, index) => branch.name !== job.branches[index])) {
+    player.branches = (job?.branches || []).map(name => {
+      const existing = (player.branches || []).find(branch => branch.name === name);
+      return { name, level: existing?.level || 0 };
+    });
+  }
   player.equipment = player.equipment.map(item => ({ bonuses: {}, ...item, bonuses: item.bonuses || {} }));
   player.companions = player.companions.map(companion => ({ ...companion, level: companion.level || 1, classLevel: companion.classLevel || 1 }));
 }
@@ -1356,6 +2549,11 @@ function starterEquipmentForClass(className) {
 }
 
 function rollDrop(monster) {
+  const dropEntries = data.dropTables?.[monster.dropTable || monster.code] || [];
+  if (dropEntries.length) {
+    const picked = weightedPick(dropEntries);
+    return picked?.itemKey || null;
+  }
   if (!monster.drops?.length) return null;
   const rate = monster.category === "story" ? 1 : monster.category === "dungeon" ? 0.8 : 0.55;
   if (Math.random() > rate) return null;
@@ -1435,6 +2633,84 @@ function buyShopItem(itemKey) {
   return `${item.name} 已購買並放入背包。`;
 }
 
+function sellPrice(item) {
+  if (!item) return 0;
+  return Math.max(1, Math.floor((item.price || 10) * 0.5));
+}
+
+function sellInventoryItem(index) {
+  const player = state.currentPlayer;
+  const item = player.inventory[index];
+  if (!item) return "找不到這個物品。";
+  player.gold += sellPrice(item);
+  if (item.quantity && item.quantity > 1) {
+    item.quantity -= 1;
+  } else {
+    player.inventory.splice(index, 1);
+  }
+  return `${item.name} 已販賣，獲得 ${sellPrice(item)} 金幣。`;
+}
+
+function sellEquippedItem(index) {
+  const player = state.currentPlayer;
+  const item = player.equipment[index];
+  if (!item) return "找不到這件裝備。";
+  const value = sellPrice(item);
+  player.gold += value;
+  player.equipment.splice(index, 1);
+  const stats = effectiveStats(player);
+  player.hp = Math.min(player.hp, stats.maxHp);
+  player.mp = Math.min(player.mp, stats.maxMp);
+  return `${item.name} 已販賣，獲得 ${value} 金幣。`;
+}
+
+function generateShopStock() {
+  const player = state.currentPlayer;
+  const poolId = player ? currentShopPoolId(player) : "";
+  const weightedPool = (data.shopPools?.[poolId] || []).filter(entry => {
+    if (!player) return true;
+    return player.level >= entry.minLevel && player.level <= entry.maxLevel;
+  });
+  if (!weightedPool.length) {
+    const guaranteed = ["potion_hp_s", "potion_mp_s"];
+    const pool = data.shopItems.filter(key => !guaranteed.includes(key));
+    const stock = [...guaranteed];
+    while (stock.length < 8 && pool.length) {
+      const index = randomInt(0, pool.length - 1);
+      stock.push(pool[index]);
+      pool.splice(index, 1);
+    }
+    return stock;
+  }
+  const stock = [];
+  const uniqueKeys = new Set();
+  while (stock.length < 8 && uniqueKeys.size < weightedPool.length) {
+    const picked = weightedPick(weightedPool);
+    if (!picked?.itemKey || uniqueKeys.has(picked.itemKey)) continue;
+    uniqueKeys.add(picked.itemKey);
+    stock.push(picked.itemKey);
+  }
+  if (!stock.includes("potion_hp_s")) stock.unshift("potion_hp_s");
+  if (!stock.includes("potion_mp_s")) stock.splice(Math.min(1, stock.length), 0, "potion_mp_s");
+  return stock.slice(0, 8);
+}
+
+function ensureShopStock() {
+  if (!state.shopStock?.length) {
+    state.shopStock = generateShopStock();
+  }
+  return state.shopStock;
+}
+
+function refreshShopStock() {
+  const player = state.currentPlayer;
+  const cost = 8;
+  if (player.gold < cost) return "金幣不足，無法刷新商店。";
+  player.gold -= cost;
+  state.shopStock = generateShopStock();
+  return `商店已刷新，本次花費 ${cost} 金幣。`;
+}
+
 function recruitCompanion(name, classCode) {
   const player = state.currentPlayer;
   if (!name || !classCode) return "請輸入同伴名字並選擇職業。";
@@ -1473,7 +2749,7 @@ function levelUpCompanion(companion) {
 }
 
 function applyClassLevelGrowth(target, className) {
-  const growth = classAutoGrowth[className] || classAutoGrowth["旅行者"];
+  const growth = state.classGrowth?.[className] || classAutoGrowth[className] || classAutoGrowth["旅行者"];
   Object.entries(growth).forEach(([key, value]) => {
     target[key] += value;
   });
@@ -1495,20 +2771,27 @@ function companionStats(companion, battle = null) {
   if (battle?.buffs?.magic) stats.magic += 5;
   if (battle?.buffs?.resistance) stats.resistance += 5;
   if (battle?.buffs?.speed) stats.speed += 5;
+  if (companion.battleBuffs?.attack) stats.attack += 5;
+  if (companion.battleBuffs?.defense) stats.defense += 5;
+  if (companion.battleBuffs?.magic) stats.magic += 5;
+  if (companion.battleBuffs?.resistance) stats.resistance += 5;
+  if (companion.battleBuffs?.speed) stats.speed += 5;
   return stats;
 }
 
-function companionTurn(battle, monster) {
+function companionTurn(battle) {
   (battle.companions || []).filter(companion => companion.hp > 0).forEach(companion => {
-    if (battle.monsterHp <= 0) return;
-    const skill = data.classSkills[companion.className]?.[0];
+    const targets = livingEnemies(battle);
+    if (!targets.length) return;
+    const monster = targets[Math.floor(Math.random() * targets.length)];
+    const skill = (data.classSkills[companion.className] || []).find(item => ["attack", "attackBurn", "attackPoison", "attackParalyze", "heal", "multiHit"].includes(item.kind));
     if (skill && companion.mp >= skill.cost && Math.random() < 0.45) {
       const stats = companionStats(companion, battle);
       companion.mp -= skill.cost;
       if (skill.kind === "attack") {
         const monsterStats = monsterBattleStats(monster, battle);
         const damage = dealDamage(stats[skill.stat], skill.stat === "magic" ? monsterStats.resistance : monsterStats.defense, skill.power, skill.element, monster);
-        battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+        monster.currentHp = Math.max(0, monster.currentHp - damage);
         battle.log.push(`${companion.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
       } else if (skill.kind === "heal") {
         const target = lowestHpPartyMember(state.currentPlayer, battle);
@@ -1519,14 +2802,14 @@ function companionTurn(battle, monster) {
         }
       } else {
         const damage = Math.max(1, Math.floor(stats.attack * 1.1));
-        battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+        monster.currentHp = Math.max(0, monster.currentHp - damage);
         battle.log.push(`${companion.name} 趁勢追擊，造成 ${damage} 點傷害。`);
       }
     } else {
       const monsterStats = monsterBattleStats(monster, battle);
       const stats = companionStats(companion, battle);
       const damage = Math.max(1, Math.floor(stats.attack - monsterStats.defense / 2 + randomInt(0, 4)));
-      battle.monsterHp = Math.max(0, battle.monsterHp - damage);
+      monster.currentHp = Math.max(0, monster.currentHp - damage);
       battle.log.push(`${companion.name} 協力攻擊，造成 ${damage} 點傷害。`);
     }
   });
@@ -1619,22 +2902,8 @@ function renderPageLinks(active) {
 }
 
 function canEquipItem(className, item) {
-  const weaponRules = {
-    "戰士": ["劍", "斧", "鎚", "雙手劍"],
-    "武鬥家": ["拳套"],
-    "魔法師": ["長杖"],
-    "僧侶": ["短杖", "鎚"],
-    "旅行者": ["劍", "短杖"],
-    "盜賊": ["匕首"],
-  };
-  const armorRules = {
-    "戰士": ["重型裝甲", "一般裝甲"],
-    "武鬥家": ["輕型裝甲", "一般裝甲"],
-    "魔法師": ["魔法裝甲", "一般裝甲"],
-    "僧侶": ["輕型裝甲", "魔法裝甲", "一般裝甲"],
-    "旅行者": ["重型裝甲", "輕型裝甲", "魔法裝甲", "一般裝甲"],
-    "盜賊": ["輕型裝甲", "一般裝甲"],
-  };
+  const weaponRules = state.equipRules?.weaponRules || defaultEquipRules.weaponRules;
+  const armorRules = state.equipRules?.armorRules || defaultEquipRules.armorRules;
   if (item.weaponType && !(weaponRules[className] || []).includes(item.weaponType)) {
     return `${className} 無法裝備 ${item.weaponType}。`;
   }
@@ -1660,6 +2929,7 @@ function attachPageLinks() {
 }
 
 async function init() {
+  await loadCsvDatabases();
   state.db = await dbApi.open();
   renderMenu();
   renderHome();
