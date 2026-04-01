@@ -1340,43 +1340,8 @@ function renderHome() {
 }
 
 function renderAuthScreen(mode = "login") {
-  state.screen = "auth";
-  applyAreaTheme(null);
-  renderMenu();
-  const isLogin = mode === "login";
-  app.innerHTML = `
-    <h3>${isLogin ? "\u5e33\u865f\u767b\u5165" : "\u5efa\u7acb\u5e33\u865f"}</h3>
-    <div class="spacer"></div>
-    <label>\u96fb\u5b50\u90f5\u4ef6</label>
-    <input type="email" id="auth-email" placeholder="name@example.com">
-    ${isLogin ? "" : `<label>\u986f\u793a\u540d\u7a31</label><input type="text" id="auth-display-name" placeholder="\u73a9\u5bb6\u66b1\u7a31">`}
-    <label>\u5bc6\u78bc</label>
-    <input type="password" id="auth-password" placeholder="\u81f3\u5c11 6 \u78bc">
-    <div class="spacer"></div>
-    <div class="inline-actions">
-      <button class="primary" type="button" id="auth-submit">${isLogin ? "\u767b\u5165" : "\u8a3b\u518a"}</button>
-      <button class="secondary" type="button" id="auth-switch">${isLogin ? "\u524d\u5f80\u8a3b\u518a" : "\u524d\u5f80\u767b\u5165"}</button>
-    </div>
-  `;
-  document.querySelector("#auth-switch").addEventListener("click", () => renderAuthScreen(isLogin ? "register" : "login"));
-  document.querySelector("#auth-submit").addEventListener("click", async () => {
-    const email = document.querySelector("#auth-email").value.trim();
-    const password = document.querySelector("#auth-password").value.trim();
-    const displayName = document.querySelector("#auth-display-name")?.value.trim() || "";
-    if (!email || !password) {
-      toast("\u8acb\u8f38\u5165\u96fb\u5b50\u90f5\u4ef6\u8207\u5bc6\u78bc\u3002", "warning");
-      return;
-    }
-    const result = isLogin
-      ? await signInAccount(email, password)
-      : await signUpAccount(email, password, displayName);
-    if (!result.ok) {
-      toast(result.message || "\u767b\u5165\u6216\u8a3b\u518a\u5931\u6557\u3002", "danger");
-      return;
-    }
-    toast(result.message || (isLogin ? "\u767b\u5165\u6210\u529f\u3002" : "\u8a3b\u518a\u6210\u529f\u3002"), "success");
-    if (isLogin) renderHome();
-  });
+  const authUrl = `./login.html?mode=${encodeURIComponent(mode)}`;
+  window.location.href = authUrl;
 }
 
 async function renderAdminPanel() {
