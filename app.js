@@ -1113,23 +1113,23 @@ async function loadCsvDatabases() {
 
 function renderMenu() {
   const items = state.currentPlayer ? [
-    ["冒險首頁", renderGameHub],
-    ["角色狀態", renderStatus],
-    ["裝備", renderEquipmentPage],
-    ["背包", renderInventory],
-    ["商店", renderShop],
-    ["同伴", renderCompanions],
-    ["技能樹", renderSkillTree],
-    ["野外探索", () => startBattle("normal")],
-    ["副本挑戰", () => startBattle("dungeon")],
-    ["主線推進", () => startBattle("story")],
-    ["休息恢復", restPlayer],
-    ["立即儲存", saveCurrentPlayer],
-    ["返回標題", leaveCurrentPlayer],
+    ["????", renderGameHub],
+    ["????", renderStatus],
+    ["??", renderEquipmentPage],
+    ["??", renderInventory],
+    ["??", renderShop],
+    ["??", renderCompanions],
+    ["???", renderSkillTree],
+    ["????", () => startBattle("normal")],
+    ["????", () => startBattle("dungeon")],
+    ["????", () => startBattle("story")],
+    ["????", restPlayer],
+    ["????", saveCurrentPlayer],
+    ["????", leaveCurrentPlayer],
   ] : [
-    ["標題頁", renderHome],
-    ["建立角色", renderCreateCharacter],
-    ["讀取角色", renderLoadGame],
+    ["???", renderHome],
+    ["????", renderCreateCharacter],
+    ["????", renderLoadGame],
   ];
   menu.innerHTML = "";
   items.forEach(([label, handler]) => {
@@ -1141,15 +1141,15 @@ function renderMenu() {
   });
   if (state.currentPlayer) {
     heroActions.innerHTML = `
-      <button class="primary" type="button" id="hero-status">進入冒險</button>
-      <button class="secondary" type="button" id="hero-save">儲存角色</button>
+      <button class="primary" type="button" id="hero-status">????</button>
+      <button class="secondary" type="button" id="hero-save">????</button>
     `;
     document.querySelector("#hero-status").addEventListener("click", renderGameHub);
     document.querySelector("#hero-save").addEventListener("click", saveCurrentPlayer);
   } else {
     heroActions.innerHTML = `
-      <button class="primary" type="button" id="hero-start">建立角色</button>
-      <button class="secondary" type="button" id="hero-load">讀取角色</button>
+      <button class="primary" type="button" id="hero-start">????</button>
+      <button class="secondary" type="button" id="hero-load">????</button>
     `;
     document.querySelector("#hero-start").addEventListener("click", renderCreateCharacter);
     document.querySelector("#hero-load").addEventListener("click", renderLoadGame);
@@ -1161,13 +1161,13 @@ function renderHome() {
   applyAreaTheme(null);
   renderMenu();
   app.innerHTML = `
-    <h3>標題頁</h3>
-    <p class="hint">這個版本改為滑鼠點擊操作，不需要 PowerShell 或 cmd。直接雙擊 <strong>index.html</strong> 即可打開。</p>
-    <p class="hint">${state.csvLoaded ? "CSV 資料庫已載入，目前遊戲會優先使用 data/csv 內的資料。" : "目前使用內建資料。若瀏覽器允許讀取本機 CSV，會自動改用 data/csv 內的資料。"}</p>
+    <h3>???</h3>
+    <p class="hint">??????????????????????????</p>
+    <p class="hint">${state.csvLoaded ? "CSV ???????????????? data/csv ?????" : "????????????????? data/csv????????????"}</p>
     <div class="card-grid">
-      <div class="stat"><strong>開始方式</strong><p>先建立角色或讀取角色，進入後才會看到遊戲內功能頁面。</p></div>
-      <div class="stat"><strong>存檔方式</strong><p>角色資料會優先存在 IndexedDB，若瀏覽器限制則自動改用 localStorage。</p></div>
-      <div class="stat"><strong>目前支援</strong><p>建角、戰鬥、升級、技能樹、主線與副本。</p></div>
+      <div class="stat"><strong>????</strong><p>??????????????????</p></div>
+      <div class="stat"><strong>????</strong><p>???????? IndexedDB???????????? localStorage?</p></div>
+      <div class="stat"><strong>????</strong><p>??????????????? data/csv ???</p></div>
     </div>
   `;
 }
