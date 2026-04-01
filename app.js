@@ -308,9 +308,6 @@ const imageCatalog = {
   },
 };
 
-ensureAdvancedClassData();
-ensureAdvancedClassSkills();
-
 const LOCAL_SAVE_KEY = "mmorpg_click_game_players_v1";
 const CLOUD_SAVE_ENDPOINT = "/api/cloud-saves";
 
