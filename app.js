@@ -1345,65 +1345,7 @@ function renderAuthScreen(mode = "login") {
 }
 
 async function renderAdminPanel() {
-  if (state.auth.profile?.role !== "admin") {
-    toast("\u53ea\u6709\u7ba1\u7406\u8005\u80fd\u4f7f\u7528\u5e33\u865f\u7ba1\u7406\u3002", "warning");
-    return;
-  }
-  state.screen = "admin";
-  applyAreaTheme(null);
-  renderMenu();
-  app.innerHTML = `<h3>\u5e33\u865f\u7ba1\u7406</h3><p class="hint">\u6b63\u5728\u8b80\u53d6\u5e33\u865f\u8cc7\u6599...</p>`;
-  const { ok, payload } = await fetchJson(ADMIN_USERS_ENDPOINT, {
-    headers: authHeaders(),
-  });
-  if (!ok) {
-    app.innerHTML = `<h3>\u5e33\u865f\u7ba1\u7406</h3><p class="danger">\u7121\u6cd5\u8b80\u53d6\u5e33\u865f\u6e05\u55ae\u3002</p>`;
-    return;
-  }
-  const users = payload.users || [];
-  app.innerHTML = `
-    <h3>\u5e33\u865f\u7ba1\u7406</h3>
-    <p class="hint">\u7ba1\u7406\u8005\u53ef\u4ee5\u8abf\u6574\u5176\u4ed6\u5e33\u865f\u7684\u89d2\u8272\u8eab\u5206\uff0c\u4ee5\u53ca\u662f\u5426\u5141\u8a31\u8a72\u5e33\u865f\u81ea\u884c\u8986\u5beb\u96f2\u7aef\u5b58\u6a94\u3002</p>
-    <div class="card-grid">
-      ${users.map(user => `
-        <div class="stat">
-          <strong>${user.display_name || user.email}</strong>
-          <p>${user.email}</p>
-          <label>\u89d2\u8272\u8eab\u5206</label>
-          <select data-role-user="${user.user_id}">
-            <option value="user" ${user.role === "user" ? "selected" : ""}>\u4e00\u822c\u4f7f\u7528\u8005</option>
-            <option value="admin" ${user.role === "admin" ? "selected" : ""}>\u7ba1\u7406\u8005</option>
-          </select>
-          <label>\u5b58\u6a94\u6b0a\u9650</label>
-          <select data-save-user="${user.user_id}">
-            <option value="owner_write" ${user.save_permission === "owner_write" ? "selected" : ""}>\u5e33\u865f\u672c\u4eba\u53ef\u5beb\u5165</option>
-            <option value="read_only" ${user.save_permission === "read_only" ? "selected" : ""}>\u552f\u8b80</option>
-            <option value="admin_only" ${user.save_permission === "admin_only" ? "selected" : ""}>\u50c5\u7ba1\u7406\u8005\u53ef\u6539</option>
-          </select>
-          <div class="inline-actions">
-            <button class="primary" type="button" data-admin-save="${user.user_id}">\u5957\u7528\u8a2d\u5b9a</button>
-          </div>
-        </div>
-      `).join("")}
-    </div>
-  `;
-  app.querySelectorAll("[data-admin-save]").forEach(button => {
-    button.addEventListener("click", async () => {
-      const userId = button.dataset.adminSave;
-      const role = app.querySelector(`[data-role-user="${userId}"]`).value;
-      const savePermission = app.querySelector(`[data-save-user="${userId}"]`).value;
-      const { ok: updated } = await fetchJson(ADMIN_USERS_ENDPOINT, {
-        method: "PATCH",
-        headers: authHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ userId, role, savePermission }),
-      });
-      toast(updated ? "\u5e33\u865f\u8a2d\u5b9a\u5df2\u66f4\u65b0\u3002" : "\u66f4\u65b0\u5931\u6557\u3002", updated ? "success" : "danger");
-      if (updated && userId === state.auth.user?.id) {
-        await refreshAuthProfile();
-        renderMenu();
-      }
-    });
-  });
+  window.location.href = "./admin.html";
 }
 
 function renderCreateCharacter() {

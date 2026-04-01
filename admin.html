@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>&#31649;&#29702;&#32773;&#24460;&#21488; | &#25991;&#23383; MMORPG</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body data-area-theme="title" style="--bg-image: url('./data/jpg/background/登入畫面.jpg');">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>&#25991;&#23383; MMORPG</h1>
+        <p>&#31649;&#29702;&#32773;&#24115;&#34399;&#24460;&#21488;</p>
+      </div>
+      <div class="menu">
+        <button class="menu-button" type="button" onclick="window.location.href='./index.html'">&#36820;&#22238;&#36938;&#25138;</button>
+        <button class="menu-button" type="button" onclick="window.location.href='./login.html'">&#30331;&#20837;&#38913;</button>
+      </div>
+      <div class="save-note">
+        <span>&#24460;&#21488;&#35594;&#26126;</span>
+        <strong>&#21482;&#26377;&#31649;&#29702;&#32773;&#21487;&#20197;&#35519;&#25972;&#20854;&#20182;&#24115;&#34399;&#30340;&#27402;&#38480;</strong>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">Admin Console</p>
+          <h2>&#24115;&#34399;&#31649;&#29702;&#33287;&#38642;&#31471;&#23384;&#27284;&#27402;&#38480;</h2>
+        </div>
+      </section>
+
+      <section class="panel auth-shell" id="admin-app"></section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./admin.js"></script>
+</body>
+</html>
