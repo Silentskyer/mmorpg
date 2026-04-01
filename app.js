@@ -239,7 +239,18 @@ const defaultEquipRules = {
   },
 };
 
-const state = { db: null, storageDriver: "indexeddb", currentPlayer: null, battle: null, screen: "landing", shopStock: [], equipRules: structuredClone(defaultEquipRules), classGrowth: structuredClone(classAutoGrowth), csvLoaded: false };
+const state = {
+  db: null,
+  storageDriver: "indexeddb",
+  currentPlayer: null,
+  battle: null,
+  screen: "landing",
+  shopStock: [],
+  equipRules: structuredClone(defaultEquipRules),
+  classGrowth: structuredClone(classAutoGrowth),
+  csvLoaded: false,
+  cloudSync: { enabled: false, available: false, mode: "local", message: "本機存檔" },
+};
 
 const imageCatalog = {
   weapons: {
@@ -301,6 +312,7 @@ ensureAdvancedClassData();
 ensureAdvancedClassSkills();
 
 const LOCAL_SAVE_KEY = "mmorpg_click_game_players_v1";
+const CLOUD_SAVE_ENDPOINT = "/api/cloud-saves";
 
 function readLocalPlayers() {
   try {
@@ -314,6 +326,59 @@ function readLocalPlayers() {
 
 function writeLocalPlayers(players) {
   localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(players));
+}
+
+function ensureCloudSaveId(player) {
+  if (!player) return;
+  if (!player.cloudSaveId) {
+    if (globalThis.crypto?.randomUUID) {
+      player.cloudSaveId = globalThis.crypto.randomUUID();
+    } else {
+      player.cloudSaveId = `save_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    }
+  }
+}
+
+async function refreshCloudSyncStatus() {
+  try {
+    const response = await fetch(`${CLOUD_SAVE_ENDPOINT}?mode=status`, { cache: "no-store" });
+    if (!response.ok) throw new Error("cloud status");
+    const payload = await response.json();
+    state.cloudSync = {
+      enabled: Boolean(payload.enabled),
+      available: true,
+      mode: payload.enabled ? "supabase" : "local",
+      message: payload.enabled ? "Supabase 雲端同步已啟用" : "未設定 Supabase，使用本機存檔",
+    };
+  } catch {
+    state.cloudSync = { enabled: false, available: false, mode: "local", message: "離線模式，本機存檔" };
+  }
+}
+
+async function loadCloudPlayers() {
+  if (!state.cloudSync.enabled) return [];
+  try {
+    const response = await fetch(CLOUD_SAVE_ENDPOINT, { cache: "no-store" });
+    if (!response.ok) throw new Error("cloud load");
+    const payload = await response.json();
+    return Array.isArray(payload.players) ? payload.players : [];
+  } catch {
+    return [];
+  }
+}
+
+async function syncPlayerToCloud(player) {
+  if (!state.cloudSync.enabled || !player) return;
+  ensureCloudSaveId(player);
+  try {
+    await fetch(CLOUD_SAVE_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ player }),
+    });
+  } catch {
+    // Keep local saving resilient even if cloud sync is unavailable.
+  }
 }
 
 const dbApi = {
@@ -346,22 +411,29 @@ const dbApi = {
     });
   },
   async getAllPlayers() {
-    if (state.storageDriver === "localStorage") {
-      return readLocalPlayers();
-    }
-    return transaction("players", "readonly", store => store.getAll());
+    const localPlayers = state.storageDriver === "localStorage"
+      ? readLocalPlayers()
+      : await transaction("players", "readonly", store => store.getAll());
+    if (localPlayers.length > 0) return localPlayers;
+    return loadCloudPlayers();
   },
   async addPlayer(player) {
+    ensureCloudSaveId(player);
     if (state.storageDriver === "localStorage") {
       const players = readLocalPlayers();
       const nextId = players.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
-      players.push({ ...structuredClone(player), id: nextId });
+      const savedPlayer = { ...structuredClone(player), id: nextId };
+      players.push(savedPlayer);
       writeLocalPlayers(players);
+      await syncPlayerToCloud(savedPlayer);
       return nextId;
     }
-    return transaction("players", "readwrite", store => store.add(player));
+    const id = await transaction("players", "readwrite", store => store.add(player));
+    await syncPlayerToCloud({ ...structuredClone(player), id });
+    return id;
   },
   async updatePlayer(player) {
+    ensureCloudSaveId(player);
     if (state.storageDriver === "localStorage") {
       const players = readLocalPlayers();
       const index = players.findIndex(item => Number(item.id) === Number(player.id));
@@ -371,15 +443,22 @@ const dbApi = {
         players.push(structuredClone(player));
       }
       writeLocalPlayers(players);
+      await syncPlayerToCloud(player);
       return player.id;
     }
-    return transaction("players", "readwrite", store => store.put(player));
+    const id = await transaction("players", "readwrite", store => store.put(player));
+    await syncPlayerToCloud(player);
+    return id;
   },
   async getPlayer(id) {
     if (state.storageDriver === "localStorage") {
-      return readLocalPlayers().find(player => Number(player.id) === Number(id)) || null;
+      const localPlayer = readLocalPlayers().find(player => Number(player.id) === Number(id)) || null;
+      if (localPlayer) return localPlayer;
+      return (await loadCloudPlayers()).find(player => Number(player.id) === Number(id)) || null;
     }
-    return transaction("players", "readonly", store => store.get(id));
+    const localPlayer = await transaction("players", "readonly", store => store.get(id));
+    if (localPlayer) return localPlayer;
+    return (await loadCloudPlayers()).find(player => Number(player.id) === Number(id)) || null;
   },
 };
 
@@ -725,6 +804,7 @@ function csvItemToCatalogEntry(row) {
   if (row.weapon_type) entry.weaponType = row.weapon_type;
   if (row.armor_class) entry.armorClass = row.armor_class;
   if (row.exclusive_classes) entry.exclusiveClasses = row.exclusive_classes.split("|").map(value => value.trim()).filter(Boolean);
+  if (row.image_path) entry.imagePath = row.image_path;
   if (row.element) entry.element = row.element;
   if (Object.keys(bonuses).length) entry.bonuses = bonuses;
   if (row.type === "consumable") {
@@ -755,6 +835,7 @@ function csvMonsterToEntry(row) {
     note: row.note,
     dropTable: row.drop_table || "",
     drops: row.drops ? row.drops.split("|") : [],
+    imagePath: row.image_path || "",
   };
 }
 
@@ -835,6 +916,7 @@ function csvSkillToEntry(row) {
   if (row.school) skill.school = row.school;
   if (row.branch) skill.branch = row.branch;
   if (row.required_points !== "") skill.requiredPoints = toNumber(row.required_points);
+  if (row.image_path) skill.imagePath = row.image_path;
   return skill;
 }
 
@@ -3582,6 +3664,7 @@ function leaveCurrentPlayer() {
 
 function normalizePlayer(player) {
   if (!player) return;
+  ensureCloudSaveId(player);
   const job = data.classes.find(item => item.name === player.className || item.code === player.classCode);
   player.skillPoints ??= 1;
   player.inventory ??= [];
@@ -4032,6 +4115,7 @@ function attachPageLinks() {
 
 async function init() {
   await loadCsvDatabases();
+  await refreshCloudSyncStatus();
   state.db = await dbApi.open();
   renderMenu();
   renderHome();

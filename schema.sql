@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS skills (
     school TEXT,
     branch TEXT,
     required_points INTEGER NOT NULL DEFAULT 0,
+    image_path TEXT,
     UNIQUE (class_name, name),
     FOREIGN KEY (class_name) REFERENCES classes(name) ON DELETE CASCADE
 );
@@ -91,7 +92,8 @@ CREATE TABLE IF NOT EXISTS equipment (
     resistance_bonus INTEGER NOT NULL DEFAULT 0,
     speed_bonus INTEGER NOT NULL DEFAULT 0,
     luck_bonus INTEGER NOT NULL DEFAULT 0,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    image_path TEXT
 );
 
 CREATE TABLE IF NOT EXISTS consumables (
@@ -190,7 +192,8 @@ CREATE TABLE IF NOT EXISTS monsters (
     gold INTEGER NOT NULL,
     note TEXT NOT NULL,
     drop_table TEXT,
-    drops_csv TEXT
+    drops_csv TEXT,
+    image_path TEXT
 );
 
 CREATE TABLE IF NOT EXISTS monster_skills (

@@ -72,14 +72,14 @@ TABLE_EXPORTS: list[tuple[str, str, list[str], str | None]] = [
     (
         "skills",
         "skills.csv",
-        ["class_name", "name", "cost", "power", "kind", "stat", "element", "chance", "duration", "hits", "school", "branch", "required_points"],
-        "SELECT class_name, name, cost, power, kind, stat, COALESCE(element, '') AS element, COALESCE(chance, '') AS chance, COALESCE(duration, '') AS duration, COALESCE(hits, '') AS hits, COALESCE(school, '') AS school, COALESCE(branch, '') AS branch, required_points FROM skills ORDER BY class_name, id",
+        ["class_name", "name", "cost", "power", "kind", "stat", "element", "chance", "duration", "hits", "school", "branch", "required_points", "image_path"],
+        "SELECT class_name, name, cost, power, kind, stat, COALESCE(element, '') AS element, COALESCE(chance, '') AS chance, COALESCE(duration, '') AS duration, COALESCE(hits, '') AS hits, COALESCE(school, '') AS school, COALESCE(branch, '') AS branch, required_points, COALESCE(image_path, '') AS image_path FROM skills ORDER BY class_name, id",
     ),
     (
         "equipment",
         "equipment.csv",
-        ["key", "name", "type", "slot", "weapon_type", "armor_class", "exclusive_classes", "element", "price", "max_hp_bonus", "max_mp_bonus", "attack_bonus", "defense_bonus", "magic_bonus", "resistance_bonus", "speed_bonus", "luck_bonus", "description"],
-        "SELECT key, name, type, slot, COALESCE(weapon_type, '') AS weapon_type, COALESCE(armor_class, '') AS armor_class, COALESCE(exclusive_classes_csv, '') AS exclusive_classes, COALESCE(element, '') AS element, price, max_hp_bonus, max_mp_bonus, attack_bonus, defense_bonus, magic_bonus, resistance_bonus, speed_bonus, luck_bonus, description FROM equipment ORDER BY key",
+        ["key", "name", "type", "slot", "weapon_type", "armor_class", "exclusive_classes", "element", "price", "max_hp_bonus", "max_mp_bonus", "attack_bonus", "defense_bonus", "magic_bonus", "resistance_bonus", "speed_bonus", "luck_bonus", "description", "image_path"],
+        "SELECT key, name, type, slot, COALESCE(weapon_type, '') AS weapon_type, COALESCE(armor_class, '') AS armor_class, COALESCE(exclusive_classes_csv, '') AS exclusive_classes, COALESCE(element, '') AS element, price, max_hp_bonus, max_mp_bonus, attack_bonus, defense_bonus, magic_bonus, resistance_bonus, speed_bonus, luck_bonus, description, COALESCE(image_path, '') AS image_path FROM equipment ORDER BY key",
     ),
     (
         "consumables",
@@ -126,8 +126,8 @@ TABLE_EXPORTS: list[tuple[str, str, list[str], str | None]] = [
     (
         "monsters",
         "monsters.csv",
-        ["code", "name", "category", "story_order", "level", "elements", "hp", "mp", "attack", "defense", "magic", "resistance", "speed", "luck", "exp", "gold", "note", "drop_table", "drops"],
-        "SELECT code, name, category, COALESCE(story_order, '') AS story_order, level, elements_csv AS elements, hp, mp, attack, defense, magic, resistance, speed, luck, exp, gold, note, COALESCE(drop_table, '') AS drop_table, COALESCE(drops_csv, '') AS drops FROM monsters ORDER BY category, story_order, code",
+        ["code", "name", "category", "story_order", "level", "elements", "hp", "mp", "attack", "defense", "magic", "resistance", "speed", "luck", "exp", "gold", "note", "drop_table", "drops", "image_path"],
+        "SELECT code, name, category, COALESCE(story_order, '') AS story_order, level, elements_csv AS elements, hp, mp, attack, defense, magic, resistance, speed, luck, exp, gold, note, COALESCE(drop_table, '') AS drop_table, COALESCE(drops_csv, '') AS drops, COALESCE(image_path, '') AS image_path FROM monsters ORDER BY category, story_order, code",
     ),
     (
         "monster_skills",

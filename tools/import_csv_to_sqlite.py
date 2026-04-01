@@ -181,8 +181,8 @@ def import_master_tables(conn: sqlite3.Connection, csv_dir: Path) -> tuple[set[s
         """
         INSERT INTO skills (
             class_name, name, cost, power, kind, stat, element,
-            chance, duration, hits, school, branch, required_points
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            chance, duration, hits, school, branch, required_points, image_path
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -199,6 +199,7 @@ def import_master_tables(conn: sqlite3.Connection, csv_dir: Path) -> tuple[set[s
                 row["school"] or None,
                 row["branch"] or None,
                 to_int(row["required_points"]),
+                row.get("image_path") or None,
             )
             for row in skills
         ],
@@ -210,8 +211,8 @@ def import_master_tables(conn: sqlite3.Connection, csv_dir: Path) -> tuple[set[s
         INSERT INTO equipment (
             key, name, type, slot, weapon_type, armor_class, exclusive_classes_csv, element, price,
             max_hp_bonus, max_mp_bonus, attack_bonus, defense_bonus,
-            magic_bonus, resistance_bonus, speed_bonus, luck_bonus, description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            magic_bonus, resistance_bonus, speed_bonus, luck_bonus, description, image_path
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -233,6 +234,7 @@ def import_master_tables(conn: sqlite3.Connection, csv_dir: Path) -> tuple[set[s
                 to_int(row["speed_bonus"]),
                 to_int(row["luck_bonus"]),
                 row["description"],
+                row.get("image_path") or None,
             )
             for row in equipment
         ],
@@ -375,8 +377,8 @@ def import_master_tables(conn: sqlite3.Connection, csv_dir: Path) -> tuple[set[s
         INSERT INTO monsters (
             code, name, category, story_order, level, elements_csv,
             hp, mp, attack, defense, magic, resistance, speed, luck,
-            exp, gold, note, drop_table, drops_csv
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            exp, gold, note, drop_table, drops_csv, image_path
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -399,6 +401,7 @@ def import_master_tables(conn: sqlite3.Connection, csv_dir: Path) -> tuple[set[s
                 row["note"],
                 row["drop_table"] or None,
                 row["drops"] or None,
+                row.get("image_path") or None,
             )
             for row in monsters
         ],
