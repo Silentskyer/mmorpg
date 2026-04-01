@@ -462,84 +462,84 @@ const dbApi = {
 const advancedClassDefinitions = [
   {
     code: "spellblade",
-    name: "????",
-    armorType: "????",
-    description: "??????????????",
-    advantage: "????????????????",
-    branches: ["???", "???", "????"],
+    name: "魔法戰士",
+    armorType: "魔法裝甲",
+    description: "融合劍技與魔法的前線戰士。",
+    advantage: "優勢：攻魔雙修，能用附魔與魔法劍壓制全場。",
+    branches: ["附加系", "魔法劍", "魔力系"],
     bonuses: { maxHp: 8, maxMp: 18, attack: 4, defense: 4, magic: 5, resistance: 2, speed: 1, luck: 1 },
     requirements: [{ classCode: "mage", level: 40 }, { classCode: "warrior", level: 40 }],
   },
   {
     code: "battle_master",
-    name: "????",
-    armorType: "????",
-    description: "????????????????",
-    advantage: "??????????????",
-    branches: ["???", "???", "???"],
+    name: "戰鬥大師",
+    armorType: "重型裝甲",
+    description: "將武技磨練到極致的霸道鬥士。",
+    advantage: "優勢：爆發與壓制兼具，能以威壓打亂敵陣。",
+    branches: ["無雙系", "威壓系", "破壞系"],
     bonuses: { maxHp: 14, maxMp: 6, attack: 5, defense: 4, magic: 1, resistance: 2, speed: 4, luck: 1 },
     requirements: [{ classCode: "martial", level: 40 }, { classCode: "warrior", level: 40 }],
   },
   {
     code: "sage",
-    name: "??",
-    armorType: "????",
-    description: "????????????????",
-    advantage: "???? MP?????????",
-    branches: ["???", "???", "???"],
+    name: "賢者",
+    armorType: "魔法裝甲",
+    description: "精通日月秘術與高階恢復的全能法師。",
+    advantage: "優勢：高 MP、高魔法與高抵抗，支援輸出都強。",
+    branches: ["日", "月", "賢術系"],
     bonuses: { maxHp: 6, maxMp: 22, attack: 1, defense: 1, magic: 7, resistance: 5, speed: 1, luck: 2 },
     requirements: [{ classCode: "monk", level: 40 }, { classCode: "mage", level: 40 }],
   },
   {
     code: "paladin",
-    name: "???",
-    armorType: "????",
-    description: "???????????????",
-    advantage: "????????????????",
-    branches: ["???", "???", "???"],
+    name: "聖騎士",
+    armorType: "重型裝甲",
+    description: "以守護與神聖之力支撐隊伍的聖職騎士。",
+    advantage: "優勢：坦度高，能分攤傷害與提供全隊加護。",
+    branches: ["我為人人", "加護系", "騎士道"],
     bonuses: { maxHp: 15, maxMp: 12, attack: 2, defense: 5, magic: 4, resistance: 5, speed: 1, luck: 1 },
     requirements: [{ classCode: "monk", level: 40 }, { classCode: "martial", level: 40 }],
   },
   {
     code: "assassin",
-    name: "???",
-    armorType: "????",
-    description: "??????????????????",
-    advantage: "??????????????",
-    branches: ["???", "???", "???"],
+    name: "暗殺者",
+    armorType: "輕型裝甲",
+    description: "以致命一擊與異常控制終結敵人的刺客。",
+    advantage: "優勢：速度高、異常多，對失衡敵人有極高爆發。",
+    branches: ["致死系", "生存系", "月"],
     bonuses: { maxHp: 6, maxMp: 14, attack: 5, defense: 2, magic: 3, resistance: 2, speed: 6, luck: 2 },
     requirements: [{ classCode: "traveler", level: 40 }, { classCode: "rogue", level: 40 }],
   },
   {
     code: "hero",
-    name: "??",
-    armorType: "????",
-    description: "?????????????????",
-    advantage: "???????????????????????",
-    branches: ["???", "???"],
+    name: "勇者",
+    armorType: "重型裝甲",
+    description: "兼具劍技、雷霆與全能強化的頂級職業。",
+    advantage: "優勢：全能力成長優異，可同時擔任輸出與核心增幅。",
+    branches: ["勇者系", "雷霆系"],
     bonuses: { maxHp: 14, maxMp: 16, attack: 5, defense: 5, magic: 5, resistance: 5, speed: 4, luck: 4 },
     requirements: [{ classCode: "battle_master", level: 60 }, { classCode: "sage", level: 60 }],
   },
   {
     code: "demon_king",
-    name: "??",
-    armorType: "????",
-    description: "??????????????????",
-    advantage: "??????????????????????",
-    branches: ["???", "???"],
+    name: "魔王",
+    armorType: "魔法裝甲",
+    description: "以深淵魔力與大地災厄支配戰場的終極職業。",
+    advantage: "優勢：攻魔雙高，群體壓制與持續爆發兼備。",
+    branches: ["魔王系", "大地"],
     bonuses: { maxHp: 12, maxMp: 20, attack: 5, defense: 4, magic: 7, resistance: 4, speed: 4, luck: 2 },
     requirements: [{ classCode: "spellblade", level: 60 }, { classCode: "assassin", level: 60 }],
   },
 ];
 
 const advancedClassGrowth = {
-  "????": { maxHp: 12, maxMp: 10, attack: 3, defense: 3, magic: 3, resistance: 2, speed: 1, luck: 1 },
-  "????": { maxHp: 15, maxMp: 6, attack: 4, defense: 3, magic: 1, resistance: 2, speed: 3, luck: 1 },
-  "??": { maxHp: 8, maxMp: 14, attack: 1, defense: 1, magic: 5, resistance: 4, speed: 1, luck: 1 },
-  "???": { maxHp: 14, maxMp: 10, attack: 2, defense: 4, magic: 3, resistance: 4, speed: 1, luck: 1 },
-  "???": { maxHp: 10, maxMp: 9, attack: 4, defense: 2, magic: 2, resistance: 2, speed: 5, luck: 2 },
-  "??": { maxHp: 14, maxMp: 12, attack: 4, defense: 4, magic: 4, resistance: 4, speed: 3, luck: 3 },
-  "??": { maxHp: 12, maxMp: 15, attack: 4, defense: 3, magic: 5, resistance: 3, speed: 3, luck: 2 },
+  "魔法戰士": { maxHp: 12, maxMp: 10, attack: 3, defense: 3, magic: 3, resistance: 2, speed: 1, luck: 1 },
+  "戰鬥大師": { maxHp: 15, maxMp: 6, attack: 4, defense: 3, magic: 1, resistance: 2, speed: 3, luck: 1 },
+  "賢者": { maxHp: 8, maxMp: 14, attack: 1, defense: 1, magic: 5, resistance: 4, speed: 1, luck: 1 },
+  "聖騎士": { maxHp: 14, maxMp: 10, attack: 2, defense: 4, magic: 3, resistance: 4, speed: 1, luck: 1 },
+  "暗殺者": { maxHp: 10, maxMp: 9, attack: 4, defense: 2, magic: 2, resistance: 2, speed: 5, luck: 2 },
+  "勇者": { maxHp: 14, maxMp: 12, attack: 4, defense: 4, magic: 4, resistance: 4, speed: 3, luck: 3 },
+  "魔王": { maxHp: 12, maxMp: 15, attack: 4, defense: 3, magic: 5, resistance: 3, speed: 3, luck: 2 },
 };
 
 function ensureAdvancedClassData() {
@@ -559,155 +559,154 @@ function ensureAdvancedClassData() {
 
   Object.assign(classAutoGrowth, advancedClassGrowth);
   Object.assign(data.branchEffects, {
-    "???": ["attack", 2],
-    "???": ["magic", 2],
-    "????": ["maxMp", 5],
-    "???": ["maxHp", 5],
-    "???": ["attack", 2],
-    "???": ["speed", 2],
-    "???": ["magic", 2],
-    "???": ["resistance", 2],
-    "???": ["maxMp", 5],
-    "???": ["defense", 2],
-    "???": ["resistance", 2],
-    "???": ["attack", 2],
-    "???": ["attack", 2],
-    "???": ["speed", 2],
-    "???": ["luck", 2],
-    "???": ["attack", 3],
-    "???": ["magic", 3],
-    "???": ["attack", 3],
-    "???": ["magic", 3],
+    "附加系": ["attack", 2],
+    "魔法劍": ["magic", 2],
+    "魔力系": ["maxMp", 5],
+    "無雙系": ["maxHp", 5],
+    "威壓系": ["attack", 2],
+    "破壞系": ["speed", 2],
+    "日": ["magic", 2],
+    "月": ["resistance", 2],
+    "賢術系": ["maxMp", 5],
+    "我為人人": ["defense", 2],
+    "加護系": ["resistance", 2],
+    "騎士道": ["attack", 2],
+    "致死系": ["attack", 2],
+    "生存系": ["speed", 2],
+    "勇者系": ["luck", 2],
+    "雷霆系": ["attack", 3],
+    "魔王系": ["magic", 3],
+    "大地": ["attack", 3],
   });
 
   Object.assign(defaultEquipRules.weaponRules, {
-    "????": ["?", "???", "??", "??"],
-    "????": ["?", "?", "?", "???", "??"],
-    "??": ["??", "??"],
-    "???": ["?", "?", "??"],
-    "???": ["??", "?"],
-    "??": ["?", "???", "??", "??", "?"],
-    "??": ["?", "??", "??", "??"],
+    "魔法戰士": ["劍", "雙手劍", "長杖", "短杖"],
+    "戰鬥大師": ["劍", "斧", "鎚", "雙手劍", "拳套"],
+    "賢者": ["長杖", "短杖"],
+    "聖騎士": ["劍", "鎚", "槍"],
+    "暗殺者": ["匕首", "月刃"],
+    "勇者": ["劍", "雙手劍", "長杖", "短杖", "槍"],
+    "魔王": ["劍", "長杖", "短杖", "雙手劍"],
   });
 
   Object.assign(defaultEquipRules.armorRules, {
-    "????": ["????", "????", "????", "????"],
-    "????": ["????", "????", "????"],
-    "??": ["????", "????", "????"],
-    "???": ["????", "????", "????", "????"],
-    "???": ["????", "????"],
-    "??": ["????", "????", "????", "????"],
-    "??": ["????", "????", "????"],
+    "魔法戰士": ["重型裝甲", "輕型裝甲", "魔法裝甲", "一般裝甲"],
+    "戰鬥大師": ["重型裝甲", "輕型裝甲", "一般裝甲"],
+    "賢者": ["魔法裝甲", "輕型裝甲", "一般裝甲"],
+    "聖騎士": ["重型裝甲", "輕型裝甲", "魔法裝甲", "一般裝甲"],
+    "暗殺者": ["輕型裝甲", "一般裝甲"],
+    "勇者": ["重型裝甲", "輕型裝甲", "魔法裝甲", "一般裝甲"],
+    "魔王": ["重型裝甲", "魔法裝甲", "一般裝甲"],
   });
 
-  delete data.classSkills["??"];
-  delete data.classSkills["??"];
+  delete data.classSkills["劍聖"];
+  delete data.classSkills["聖人"];
 }
 
 function ensureAdvancedClassSkills() {
   const advancedSkills = {
-    "????": [
-      { name: "???", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "?", duration: 5, school: "???", branch: "???", requiredPoints: 0 },
-      { name: "???", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "?", duration: 5, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "???", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "?", duration: 5, school: "???", branch: "???", requiredPoints: 6 },
-      { name: "??????", cost: 14, power: 1.2, kind: "multiElementEnchantSelf", stat: "attack", duration: 5, school: "???", branch: "???", requiredPoints: 9 },
-      { name: "???", cost: 14, power: 1.7, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 0 },
-      { name: "???", cost: 16, power: 1.35, kind: "attackRandom", stat: "attack", element: "?", hits: 3, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "???", cost: 18, power: 2.1, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 6 },
-      { name: "???", cost: 22, power: 1.7, kind: "attackAllMulti", stat: "attack", element: "?", hits: 2, school: "???", branch: "???", requiredPoints: 9 },
-      { name: "??", cost: 0, power: 0.1, kind: "mpHealPercent", stat: "magic", school: "???", branch: "????", requiredPoints: 0 },
-      { name: "????", cost: 10, power: 0.08, kind: "regenMp", stat: "magic", duration: 5, school: "???", branch: "????", requiredPoints: 3 },
-      { name: "????", cost: 14, power: 0, kind: "spellbladeMode", stat: "magic", duration: 5, school: "???", branch: "????", requiredPoints: 6 },
+    "魔法戰士": [
+      { name: "水附加", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "水", duration: 5, school: "附加系", branch: "附加系", requiredPoints: 0 },
+      { name: "風附加", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "風", duration: 5, school: "附加系", branch: "附加系", requiredPoints: 3 },
+      { name: "地附加", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "地", duration: 5, school: "附加系", branch: "附加系", requiredPoints: 6 },
+      { name: "地水火風附加", cost: 14, power: 1.2, kind: "multiElementEnchantSelf", stat: "attack", duration: 5, school: "附加系", branch: "附加系", requiredPoints: 9 },
+      { name: "波濤斬", cost: 14, power: 1.7, kind: "attackAll", stat: "attack", element: "水", school: "魔法劍", branch: "魔法劍", requiredPoints: 0 },
+      { name: "狂風劍", cost: 16, power: 1.35, kind: "attackRandom", stat: "attack", element: "風", hits: 3, school: "魔法劍", branch: "魔法劍", requiredPoints: 3 },
+      { name: "裂地斬", cost: 18, power: 2.1, kind: "attackAll", stat: "attack", element: "地", school: "魔法劍", branch: "魔法劍", requiredPoints: 6 },
+      { name: "爆裂劍", cost: 22, power: 1.7, kind: "attackAllMulti", stat: "attack", element: "火", hits: 2, school: "魔法劍", branch: "魔法劍", requiredPoints: 9 },
+      { name: "冥想", cost: 0, power: 0.1, kind: "mpHealPercent", stat: "magic", school: "魔力系", branch: "魔力系", requiredPoints: 0 },
+      { name: "魔力提煉", cost: 10, power: 0.08, kind: "regenMp", stat: "magic", duration: 5, school: "魔力系", branch: "魔力系", requiredPoints: 3 },
+      { name: "魔武戰技", cost: 14, power: 0, kind: "spellbladeMode", stat: "magic", duration: 5, school: "魔力系", branch: "魔力系", requiredPoints: 6 },
     ],
-    "????": [
-      { name: "??", cost: 12, power: 0, kind: "berserk", stat: "attack", duration: 4, school: "???", branch: "???", requiredPoints: 0 },
-      { name: "??", cost: 16, power: 0.72, kind: "multiHit", stat: "attack", hits: 4, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "???", cost: 18, power: 3.0, kind: "riskyTriple", stat: "attack", school: "???", branch: "???", requiredPoints: 6 },
-      { name: "????", cost: 22, power: 0, kind: "allIn", stat: "attack", duration: 1, school: "???", branch: "???", requiredPoints: 9 },
-      { name: "??", cost: 14, power: 0, kind: "allStun", stat: "attack", chance: 0.5, duration: 1, school: "???", branch: "???", requiredPoints: 0 },
-      { name: "??", cost: 14, power: 0, kind: "fearAll", stat: "attack", chance: 0.3, duration: 4, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 12, power: 3.0, kind: "executeAilment", stat: "attack", school: "???", branch: "???", requiredPoints: 6 },
-      { name: "???", cost: 12, power: 1.9, kind: "attackDebuffDefense", stat: "attack", duration: 4, school: "???", branch: "???", requiredPoints: 0 },
-      { name: "???", cost: 12, power: 1.9, kind: "attackDebuffAttack", stat: "attack", duration: 4, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 16, power: 1.2, kind: "multiHitStun", stat: "attack", hits: 2, chance: 0.5, duration: 1, school: "???", branch: "???", requiredPoints: 6 },
+    "戰鬥大師": [
+      { name: "捨身", cost: 12, power: 0, kind: "berserk", stat: "attack", duration: 4, school: "無雙系", branch: "無雙系", requiredPoints: 0 },
+      { name: "亂舞", cost: 16, power: 0.72, kind: "multiHit", stat: "attack", hits: 4, school: "無雙系", branch: "無雙系", requiredPoints: 3 },
+      { name: "魔神斬", cost: 18, power: 3.0, kind: "riskyTriple", stat: "attack", school: "無雙系", branch: "無雙系", requiredPoints: 6 },
+      { name: "天賭嗜命", cost: 22, power: 0, kind: "allIn", stat: "attack", duration: 1, school: "無雙系", branch: "無雙系", requiredPoints: 9 },
+      { name: "戰吼", cost: 14, power: 0, kind: "allStun", stat: "attack", chance: 0.5, duration: 1, school: "威壓系", branch: "威壓系", requiredPoints: 0 },
+      { name: "威壓", cost: 14, power: 0, kind: "fearAll", stat: "attack", chance: 0.3, duration: 4, school: "威壓系", branch: "威壓系", requiredPoints: 3 },
+      { name: "弱者殺手", cost: 12, power: 3.0, kind: "executeAilment", stat: "attack", school: "威壓系", branch: "威壓系", requiredPoints: 6 },
+      { name: "裂盔斬", cost: 12, power: 1.9, kind: "attackDebuffDefense", stat: "attack", duration: 4, school: "破壞系", branch: "破壞系", requiredPoints: 0 },
+      { name: "破刃擊", cost: 12, power: 1.9, kind: "attackDebuffAttack", stat: "attack", duration: 4, school: "破壞系", branch: "破壞系", requiredPoints: 3 },
+      { name: "破壞毆打", cost: 16, power: 1.2, kind: "multiHitStun", stat: "attack", hits: 2, chance: 0.5, duration: 1, school: "破壞系", branch: "破壞系", requiredPoints: 6 },
     ],
-    "??": [
-      { name: "????", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 0 },
-      { name: "??", cost: 14, power: 0, kind: "buffDefensePartyStrong", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 3 },
-      { name: "???", cost: 14, power: 0, kind: "buffResistancePartyStrong", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 6 },
-      { name: "????", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 9 },
-      { name: "???", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 12 },
-      { name: "?????", cost: 26, power: 3.1, kind: "attackAll", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 15 },
-      { name: "??", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 0 },
-      { name: "???", cost: 14, power: 0, kind: "debuffDefenseAll", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 3 },
-      { name: "???", cost: 14, power: 0, kind: "debuffResistanceAll", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 6 },
-      { name: "??", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 9 },
-      { name: "??", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 12 },
-      { name: "?????", cost: 26, power: 3.15, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 15 },
-      { name: "??", cost: 10, power: 0.08, kind: "regenHpSingle", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 0 },
-      { name: "????", cost: 14, power: 0.12, kind: "regenHpSingle", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "?????", cost: 16, power: 0, kind: "cleanseAll", stat: "magic", school: "???", branch: "???", requiredPoints: 6 },
-      { name: "??", cost: 18, power: 0.18, kind: "regenHpSingle", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 9 },
+    "賢者": [
+      { name: "陽光射線", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "日", school: "日", branch: "日", requiredPoints: 0 },
+      { name: "日冕", cost: 14, power: 0, kind: "buffDefensePartyStrong", stat: "magic", element: "日", duration: 4, school: "日", branch: "日", requiredPoints: 3 },
+      { name: "太陽球", cost: 14, power: 0, kind: "buffResistancePartyStrong", stat: "magic", element: "日", duration: 4, school: "日", branch: "日", requiredPoints: 6 },
+      { name: "烈日恆天", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "日", school: "日", branch: "日", requiredPoints: 9 },
+      { name: "太陽風", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "日", school: "日", branch: "日", requiredPoints: 12 },
+      { name: "太陽面爆發", cost: 26, power: 3.1, kind: "attackAll", stat: "magic", element: "日", school: "日", branch: "日", requiredPoints: 15 },
+      { name: "新月", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 0 },
+      { name: "上弦月", cost: 14, power: 0, kind: "debuffDefenseAll", stat: "magic", element: "月", duration: 4, school: "月", branch: "月", requiredPoints: 3 },
+      { name: "下弦月", cost: 14, power: 0, kind: "debuffResistanceAll", stat: "magic", element: "月", duration: 4, school: "月", branch: "月", requiredPoints: 6 },
+      { name: "滿月", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 9 },
+      { name: "無月", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 12 },
+      { name: "月亮追逐者", cost: 26, power: 3.15, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 15 },
+      { name: "癒合", cost: 10, power: 0.08, kind: "regenHpSingle", stat: "magic", duration: 5, school: "賢術系", branch: "賢術系", requiredPoints: 0 },
+      { name: "加速癒合", cost: 14, power: 0.12, kind: "regenHpSingle", stat: "magic", duration: 5, school: "賢術系", branch: "賢術系", requiredPoints: 3 },
+      { name: "大範圍祝福", cost: 16, power: 0, kind: "cleanseAll", stat: "magic", school: "賢術系", branch: "賢術系", requiredPoints: 6 },
+      { name: "再生", cost: 18, power: 0.18, kind: "regenHpSingle", stat: "magic", duration: 5, school: "賢術系", branch: "賢術系", requiredPoints: 9 },
     ],
-    "???": [
-      { name: "hp??", cost: 0, power: 0.5, kind: "allyHpTransfer", stat: "magic", school: "????", branch: "???", requiredPoints: 0 },
-      { name: "mp??", cost: 0, power: 0.5, kind: "allyMpTransfer", stat: "magic", school: "????", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 16, power: 0, kind: "coverAll", stat: "defense", duration: 3, school: "????", branch: "???", requiredPoints: 6 },
-      { name: "????", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "?", duration: 4, school: "???", branch: "???", requiredPoints: 0 },
-      { name: "????", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "?", duration: 4, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "?", duration: 4, school: "???", branch: "???", requiredPoints: 6 },
-      { name: "????", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "?", duration: 4, school: "???", branch: "???", requiredPoints: 9 },
-      { name: "??", cost: 12, power: 1.75, kind: "attack", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 0 },
-      { name: "???", cost: 16, power: 1.85, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 16, power: 1.8, kind: "attackDrain", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 6 },
-      { name: "????", cost: 20, power: 2.4, kind: "attack", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 9 },
+    "聖騎士": [
+      { name: "hp給予", cost: 0, power: 0.5, kind: "allyHpTransfer", stat: "magic", school: "我為人人", branch: "我為人人", requiredPoints: 0 },
+      { name: "mp給予", cost: 0, power: 0.5, kind: "allyMpTransfer", stat: "magic", school: "我為人人", branch: "我為人人", requiredPoints: 3 },
+      { name: "銅牆鐵壁", cost: 16, power: 0, kind: "coverAll", stat: "defense", duration: 3, school: "我為人人", branch: "我為人人", requiredPoints: 6 },
+      { name: "水之加護", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "水", duration: 4, school: "加護系", branch: "加護系", requiredPoints: 0 },
+      { name: "火之加護", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "火", duration: 4, school: "加護系", branch: "加護系", requiredPoints: 3 },
+      { name: "風之加護", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "風", duration: 4, school: "加護系", branch: "加護系", requiredPoints: 6 },
+      { name: "地之加護", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "地", duration: 4, school: "加護系", branch: "加護系", requiredPoints: 9 },
+      { name: "聖槍", cost: 12, power: 1.75, kind: "attack", stat: "attack", element: "日", school: "騎士道", branch: "騎士道", requiredPoints: 0 },
+      { name: "大十字", cost: 16, power: 1.85, kind: "attackAll", stat: "attack", element: "日", school: "騎士道", branch: "騎士道", requiredPoints: 3 },
+      { name: "奇蹟之劍", cost: 16, power: 1.8, kind: "attackDrain", stat: "attack", element: "日", school: "騎士道", branch: "騎士道", requiredPoints: 6 },
+      { name: "神聖投槍", cost: 20, power: 2.4, kind: "attack", stat: "attack", element: "日", school: "騎士道", branch: "騎士道", requiredPoints: 9 },
     ],
-    "???": [
-      { name: "????", cost: 10, power: 1.85, kind: "attackIgnoreDefense", stat: "attack", school: "???", branch: "???", requiredPoints: 0 },
-      { name: "????", cost: 14, power: 1.6, kind: "attackInstantDeath", stat: "attack", chance: 0.05, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 16, power: 0, kind: "randomAilmentAll", stat: "attack", chance: 1, duration: 3, school: "???", branch: "???", requiredPoints: 6 },
-      { name: "??", cost: 18, power: 3.0, kind: "executeAilment", stat: "attack", school: "???", branch: "???", requiredPoints: 9 },
-      { name: "??", cost: 8, power: 0, kind: "buffSpeedSingleStrong", stat: "speed", duration: 3, school: "???", branch: "???", requiredPoints: 0 },
-      { name: "??", cost: 12, power: 1.7, kind: "attackDebuffDefense", stat: "attack", duration: 4, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 12, power: 0, kind: "evadeCounter", stat: "speed", duration: 3, school: "???", branch: "???", requiredPoints: 6 },
-      { name: "??", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 0 },
-      { name: "???", cost: 14, power: 0, kind: "debuffDefenseAll", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 3 },
-      { name: "???", cost: 14, power: 0, kind: "debuffResistanceAll", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 6 },
-      { name: "??", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 9 },
-      { name: "??", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 12 },
-      { name: "?????", cost: 26, power: 3.15, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 15 },
+    "暗殺者": [
+      { name: "要害攻擊", cost: 10, power: 1.85, kind: "attackIgnoreDefense", stat: "attack", school: "致死系", branch: "致死系", requiredPoints: 0 },
+      { name: "致死匕首", cost: 14, power: 1.6, kind: "attackInstantDeath", stat: "attack", chance: 0.05, school: "致死系", branch: "致死系", requiredPoints: 3 },
+      { name: "異常調配", cost: 16, power: 0, kind: "randomAilmentAll", stat: "attack", chance: 1, duration: 3, school: "致死系", branch: "致死系", requiredPoints: 6 },
+      { name: "處刑", cost: 18, power: 3.0, kind: "executeAilment", stat: "attack", school: "致死系", branch: "致死系", requiredPoints: 9 },
+      { name: "神速", cost: 8, power: 0, kind: "buffSpeedSingleStrong", stat: "speed", duration: 3, school: "生存系", branch: "生存系", requiredPoints: 0 },
+      { name: "卸甲", cost: 12, power: 1.7, kind: "attackDebuffDefense", stat: "attack", duration: 4, school: "生存系", branch: "生存系", requiredPoints: 3 },
+      { name: "迴避反擊", cost: 12, power: 0, kind: "evadeCounter", stat: "speed", duration: 3, school: "生存系", branch: "生存系", requiredPoints: 6 },
+      { name: "新月", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 0 },
+      { name: "上弦月", cost: 14, power: 0, kind: "debuffDefenseAll", stat: "magic", element: "月", duration: 4, school: "月", branch: "月", requiredPoints: 3 },
+      { name: "下弦月", cost: 14, power: 0, kind: "debuffResistanceAll", stat: "magic", element: "月", duration: 4, school: "月", branch: "月", requiredPoints: 6 },
+      { name: "滿月", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 9 },
+      { name: "無月", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 12 },
+      { name: "月亮追逐者", cost: 26, power: 3.15, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 15 },
     ],
-    "??": [
-      { name: "???", cost: 16, power: 1.8, kind: "attack", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 0 },
-      { name: "??", cost: 18, power: 0, kind: "buffAllParty", stat: "magic", duration: 4, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "???", cost: 22, power: 2.3, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 6 },
-      { name: "????", cost: 30, power: 3.25, kind: "attack", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 9 },
-      { name: "???", cost: 0, power: 0, kind: "superTranscend", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 12 },
-      { name: "??", cost: 10, power: 1.3, kind: "attackParalyze", stat: "magic", element: "?", chance: 0.3, duration: 3, school: "???", branch: "???", requiredPoints: 0 },
-      { name: "??", cost: 14, power: 1.15, kind: "attackAllParalyze", stat: "magic", element: "?", chance: 0.3, duration: 3, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "???", cost: 18, power: 1.85, kind: "attackParalyze", stat: "magic", element: "?", chance: 0.35, duration: 3, school: "???", branch: "???", requiredPoints: 6 },
-      { name: "????", cost: 24, power: 2.25, kind: "attackAllParalyze", stat: "magic", element: "?", chance: 0.4, duration: 3, school: "???", branch: "???", requiredPoints: 9 },
-      { name: "????", cost: 30, power: 3.2, kind: "attackParalyze", stat: "magic", element: "?", chance: 0.45, duration: 3, school: "???", branch: "???", requiredPoints: 12 },
+    "勇者": [
+      { name: "雷鳴斬", cost: 16, power: 1.8, kind: "attack", stat: "attack", element: "雷", school: "勇者系", branch: "勇者系", requiredPoints: 0 },
+      { name: "羈絆", cost: 18, power: 0, kind: "buffAllParty", stat: "magic", duration: 4, school: "勇者系", branch: "勇者系", requiredPoints: 3 },
+      { name: "超級斬", cost: 22, power: 2.3, kind: "attackAll", stat: "attack", element: "雷", school: "勇者系", branch: "勇者系", requiredPoints: 6 },
+      { name: "輝煌聖劍", cost: 30, power: 3.25, kind: "attack", stat: "attack", element: "雷", school: "勇者系", branch: "勇者系", requiredPoints: 9 },
+      { name: "超越者", cost: 0, power: 0, kind: "superTranscend", stat: "magic", duration: 5, school: "勇者系", branch: "勇者系", requiredPoints: 12 },
+      { name: "落雷", cost: 10, power: 1.3, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.3, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 0 },
+      { name: "雷電", cost: 14, power: 1.15, kind: "attackAllParalyze", stat: "magic", element: "雷", chance: 0.3, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 3 },
+      { name: "閃電球", cost: 18, power: 1.85, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.35, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 6 },
+      { name: "雷電牢獄", cost: 24, power: 2.25, kind: "attackAllParalyze", stat: "magic", element: "雷", chance: 0.4, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 9 },
+      { name: "神罰天雷", cost: 30, power: 3.2, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.45, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 12 },
     ],
-    "??": [
-      { name: "???", cost: 16, power: 1.85, kind: "attackDualElement", stat: "attack", element: "?|?", school: "???", branch: "???", requiredPoints: 0 },
-      { name: "????", cost: 18, power: 0.5, kind: "overloadMagic", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 24, power: 2.25, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 6 },
-      { name: "????", cost: 30, power: 3.25, kind: "attackDualElement", stat: "attack", element: "?|?", school: "???", branch: "???", requiredPoints: 9 },
-      { name: "???", cost: 0, power: 0, kind: "superTranscend", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 12 },
-      { name: "???", cost: 10, power: 1.3, kind: "attack", stat: "magic", element: "?", school: "???", branch: "???", requiredPoints: 0 },
-      { name: "??", cost: 14, power: 1.15, kind: "attackAll", stat: "magic", element: "?", school: "???", branch: "???", requiredPoints: 3 },
-      { name: "????", cost: 18, power: 1.85, kind: "attack", stat: "magic", element: "?", school: "???", branch: "???", requiredPoints: 6 },
-      { name: "???", cost: 24, power: 2.25, kind: "attackAllStun", stat: "magic", element: "?", chance: 0.3, duration: 1, school: "???", branch: "???", requiredPoints: 9 },
-      { name: "????", cost: 30, power: 3.1, kind: "attackAll", stat: "magic", element: "?", school: "???", branch: "???", requiredPoints: 12 },
+    "魔王": [
+      { name: "墮落斬", cost: 16, power: 1.85, kind: "attackDualElement", stat: "attack", element: "地|月", school: "魔王系", branch: "魔王系", requiredPoints: 0 },
+      { name: "魔力超載", cost: 18, power: 0.5, kind: "overloadMagic", stat: "magic", duration: 5, school: "魔王系", branch: "魔王系", requiredPoints: 3 },
+      { name: "月之波動", cost: 24, power: 2.25, kind: "attackAll", stat: "attack", element: "月", school: "魔王系", branch: "魔王系", requiredPoints: 6 },
+      { name: "深淵魔劍", cost: 30, power: 3.25, kind: "attackDualElement", stat: "attack", element: "地|月", school: "魔王系", branch: "魔王系", requiredPoints: 9 },
+      { name: "超越者", cost: 0, power: 0, kind: "superTranscend", stat: "magic", duration: 5, school: "魔王系", branch: "魔王系", requiredPoints: 12 },
+      { name: "碎石波", cost: 10, power: 1.3, kind: "attack", stat: "magic", element: "地", school: "大地", branch: "大地", requiredPoints: 0 },
+      { name: "岩刺", cost: 14, power: 1.15, kind: "attackAll", stat: "magic", element: "地", school: "大地", branch: "大地", requiredPoints: 3 },
+      { name: "大地之槍", cost: 18, power: 1.85, kind: "attack", stat: "magic", element: "地", school: "大地", branch: "大地", requiredPoints: 6 },
+      { name: "大地震", cost: 24, power: 2.25, kind: "attackAllStun", stat: "magic", element: "地", chance: 0.3, duration: 1, school: "大地", branch: "大地", requiredPoints: 9 },
+      { name: "蓋亞之怒", cost: 30, power: 3.1, kind: "attackAll", stat: "magic", element: "地", school: "大地", branch: "大地", requiredPoints: 12 },
     ],
   };
 
   Object.entries(advancedSkills).forEach(([className, skills]) => {
     data.classSkills[className] = skills.map(skill => ({ ...skill }));
   });
-  delete data.classSkills["??"];
-  delete data.classSkills["??"];
+  delete data.classSkills["劍聖"];
+  delete data.classSkills["聖人"];
 }
 
 function transaction(storeName, mode, action) {
@@ -1110,23 +1109,23 @@ async function loadCsvDatabases() {
 
 function renderMenu() {
   const items = state.currentPlayer ? [
-    ["????", renderGameHub],
-    ["????", renderStatus],
-    ["??", renderEquipmentPage],
-    ["??", renderInventory],
-    ["??", renderShop],
-    ["??", renderCompanions],
-    ["???", renderSkillTree],
-    ["????", () => startBattle("normal")],
-    ["????", () => startBattle("dungeon")],
-    ["????", () => startBattle("story")],
-    ["????", restPlayer],
-    ["????", saveCurrentPlayer],
-    ["????", leaveCurrentPlayer],
+    ["冒險首頁", renderGameHub],
+    ["角色狀態", renderStatus],
+    ["裝備", renderEquipmentPage],
+    ["背包", renderInventory],
+    ["商店", renderShop],
+    ["同伴", renderCompanions],
+    ["技能樹", renderSkillTree],
+    ["野外戰鬥", () => startBattle("normal")],
+    ["副本戰鬥", () => startBattle("dungeon")],
+    ["主線戰鬥", () => startBattle("story")],
+    ["休息恢復", restPlayer],
+    ["儲存角色", saveCurrentPlayer],
+    ["返回標題", leaveCurrentPlayer],
   ] : [
-    ["???", renderHome],
-    ["????", renderCreateCharacter],
-    ["????", renderLoadGame],
+    ["標題頁", renderHome],
+    ["建立角色", renderCreateCharacter],
+    ["讀取角色", renderLoadGame],
   ];
   menu.innerHTML = "";
   items.forEach(([label, handler]) => {
@@ -1138,15 +1137,15 @@ function renderMenu() {
   });
   if (state.currentPlayer) {
     heroActions.innerHTML = `
-      <button class="primary" type="button" id="hero-status">????</button>
-      <button class="secondary" type="button" id="hero-save">????</button>
+      <button class="primary" type="button" id="hero-status">角色狀態</button>
+      <button class="secondary" type="button" id="hero-save">儲存角色</button>
     `;
     document.querySelector("#hero-status").addEventListener("click", renderGameHub);
     document.querySelector("#hero-save").addEventListener("click", saveCurrentPlayer);
   } else {
     heroActions.innerHTML = `
-      <button class="primary" type="button" id="hero-start">????</button>
-      <button class="secondary" type="button" id="hero-load">????</button>
+      <button class="primary" type="button" id="hero-start">建立角色</button>
+      <button class="secondary" type="button" id="hero-load">讀取角色</button>
     `;
     document.querySelector("#hero-start").addEventListener("click", renderCreateCharacter);
     document.querySelector("#hero-load").addEventListener("click", renderLoadGame);
@@ -1158,13 +1157,13 @@ function renderHome() {
   applyAreaTheme(null);
   renderMenu();
   app.innerHTML = `
-    <h3>???</h3>
-    <p class="hint">??????????????????????????</p>
-    <p class="hint">${state.csvLoaded ? "CSV ???????????????? data/csv ?????" : "????????????????? data/csv????????????"}</p>
+    <h3>標題頁</h3>
+    <p class="hint">先建立角色或讀取角色，進入後才會開啟遊戲內功能頁面。</p>
+    <p class="hint">${state.csvLoaded ? "CSV 資料庫已載入，目前遊戲會優先使用 data/csv 內的資料。" : "目前使用內建資料。若部署環境能讀取 data/csv，就會自動改用最新資料。"}</p>
     <div class="card-grid">
-      <div class="stat"><strong>????</strong><p>??????????????????</p></div>
-      <div class="stat"><strong>????</strong><p>???????? IndexedDB???????????? localStorage?</p></div>
-      <div class="stat"><strong>????</strong><p>??????????????? data/csv ???</p></div>
+      <div class="stat"><strong>開始方式</strong><p>使用左側選單進入建立角色或讀取角色。</p></div>
+      <div class="stat"><strong>存檔方式</strong><p>角色資料優先存在 IndexedDB，若瀏覽器限制則自動改用 localStorage。</p></div>
+      <div class="stat"><strong>資料來源</strong><p>地圖、怪物、裝備、技能會優先從 data/csv 載入。</p></div>
     </div>
   `;
 }
@@ -2260,25 +2259,25 @@ function handleSkill(skill, player, battle, monster, stats, action = {}) {
   }
   if (skill.kind === "attackDebuffDefense") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "defenseDown", skill.duration || 3, `${monster.name} ????????`, battle);
+    applyMonsterAilment(monster, "defenseDown", skill.duration || 3, `${monster.name} 的防禦下降了。`, battle);
     return;
   }
   if (skill.kind === "attackDebuffAttack") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "attackDown", skill.duration || 3, `${monster.name} ????????`, battle);
+    applyMonsterAilment(monster, "attackDown", skill.duration || 3, `${monster.name} 的攻擊下降了。`, battle);
     return;
   }
   if (skill.kind === "attackDebuffResistance") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "resistanceDown", skill.duration || 3, `${monster.name} ????????`, battle);
+    applyMonsterAilment(monster, "resistanceDown", skill.duration || 3, `${monster.name} 的抵抗下降了。`, battle);
     return;
   }
   if (skill.kind === "debuffDefenseAll") {
-    livingEnemies(battle).forEach(target => applyMonsterAilment(target, "defenseDown", skill.duration || 4, `${target.name} ????????`, battle));
+    livingEnemies(battle).forEach(target => applyMonsterAilment(target, "defenseDown", skill.duration || 4, `${target.name} 的防禦下降了。`, battle));
     return;
   }
   if (skill.kind === "debuffResistanceAll") {
-    livingEnemies(battle).forEach(target => applyMonsterAilment(target, "resistanceDown", skill.duration || 4, `${target.name} ????????`, battle));
+    livingEnemies(battle).forEach(target => applyMonsterAilment(target, "resistanceDown", skill.duration || 4, `${target.name} 的抵抗下降了。`, battle));
     return;
   }
   if (skill.kind === "attackDualElement") {
@@ -2288,55 +2287,55 @@ function handleSkill(skill, player, battle, monster, stats, action = {}) {
   if (skill.kind === "attackAllStun") {
     livingEnemies(battle).forEach(target => {
       castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
-      if (Math.random() < (skill.chance || 0.3)) applyMonsterAilment(target, "stun", skill.duration || 1, `${target.name} ?????`, battle);
+      if (Math.random() < (skill.chance || 0.3)) applyMonsterAilment(target, "stun", skill.duration || 1, `${target.name} 暈眩了。`, battle);
     });
     return;
   }
   if (skill.kind === "attackAllParalyze") {
     livingEnemies(battle).forEach(target => {
       castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
-      if (Math.random() < (skill.chance || 0.3)) applyMonsterAilment(target, "paralyze", skill.duration || 3, `${target.name} ?????`, battle);
+      if (Math.random() < (skill.chance || 0.3)) applyMonsterAilment(target, "paralyze", skill.duration || 3, `${target.name} 麻痺了。`, battle);
     });
     return;
   }
   if (skill.kind === "attackPoison") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "poison", skill, monster.name, "????", battle);
+    tryApplyChanceAilment(monster, "poison", skill, monster.name, "中毒", battle);
     return;
   }
   if (skill.kind === "attackSleep") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "sleep", skill, monster.name, "????", battle);
+    tryApplyChanceAilment(monster, "sleep", skill, monster.name, "睡眠", battle);
     return;
   }
   if (skill.kind === "attackBlind") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "blind", skill, monster.name, "????", battle);
+    tryApplyChanceAilment(monster, "blind", skill, monster.name, "失明", battle);
     return;
   }
   if (skill.kind === "attackTrap") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "trap", skill.duration || 2, `${monster.name} ??????`, battle);
+    applyMonsterAilment(monster, "trap", skill.duration || 2, `${monster.name} 被設下陷阱。`, battle);
     return;
   }
   if (skill.kind === "attackDebuffSpeed") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "speedDown", skill.duration || 3, `${monster.name} ???????`, battle);
+    applyMonsterAilment(monster, "speedDown", skill.duration || 3, `${monster.name} 的速度下降了。`, battle);
     return;
   }
   if (skill.kind === "attackStun") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "stun", skill, monster.name, "????", battle);
+    tryApplyChanceAilment(monster, "stun", skill, monster.name, "暈眩", battle);
     return;
   }
   if (skill.kind === "attackFreeze") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "freeze", skill, monster.name, "????", battle);
+    tryApplyChanceAilment(monster, "freeze", skill, monster.name, "凍結", battle);
     return;
   }
   if (skill.kind === "attackBurn") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "burn", skill, monster.name, "????", battle);
+    tryApplyChanceAilment(monster, "burn", skill, monster.name, "燒傷", battle);
     return;
   }
   if (skill.kind === "multiHit") {
@@ -2344,7 +2343,7 @@ function handleSkill(skill, player, battle, monster, stats, action = {}) {
     for (let i = 0; i < (skill.hits || 2) && monster?.currentHp > 0; i += 1) {
       total += castAttackSkill(skill, player, battle, monster, stats, monsterBattleStats(monster, battle));
     }
-    battle.log.push(`${skill.name} ????? ${total} ????`);
+    battle.log.push(`${skill.name} 連續命中，總計造成 ${total} 點傷害。`);
     return;
   }
   if (skill.kind === "multiHitStun") {
@@ -2352,41 +2351,41 @@ function handleSkill(skill, player, battle, monster, stats, action = {}) {
     for (let i = 0; i < (skill.hits || 2) && monster?.currentHp > 0; i += 1) {
       total += castAttackSkill(skill, player, battle, monster, stats, monsterBattleStats(monster, battle));
     }
-    battle.log.push(`${skill.name} ????? ${total} ????`);
-    tryApplyChanceAilment(monster, "stun", skill, monster.name, "????", battle);
+    battle.log.push(`${skill.name} 連續重擊，總計造成 ${total} 點傷害。`);
+    tryApplyChanceAilment(monster, "stun", skill, monster.name, "暈眩", battle);
     return;
   }
   if (skill.kind === "attackIgnoreDefense") {
     const attackElement = resolvePlayerAttackElement(player, battle, skill.element || null);
     const damage = dealDamage(stats[skill.stat], 0, skill.power, attackElement, monster);
     monster.currentHp = Math.max(0, monster.currentHp - damage);
-    battle.log.push(`${player.name} ?? ${skill.name}??????? ${damage} ????`);
+    battle.log.push(`${player.name} 施放 ${skill.name}，無視防禦造成 ${damage} 點傷害。`);
     wakeSleepingMonster(monster, battle);
     applyLifesteal(player, damage, battle);
     return;
   }
   if (skill.kind === "attackParalyze") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "paralyze", skill, monster.name, "????", battle);
+    tryApplyChanceAilment(monster, "paralyze", skill, monster.name, "麻痺", battle);
     return;
   }
   if (skill.kind === "attackDrain") {
     const damage = castAttackSkill(skill, player, battle, monster, stats, monsterStats);
     const heal = Math.max(1, Math.floor(damage * 0.35));
     player.hp = Math.min(stats.maxHp, player.hp + heal);
-    battle.log.push(`${player.name} ??? ${heal} HP?`);
+    battle.log.push(`${player.name} 吸收了 ${heal} HP。`);
     return;
   }
   if (skill.kind === "attackBuffSpeed") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
     battle.selfBuffs.speed = Math.max(battle.selfBuffs.speed, 3);
     battle.selfBuffs.evade = Math.max(battle.selfBuffs.evade, 0.1);
-    battle.log.push(`${player.name} ???????`);
+    battle.log.push(`${player.name} 的速度與迴避上升了。`);
     return;
   }
   if (skill.kind === "riskyTriple") {
     if (Math.random() < 0.7) {
-      battle.log.push(`${player.name} ?? ${skill.name}??????`);
+      battle.log.push(`${player.name} 的 ${skill.name} 失手了。`);
       return;
     }
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
@@ -2403,12 +2402,12 @@ function handleSkill(skill, player, battle, monster, stats, action = {}) {
     const isBoss = ["story", "boss"].includes(monster.category) || monster.storyOrder;
     if (!isBoss && Math.random() < (skill.chance || 0.05)) {
       monster.currentHp = 0;
-      battle.log.push(`${player.name} ? ${skill.name} ?????${monster.name} ?????`);
+      battle.log.push(`${player.name} 以 ${skill.name} 直接處決了 ${monster.name}。`);
       return;
     }
     const damage = dealDamage(stats[skill.stat], 0, skill.power, attackElement, monster);
     monster.currentHp = Math.max(0, monster.currentHp - damage);
-    battle.log.push(`${player.name} ?? ${skill.name}??? ${damage} ????`);
+    battle.log.push(`${player.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
     wakeSleepingMonster(monster, battle);
     return;
   }
@@ -3047,7 +3046,7 @@ function battleStats(player, battle) {
   if (player.raceName === "??" && battle.turn <= 3) {
     ["attack", "defense", "magic", "resistance", "speed", "luck"].forEach(key => { stats[key] += 2; });
   }
-  if (player.raceName === "??" && player.hp <= stats.maxHp * 0.4) stats.attack += 5;
+  if (player.raceName === "獸人" && player.hp <= stats.maxHp * 0.4) stats.attack += 5;
   if (battle.buffs.attack) stats.attack += 5;
   if (battle.buffs.defense) stats.defense += 5;
   if (battle.buffs.magic) stats.magic += 5;
@@ -3058,7 +3057,7 @@ function battleStats(player, battle) {
   if (battle.selfBuffs?.magic) stats.magic += 5;
   if (battle.selfBuffs?.resistance) stats.resistance += 5;
   if (battle.selfBuffs?.speed) stats.speed += 5;
-  if (skillKnown(player, "????") && player.hp <= stats.maxHp * 0.4) stats.attack += 8;
+  if (skillKnown(player, "決死反攻") && player.hp <= stats.maxHp * 0.4) stats.attack += 8;
   if (battle.buffs.dragon) {
     stats.attack += 6;
     stats.magic += 6;
