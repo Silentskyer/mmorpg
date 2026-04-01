@@ -27,6 +27,23 @@ body {
     linear-gradient(135deg, #f7f3eb, #eadbc4 55%, #e7d2b5);
   min-height: 100vh;
   transition: background 260ms ease, color 180ms ease;
+  position: relative;
+  isolation: isolate;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--bg-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.24;
+  filter: saturate(0.95) contrast(1.04);
+  transition: opacity 220ms ease, background-image 220ms ease;
 }
 
 body[data-area-theme="title"] {

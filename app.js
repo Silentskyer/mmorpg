@@ -249,6 +249,14 @@ const state = {
   equipRules: structuredClone(defaultEquipRules),
   classGrowth: structuredClone(classAutoGrowth),
   csvLoaded: false,
+  auth: {
+    enabled: false,
+    client: null,
+    session: null,
+    user: null,
+    profile: null,
+    publicConfig: null,
+  },
   cloudSync: { enabled: false, available: false, mode: "local", message: "本機存檔" },
 };
 
@@ -310,6 +318,9 @@ const imageCatalog = {
 
 const LOCAL_SAVE_KEY = "mmorpg_click_game_players_v1";
 const CLOUD_SAVE_ENDPOINT = "/api/cloud-saves";
+const PUBLIC_CONFIG_ENDPOINT = "/api/public-config";
+const PROFILE_ENDPOINT = "/api/profile";
+const ADMIN_USERS_ENDPOINT = "/api/admin-users";
 
 function readLocalPlayers() {
   try {
@@ -354,8 +365,12 @@ async function refreshCloudSyncStatus() {
 
 async function loadCloudPlayers() {
   if (!state.cloudSync.enabled) return [];
+  if (state.auth.enabled && !state.auth.user) return [];
   try {
-    const response = await fetch(CLOUD_SAVE_ENDPOINT, { cache: "no-store" });
+    const response = await fetch(CLOUD_SAVE_ENDPOINT, {
+      cache: "no-store",
+      headers: authHeaders(),
+    });
     if (!response.ok) throw new Error("cloud load");
     const payload = await response.json();
     return Array.isArray(payload.players) ? payload.players : [];
@@ -366,16 +381,126 @@ async function loadCloudPlayers() {
 
 async function syncPlayerToCloud(player) {
   if (!state.cloudSync.enabled || !player) return;
+  if (state.auth.enabled && !state.auth.user) return;
   ensureCloudSaveId(player);
   try {
     await fetch(CLOUD_SAVE_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ player }),
     });
   } catch {
     // Keep local saving resilient even if cloud sync is unavailable.
   }
+}
+
+function authToken() {
+  return state.auth.session?.access_token || "";
+}
+
+function authHeaders(extra = {}) {
+  const token = authToken();
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...extra,
+  };
+}
+
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, options);
+  const text = await response.text();
+  let payload = {};
+  try {
+    payload = text ? JSON.parse(text) : {};
+  } catch {
+    payload = { raw: text };
+  }
+  return { ok: response.ok, status: response.status, payload };
+}
+
+async function loadPublicConfig() {
+  try {
+    const { ok, payload } = await fetchJson(PUBLIC_CONFIG_ENDPOINT, { cache: "no-store" });
+    if (!ok || !payload?.authEnabled || !globalThis.supabase?.createClient) {
+      state.auth.enabled = false;
+      return;
+    }
+    state.auth.enabled = true;
+    state.auth.publicConfig = payload;
+    state.auth.client = globalThis.supabase.createClient(payload.supabaseUrl, payload.supabaseAnonKey);
+    const { data } = await state.auth.client.auth.getSession();
+    state.auth.session = data?.session || null;
+    state.auth.user = data?.session?.user || null;
+    if (state.auth.user) {
+      await refreshAuthProfile();
+    }
+    state.auth.client.auth.onAuthStateChange((_event, session) => {
+      state.auth.session = session || null;
+      state.auth.user = session?.user || null;
+      if (state.auth.user) {
+        refreshAuthProfile().then(() => {
+          renderMenu();
+          if (!state.currentPlayer) renderHome();
+        });
+      } else {
+        state.auth.profile = null;
+        state.currentPlayer = null;
+        renderMenu();
+        renderHome();
+      }
+    });
+  } catch {
+    state.auth.enabled = false;
+  }
+}
+
+async function refreshAuthProfile() {
+  if (!state.auth.enabled || !state.auth.user) {
+    state.auth.profile = null;
+    return null;
+  }
+  const { ok, payload } = await fetchJson(PROFILE_ENDPOINT, {
+    headers: authHeaders(),
+  });
+  if (ok) {
+    state.auth.profile = payload.profile || null;
+    return state.auth.profile;
+  }
+  state.auth.profile = null;
+  return null;
+}
+
+async function signInAccount(email, password) {
+  if (!state.auth.client) return { ok: false, message: "\u5c1a\u672a\u8a2d\u5b9a Supabase Auth\u3002" };
+  const { error } = await state.auth.client.auth.signInWithPassword({ email, password });
+  if (error) return { ok: false, message: error.message };
+  await refreshAuthProfile();
+  return { ok: true };
+}
+
+async function signUpAccount(email, password, displayName) {
+  if (!state.auth.client) return { ok: false, message: "\u5c1a\u672a\u8a2d\u5b9a Supabase Auth\u3002" };
+  const { error } = await state.auth.client.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { display_name: displayName || email.split("@")[0] },
+    },
+  });
+  if (error) return { ok: false, message: error.message };
+  return { ok: true, message: "\u8a3b\u518a\u6210\u529f\uff0c\u82e5 Supabase \u555f\u7528\u4fe1\u7bb1\u9a57\u8b49\uff0c\u8acb\u5148\u5b8c\u6210\u9a57\u8b49\u518d\u767b\u5165\u3002" };
+}
+
+async function signOutAccount() {
+  if (!state.auth.client) return;
+  await state.auth.client.auth.signOut();
+  state.currentPlayer = null;
+  renderMenu();
+  renderHome();
+}
+
+function canPlayOnline() {
+  return !state.auth.enabled || Boolean(state.auth.user);
 }
 
 const dbApi = {
@@ -408,6 +533,10 @@ const dbApi = {
     });
   },
   async getAllPlayers() {
+    if (state.auth.enabled && state.auth.user) {
+      const cloudPlayers = await loadCloudPlayers();
+      if (cloudPlayers.length) return cloudPlayers;
+    }
     const localPlayers = state.storageDriver === "localStorage"
       ? readLocalPlayers()
       : await transaction("players", "readonly", store => store.getAll());
@@ -448,6 +577,10 @@ const dbApi = {
     return id;
   },
   async getPlayer(id) {
+    if (state.auth.enabled && state.auth.user) {
+      const cloudPlayer = (await loadCloudPlayers()).find(player => Number(player.id) === Number(id)) || null;
+      if (cloudPlayer) return cloudPlayer;
+    }
     if (state.storageDriver === "localStorage") {
       const localPlayer = readLocalPlayers().find(player => Number(player.id) === Number(id)) || null;
       if (localPlayer) return localPlayer;
@@ -1108,25 +1241,42 @@ async function loadCsvDatabases() {
 }
 
 function renderMenu() {
-  const items = state.currentPlayer ? [
-    ["冒險首頁", renderGameHub],
-    ["角色狀態", renderStatus],
-    ["裝備", renderEquipmentPage],
-    ["背包", renderInventory],
-    ["商店", renderShop],
-    ["同伴", renderCompanions],
-    ["技能樹", renderSkillTree],
-    ["野外戰鬥", () => startBattle("normal")],
-    ["副本戰鬥", () => startBattle("dungeon")],
-    ["主線戰鬥", () => startBattle("story")],
-    ["休息恢復", restPlayer],
-    ["儲存角色", saveCurrentPlayer],
-    ["返回標題", leaveCurrentPlayer],
-  ] : [
-    ["標題頁", renderHome],
-    ["建立角色", renderCreateCharacter],
-    ["讀取角色", renderLoadGame],
-  ];
+  let items;
+  if (state.currentPlayer) {
+    items = [
+      ["\u5192\u96aa\u9996\u9801", renderGameHub],
+      ["\u89d2\u8272\u72c0\u614b", renderStatus],
+      ["\u88dd\u5099", renderEquipmentPage],
+      ["\u80cc\u5305", renderInventory],
+      ["\u5546\u5e97", renderShop],
+      ["\u540c\u4f34", renderCompanions],
+      ["\u6280\u80fd\u6a39", renderSkillTree],
+      ["\u91ce\u5916\u6230\u9b25", () => startBattle("normal")],
+      ["\u526f\u672c\u6230\u9b25", () => startBattle("dungeon")],
+      ["\u4e3b\u7dda\u6230\u9b25", () => startBattle("story")],
+      ["\u4f11\u606f\u6062\u5fa9", restPlayer],
+      ["\u5132\u5b58\u89d2\u8272", saveCurrentPlayer],
+      ["\u8fd4\u56de\u6a19\u984c", leaveCurrentPlayer],
+    ];
+  } else if (state.auth.enabled && !state.auth.user) {
+    items = [
+      ["\u6a19\u984c\u9801", renderHome],
+      ["\u767b\u5165", () => renderAuthScreen("login")],
+      ["\u8a3b\u518a", () => renderAuthScreen("register")],
+    ];
+  } else {
+    items = [
+      ["\u6a19\u984c\u9801", renderHome],
+      ["\u5efa\u7acb\u89d2\u8272", renderCreateCharacter],
+      ["\u8b80\u53d6\u89d2\u8272", renderLoadGame],
+    ];
+  }
+  if (state.auth.profile?.role === "admin") {
+    items.push(["\u5e33\u865f\u7ba1\u7406", renderAdminPanel]);
+  }
+  if (state.auth.user) {
+    items.push(["\u767b\u51fa", signOutAccount]);
+  }
   menu.innerHTML = "";
   items.forEach(([label, handler]) => {
     const button = document.createElement("button");
@@ -1137,15 +1287,22 @@ function renderMenu() {
   });
   if (state.currentPlayer) {
     heroActions.innerHTML = `
-      <button class="primary" type="button" id="hero-status">角色狀態</button>
-      <button class="secondary" type="button" id="hero-save">儲存角色</button>
+      <button class="primary" type="button" id="hero-status">\u89d2\u8272\u72c0\u614b</button>
+      <button class="secondary" type="button" id="hero-save">\u5132\u5b58\u89d2\u8272</button>
     `;
-    document.querySelector("#hero-status").addEventListener("click", renderGameHub);
+    document.querySelector("#hero-status").addEventListener("click", renderStatus);
     document.querySelector("#hero-save").addEventListener("click", saveCurrentPlayer);
+  } else if (state.auth.enabled && !state.auth.user) {
+    heroActions.innerHTML = `
+      <button class="primary" type="button" id="hero-login">\u767b\u5165</button>
+      <button class="secondary" type="button" id="hero-register">\u8a3b\u518a</button>
+    `;
+    document.querySelector("#hero-login").addEventListener("click", () => renderAuthScreen("login"));
+    document.querySelector("#hero-register").addEventListener("click", () => renderAuthScreen("register"));
   } else {
     heroActions.innerHTML = `
-      <button class="primary" type="button" id="hero-start">建立角色</button>
-      <button class="secondary" type="button" id="hero-load">讀取角色</button>
+      <button class="primary" type="button" id="hero-start">\u5efa\u7acb\u89d2\u8272</button>
+      <button class="secondary" type="button" id="hero-load">\u8b80\u53d6\u89d2\u8272</button>
     `;
     document.querySelector("#hero-start").addEventListener("click", renderCreateCharacter);
     document.querySelector("#hero-load").addEventListener("click", renderLoadGame);
@@ -1156,19 +1313,140 @@ function renderHome() {
   state.screen = "landing";
   applyAreaTheme(null);
   renderMenu();
+  if (state.auth.enabled && !state.auth.user) {
+    app.innerHTML = `
+      <h3>\u767b\u5165\u5f8c\u958b\u59cb\u5192\u96aa</h3>
+      <p class="hint">\u76ee\u524d\u7ad9\u9ede\u5df2\u555f\u7528\u5e33\u865f\u6a21\u5f0f\u3002\u4e00\u822c\u4f7f\u7528\u8005\u767b\u5165\u5f8c\u5373\u53ef\u904a\u73a9\uff1b\u7ba1\u7406\u8005\u9664\u4e86\u904a\u73a9\uff0c\u4e5f\u80fd\u7ba1\u7406\u5e33\u865f\u89d2\u8272\u8207\u5176\u4ed6\u5e33\u865f\u7684\u5b58\u6a94\u6b0a\u9650\u3002</p>
+      <div class="inline-actions">
+        <button class="primary" type="button" id="go-login">\u767b\u5165</button>
+        <button class="secondary" type="button" id="go-register">\u8a3b\u518a</button>
+      </div>
+    `;
+    document.querySelector("#go-login").addEventListener("click", () => renderAuthScreen("login"));
+    document.querySelector("#go-register").addEventListener("click", () => renderAuthScreen("register"));
+    return;
+  }
   app.innerHTML = `
-    <h3>標題頁</h3>
-    <p class="hint">先建立角色或讀取角色，進入後才會開啟遊戲內功能頁面。</p>
-    <p class="hint">${state.csvLoaded ? "CSV 資料庫已載入，目前遊戲會優先使用 data/csv 內的資料。" : "目前使用內建資料。若部署環境能讀取 data/csv，就會自動改用最新資料。"}</p>
+    <h3>\u8cc7\u6599\u9a45\u52d5\u7684\u6587\u5b57\u5192\u96aa</h3>
+    <p class="hint">\u4f60\u53ef\u4ee5\u5efa\u7acb\u89d2\u8272\u3001\u8b80\u53d6\u5b58\u6a94\u3001\u57f9\u990a\u591a\u8077\u696d\u89d2\u8272\uff0c\u4e26\u5728\u5730\u5340\u4e4b\u9593\u5192\u96aa\u3001\u6230\u9b25\u8207\u63a8\u9032\u4e3b\u7dda\u3002</p>
+    <p class="hint">${state.csvLoaded ? "\u5df2\u8f09\u5165 data/csv \u8cc7\u6599\u5eab\uff0c\u904a\u6232\u6703\u512a\u5148\u4f7f\u7528\u8cc7\u6599\u8868\u5167\u5bb9\u3002" : "\u76ee\u524d\u4f7f\u7528\u5167\u5efa\u8cc7\u6599\u3002\u82e5\u7ad9\u9ede\u672a\u6210\u529f\u8f09\u5165 data/csv\uff0c\u6703\u81ea\u52d5\u9000\u56de\u5167\u5efa\u8cc7\u6599\u3002"}</p>
+    ${state.auth.user ? `<p class="hint">\u76ee\u524d\u767b\u5165\uff1a${state.auth.profile?.display_name || state.auth.user.email}\uff5c\u8eab\u5206\uff1a${state.auth.profile?.role === "admin" ? "\u7ba1\u7406\u8005" : "\u4e00\u822c\u4f7f\u7528\u8005"}\uff5c\u5b58\u6a94\u6b0a\u9650\uff1a${state.auth.profile?.save_permission || "owner_write"}</p>` : ""}
     <div class="card-grid">
-      <div class="stat"><strong>開始方式</strong><p>使用左側選單進入建立角色或讀取角色。</p></div>
-      <div class="stat"><strong>存檔方式</strong><p>角色資料優先存在 IndexedDB，若瀏覽器限制則自動改用 localStorage。</p></div>
-      <div class="stat"><strong>資料來源</strong><p>地圖、怪物、裝備、技能會優先從 data/csv 載入。</p></div>
+      <div class="stat"><strong>\u89d2\u8272\u6d41\u7a0b</strong><p>\u5efa\u7acb\u89d2\u8272\u5f8c\u5373\u53ef\u958b\u59cb\u5192\u96aa\uff0c\u4e5f\u80fd\u96a8\u6642\u8b80\u53d6\u4f60\u81ea\u5df1\u7684\u5e33\u865f\u5b58\u6a94\u3002</p></div>
+      <div class="stat"><strong>\u5b58\u6a94\u65b9\u5f0f</strong><p>\u672c\u6a5f\u6a21\u5f0f\u6703\u4f7f\u7528 IndexedDB \u6216 localStorage\uff1b\u767b\u5165\u5f8c\u4e5f\u80fd\u4f7f\u7528\u96f2\u7aef\u5b58\u6a94\u3002</p></div>
+      <div class="stat"><strong>\u8cc7\u6599\u4f86\u6e90</strong><p>\u88dd\u5099\u3001\u6280\u80fd\u3001\u602a\u7269\u3001\u4e3b\u7dda\u3001\u5730\u5340\u7b49\u4e3b\u8981\u8cc7\u6599\u7531 CSV \u9a45\u52d5\u3002</p></div>
     </div>
   `;
 }
 
+function renderAuthScreen(mode = "login") {
+  state.screen = "auth";
+  applyAreaTheme(null);
+  renderMenu();
+  const isLogin = mode === "login";
+  app.innerHTML = `
+    <h3>${isLogin ? "\u5e33\u865f\u767b\u5165" : "\u5efa\u7acb\u5e33\u865f"}</h3>
+    <div class="spacer"></div>
+    <label>\u96fb\u5b50\u90f5\u4ef6</label>
+    <input type="email" id="auth-email" placeholder="name@example.com">
+    ${isLogin ? "" : `<label>\u986f\u793a\u540d\u7a31</label><input type="text" id="auth-display-name" placeholder="\u73a9\u5bb6\u66b1\u7a31">`}
+    <label>\u5bc6\u78bc</label>
+    <input type="password" id="auth-password" placeholder="\u81f3\u5c11 6 \u78bc">
+    <div class="spacer"></div>
+    <div class="inline-actions">
+      <button class="primary" type="button" id="auth-submit">${isLogin ? "\u767b\u5165" : "\u8a3b\u518a"}</button>
+      <button class="secondary" type="button" id="auth-switch">${isLogin ? "\u524d\u5f80\u8a3b\u518a" : "\u524d\u5f80\u767b\u5165"}</button>
+    </div>
+  `;
+  document.querySelector("#auth-switch").addEventListener("click", () => renderAuthScreen(isLogin ? "register" : "login"));
+  document.querySelector("#auth-submit").addEventListener("click", async () => {
+    const email = document.querySelector("#auth-email").value.trim();
+    const password = document.querySelector("#auth-password").value.trim();
+    const displayName = document.querySelector("#auth-display-name")?.value.trim() || "";
+    if (!email || !password) {
+      toast("\u8acb\u8f38\u5165\u96fb\u5b50\u90f5\u4ef6\u8207\u5bc6\u78bc\u3002", "warning");
+      return;
+    }
+    const result = isLogin
+      ? await signInAccount(email, password)
+      : await signUpAccount(email, password, displayName);
+    if (!result.ok) {
+      toast(result.message || "\u767b\u5165\u6216\u8a3b\u518a\u5931\u6557\u3002", "danger");
+      return;
+    }
+    toast(result.message || (isLogin ? "\u767b\u5165\u6210\u529f\u3002" : "\u8a3b\u518a\u6210\u529f\u3002"), "success");
+    if (isLogin) renderHome();
+  });
+}
+
+async function renderAdminPanel() {
+  if (state.auth.profile?.role !== "admin") {
+    toast("\u53ea\u6709\u7ba1\u7406\u8005\u80fd\u4f7f\u7528\u5e33\u865f\u7ba1\u7406\u3002", "warning");
+    return;
+  }
+  state.screen = "admin";
+  applyAreaTheme(null);
+  renderMenu();
+  app.innerHTML = `<h3>\u5e33\u865f\u7ba1\u7406</h3><p class="hint">\u6b63\u5728\u8b80\u53d6\u5e33\u865f\u8cc7\u6599...</p>`;
+  const { ok, payload } = await fetchJson(ADMIN_USERS_ENDPOINT, {
+    headers: authHeaders(),
+  });
+  if (!ok) {
+    app.innerHTML = `<h3>\u5e33\u865f\u7ba1\u7406</h3><p class="danger">\u7121\u6cd5\u8b80\u53d6\u5e33\u865f\u6e05\u55ae\u3002</p>`;
+    return;
+  }
+  const users = payload.users || [];
+  app.innerHTML = `
+    <h3>\u5e33\u865f\u7ba1\u7406</h3>
+    <p class="hint">\u7ba1\u7406\u8005\u53ef\u4ee5\u8abf\u6574\u5176\u4ed6\u5e33\u865f\u7684\u89d2\u8272\u8eab\u5206\uff0c\u4ee5\u53ca\u662f\u5426\u5141\u8a31\u8a72\u5e33\u865f\u81ea\u884c\u8986\u5beb\u96f2\u7aef\u5b58\u6a94\u3002</p>
+    <div class="card-grid">
+      ${users.map(user => `
+        <div class="stat">
+          <strong>${user.display_name || user.email}</strong>
+          <p>${user.email}</p>
+          <label>\u89d2\u8272\u8eab\u5206</label>
+          <select data-role-user="${user.user_id}">
+            <option value="user" ${user.role === "user" ? "selected" : ""}>\u4e00\u822c\u4f7f\u7528\u8005</option>
+            <option value="admin" ${user.role === "admin" ? "selected" : ""}>\u7ba1\u7406\u8005</option>
+          </select>
+          <label>\u5b58\u6a94\u6b0a\u9650</label>
+          <select data-save-user="${user.user_id}">
+            <option value="owner_write" ${user.save_permission === "owner_write" ? "selected" : ""}>\u5e33\u865f\u672c\u4eba\u53ef\u5beb\u5165</option>
+            <option value="read_only" ${user.save_permission === "read_only" ? "selected" : ""}>\u552f\u8b80</option>
+            <option value="admin_only" ${user.save_permission === "admin_only" ? "selected" : ""}>\u50c5\u7ba1\u7406\u8005\u53ef\u6539</option>
+          </select>
+          <div class="inline-actions">
+            <button class="primary" type="button" data-admin-save="${user.user_id}">\u5957\u7528\u8a2d\u5b9a</button>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  app.querySelectorAll("[data-admin-save]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const userId = button.dataset.adminSave;
+      const role = app.querySelector(`[data-role-user="${userId}"]`).value;
+      const savePermission = app.querySelector(`[data-save-user="${userId}"]`).value;
+      const { ok: updated } = await fetchJson(ADMIN_USERS_ENDPOINT, {
+        method: "PATCH",
+        headers: authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ userId, role, savePermission }),
+      });
+      toast(updated ? "\u5e33\u865f\u8a2d\u5b9a\u5df2\u66f4\u65b0\u3002" : "\u66f4\u65b0\u5931\u6557\u3002", updated ? "success" : "danger");
+      if (updated && userId === state.auth.user?.id) {
+        await refreshAuthProfile();
+        renderMenu();
+      }
+    });
+  });
+}
+
 function renderCreateCharacter() {
+  if (state.auth.enabled && !state.auth.user) {
+    toast("\u8acb\u5148\u767b\u5165\u5f8c\u518d\u5efa\u7acb\u89d2\u8272\u3002", "warning");
+    renderAuthScreen("login");
+    return;
+  }
   state.screen = "create";
   applyAreaTheme(null);
   renderMenu();
@@ -1178,19 +1456,19 @@ function renderCreateCharacter() {
     .map(job => choiceCard(job.name, job.description, job.advantage, "class", job.code))
     .join("");
   app.innerHTML = `
-    <h3>建立新角色</h3>
+    <h3>\u5efa\u7acb\u65b0\u89d2\u8272</h3>
     <div class="spacer"></div>
-    <label>角色名字</label>
-    <input type="text" id="player-name" placeholder="輸入角色名字">
+    <label>\u89d2\u8272\u540d\u7a31</label>
+    <input type="text" id="player-name" placeholder="\u8acb\u8f38\u5165\u89d2\u8272\u540d\u7a31">
     <div class="spacer"></div>
-    <h3>選擇種族</h3>
+    <h3>\u9078\u64c7\u7a2e\u65cf</h3>
     <div class="card-grid">${raceCards}</div>
     <div class="spacer"></div>
-    <h3>選擇職業</h3>
+    <h3>\u9078\u64c7\u8077\u696d</h3>
     <div class="card-grid">${classCards}</div>
     <div class="spacer"></div>
     <div class="inline-actions">
-      <button class="primary" type="button" id="create-player">建立角色</button>
+      <button class="primary" type="button" id="create-player">\u5efa\u7acb\u89d2\u8272</button>
     </div>
   `;
   bindChoiceCards();
@@ -1199,43 +1477,48 @@ function renderCreateCharacter() {
     const raceCode = document.querySelector(".choice-card[data-group='race'].selected")?.dataset.code;
     const classCode = document.querySelector(".choice-card[data-group='class'].selected")?.dataset.code;
     if (!name || !raceCode || !classCode) {
-      return toast("請先填好名字並選擇種族與職業。", "warning");
+      return toast("\u8acb\u5b8c\u6574\u586b\u5beb\u540d\u7a31\u3001\u7a2e\u65cf\u8207\u8077\u696d\u3002", "warning");
     }
     const player = buildPlayer(name, raceCode, classCode);
     normalizePlayer(player);
     player.id = await dbApi.addPlayer(player);
     state.currentPlayer = player;
-    renderGameHub("角色建立完成，現在正式進入冒險。");
+    renderGameHub("\u89d2\u8272\u5efa\u7acb\u5b8c\u6210\uff0c\u6e96\u5099\u5c55\u958b\u5192\u96aa\u3002");
   });
 }
 
 function renderLoadGame() {
+  if (state.auth.enabled && !state.auth.user) {
+    toast("\u8acb\u5148\u767b\u5165\u5f8c\u518d\u8b80\u53d6\u89d2\u8272\u3002", "warning");
+    renderAuthScreen("login");
+    return;
+  }
   state.screen = "load";
   applyAreaTheme(null);
   renderMenu();
   dbApi.getAllPlayers().then(players => {
     if (!players.length) {
-      app.innerHTML = `<h3>讀取角色</h3><p class="hint">目前沒有存檔角色，先建立一位冒險者吧。</p>`;
+      app.innerHTML = `<h3>\u8b80\u53d6\u89d2\u8272</h3><p class="hint">\u76ee\u524d\u6c92\u6709\u53ef\u8b80\u53d6\u7684\u89d2\u8272\uff0c\u5148\u5efa\u7acb\u4e00\u4f4d\u65b0\u7684\u5192\u96aa\u8005\u5427\u3002</p>`;
       return;
     }
     app.innerHTML = `
-      <h3>讀取角色</h3>
+      <h3>\u8b80\u53d6\u89d2\u8272</h3>
       <div class="card-grid">
         ${players.map(player => `
           <div class="save-card">
             <h4>${player.name}</h4>
             <p>${player.raceName} / ${player.className}</p>
-            <p>Lv.${player.level} | 職業 Lv.${player.classLevel}</p>
-            <button type="button" data-load-id="${player.id}">讀取</button>
+            <p>Lv.${player.level} | \u8077\u696d Lv.${player.classLevel}</p>
+            <button type="button" data-load-id="${player.id}">\u8b80\u53d6</button>
           </div>
         `).join("")}
       </div>
     `;
     app.querySelectorAll("[data-load-id]").forEach(button => {
       button.addEventListener("click", async () => {
-        state.currentPlayer = await dbApi.getPlayer(Number(button.dataset.loadId));
+        state.currentPlayer = await dbApi.getPlayer(button.dataset.loadId);
         normalizePlayer(state.currentPlayer);
-        renderGameHub("角色已讀取，現在正式進入冒險。");
+        renderGameHub("\u89d2\u8272\u8b80\u53d6\u6210\u529f\uff0c\u6b61\u8fce\u56de\u4f86\u3002");
       });
     });
   });
@@ -1325,7 +1608,16 @@ function monsterImagePath(monster) {
 }
 
 function applyAreaTheme(area) {
-  document.body.dataset.areaTheme = area?.theme || "title";
+  const theme = area?.theme || "title";
+  const screen = state.screen || "landing";
+  const backgroundByScreen = {
+    landing: "./data/jpg/background/冒險首頁.jpg",
+    auth: "./data/jpg/background/登入畫面.jpg",
+  };
+  const fallbackAreaBackground = "./data/jpg/background/野外探索.jpg";
+  const selectedBackground = backgroundByScreen[screen] || (area ? fallbackAreaBackground : backgroundByScreen.landing);
+  document.body.dataset.areaTheme = theme;
+  document.body.style.setProperty("--bg-image", selectedBackground ? `url("${selectedBackground}")` : "none");
 }
 
 function currentShopPoolId(player) {
@@ -3566,10 +3858,15 @@ async function restPlayer() {
 
 async function saveCurrentPlayer(showMessage = true) {
   if (!state.currentPlayer) return;
+  if (state.auth.enabled && !state.auth.user) {
+    toast("\u8acb\u5148\u767b\u5165\u5f8c\u518d\u5132\u5b58\u89d2\u8272\u3002", "warning");
+    renderAuthScreen("login");
+    return;
+  }
   commitActiveClassState(state.currentPlayer);
   normalizePlayer(state.currentPlayer);
   await dbApi.updatePlayer(state.currentPlayer);
-  if (showMessage) toast("角色已儲存。", "success");
+  if (showMessage) toast("\u89d2\u8272\u5df2\u6210\u529f\u5132\u5b58\u3002", "success");
 }
 
 function nextLevelExp(level) {
@@ -4111,6 +4408,7 @@ function attachPageLinks() {
 
 async function init() {
   await loadCsvDatabases();
+  await loadPublicConfig();
   await refreshCloudSyncStatus();
   state.db = await dbApi.open();
   renderMenu();

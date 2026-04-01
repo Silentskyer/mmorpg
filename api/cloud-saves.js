@@ -1,38 +1,23 @@
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-function json(res, status, payload) {
-  res.statusCode = status;
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.end(JSON.stringify(payload));
-}
-
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
-
-function isConfigured() {
-  return Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
-}
-
-async function supabaseFetch(path, options = {}) {
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    ...options,
-    headers: {
-      apikey: SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-  });
-  return response;
-}
+const {
+  json,
+  cors,
+  isConfigured,
+  isAuthConfigured,
+  requireUser,
+  supabaseRest,
+} = require("./_lib/supabase");
 
 function sanitizePlayer(player) {
   if (!player || typeof player !== "object") return null;
   return player;
+}
+
+function canWrite(profile) {
+  return profile?.role === "admin" || profile?.save_permission === "owner_write";
+}
+
+function buildSaveId(userId, player) {
+  return `${userId}:${player.cloudSaveId || player.id || player.name || "save"}`;
 }
 
 module.exports = async (req, res) => {
@@ -45,17 +30,26 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === "GET" && req.query?.mode === "status") {
-    return json(res, 200, { enabled: isConfigured() });
+    return json(res, 200, {
+      enabled: isConfigured(),
+      authEnabled: isAuthConfigured(),
+    });
   }
 
   if (!isConfigured()) {
     return json(res, 200, { enabled: false, players: [] });
   }
 
+  const auth = await requireUser(req, res);
+  if (!auth) return;
+
   if (req.method === "GET") {
-    const response = await supabaseFetch(
-      "game_saves?select=save_id,player_name,player_data,updated_at&order=updated_at.desc"
-    );
+    const isAdmin = auth.profile?.role === "admin";
+    const query = isAdmin && req.query?.scope === "all"
+      ? "game_saves?select=save_id,owner_id,player_name,player_data,updated_at&order=updated_at.desc"
+      : `game_saves?owner_id=eq.${encodeURIComponent(auth.user.id)}&select=save_id,owner_id,player_name,player_data,updated_at&order=updated_at.desc`;
+
+    const response = await supabaseRest(query);
     if (!response.ok) {
       return json(res, response.status, { error: "supabase_read_failed" });
     }
@@ -74,21 +68,22 @@ module.exports = async (req, res) => {
     if (!player) {
       return json(res, 400, { error: "invalid_player" });
     }
-    const saveId = player.cloudSaveId || player.id || player.name;
-    if (!saveId) {
-      return json(res, 400, { error: "missing_save_id" });
+    if (!canWrite(auth.profile)) {
+      return json(res, 403, { error: "save_permission_denied", savePermission: auth.profile?.save_permission || "unknown" });
     }
 
-    const response = await supabaseFetch("game_saves?on_conflict=save_id", {
+    const response = await supabaseRest("game_saves?on_conflict=save_id", {
       method: "POST",
       headers: {
         Prefer: "resolution=merge-duplicates,return=representation",
       },
       body: JSON.stringify([
         {
-          save_id: String(saveId),
+          save_id: buildSaveId(auth.user.id, player),
+          owner_id: auth.user.id,
           player_name: String(player.name || "未命名角色"),
           player_data: player,
+          save_permission: auth.profile?.save_permission || "owner_write",
         },
       ]),
     });
