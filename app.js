@@ -239,38 +239,407 @@ const defaultEquipRules = {
   },
 };
 
-const state = { db: null, currentPlayer: null, battle: null, screen: "landing", shopStock: [], equipRules: structuredClone(defaultEquipRules), classGrowth: structuredClone(classAutoGrowth), csvLoaded: false };
+const state = { db: null, storageDriver: "indexeddb", currentPlayer: null, battle: null, screen: "landing", shopStock: [], equipRules: structuredClone(defaultEquipRules), classGrowth: structuredClone(classAutoGrowth), csvLoaded: false };
+
+const imageCatalog = {
+  weapons: {
+    "劍": "data/jpg/equipment/weapon/sword/W_Sword011.png",
+    "雙手劍": "data/jpg/equipment/weapon/sword/W_Sword020.png",
+    "斧": "data/jpg/equipment/weapon/axe/W_Axe010.png",
+    "鎚": "data/jpg/equipment/weapon/mace/W_Mace010.png",
+    "匕首": "data/jpg/equipment/weapon/dagger/W_Dagger014.png",
+    "拳套": "data/jpg/equipment/weapon/fist/W_Fist004.png",
+    "長杖": "",
+    "短杖": "",
+  },
+  armor: {
+    "頭": "data/jpg/equipment/armor/head/C_Hat02.png",
+    "身體": "data/jpg/equipment/armor/body/A_Armour03.png",
+    "腿": "data/jpg/equipment/armor/body/A_Clothing02.png",
+    "腳": "data/jpg/equipment/armor/feet/A_Shoes06.png",
+    "副手": "",
+    "飾品1": "data/jpg/equipment/accessory/ring/Ac_Ring04.png",
+    "飾品2": "data/jpg/equipment/accessory/medal/Ac_Medal03.png",
+    "飾品3": "data/jpg/equipment/accessory/necklace/Ac_Necklace03.png",
+  },
+  consumables: {
+    potion: "data/jpg/items/consumable/potion/P_Medicine05.png",
+    remedy: "data/jpg/items/consumable/remedy/I_Antidote.png",
+    food: "data/jpg/items/consumable/food/I_C_Bread.png",
+    misc: "data/jpg/items/consumable/misc/I_Bottle03.png",
+  },
+  elements: {
+    "地": "data/jpg/skills/element/earth/S_Earth04.png",
+    "水": "data/jpg/skills/element/water/S_Water04.png",
+    "火": "data/jpg/skills/element/fire/S_Fire04.png",
+    "風": "data/jpg/skills/element/wind/S_Wind04.png",
+    "雷": "data/jpg/skills/element/thunder/S_Thunder04.png",
+    "日": "data/jpg/skills/element/holy/S_Holy04.png",
+    "月": "data/jpg/skills/element/shadow/S_Shadow04.png",
+    "無": "data/jpg/skills/physical/impact/S_Physic01.png",
+  },
+  support: {
+    heal: "data/jpg/skills/support/light/S_Light02.png",
+    buff: "data/jpg/skills/support/buff/S_Buff05.png",
+    arcane: "data/jpg/skills/support/arcane/S_Magic03.png",
+    debuff: "data/jpg/skills/element/poison/S_Poison04.png",
+    sword: "data/jpg/skills/physical/sword/S_Sword05.png",
+    bow: "data/jpg/skills/physical/bow/S_Bow05.png",
+  },
+  specialItems: {
+    legend_sword: "data/jpg/equipment/weapon/sword/W_Sword021.png",
+    abyss_demonblade: "data/jpg/equipment/weapon/sword/W_Sword019.png",
+    dragonbone_staff: "",
+    arcane_orb: "data/jpg/items/material/mineral/I_Crystal03.png",
+    dragon_eye: "data/jpg/items/material/mineral/I_Diamond.png",
+    moon_charm: "data/jpg/equipment/accessory/necklace/Ac_Necklace02.png",
+    frost_ring: "data/jpg/equipment/accessory/ring/Ac_Ring04.png",
+  },
+};
+
+ensureAdvancedClassData();
+ensureAdvancedClassSkills();
+
+const LOCAL_SAVE_KEY = "mmorpg_click_game_players_v1";
+
+function readLocalPlayers() {
+  try {
+    const raw = localStorage.getItem(LOCAL_SAVE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalPlayers(players) {
+  localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(players));
+}
 
 const dbApi = {
   async open() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open("mmorpg_click_game", 1);
-      request.onupgradeneeded = () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains("players")) {
-          db.createObjectStore("players", { keyPath: "id", autoIncrement: true });
-        }
-      };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+    if (typeof indexedDB === "undefined") {
+      state.storageDriver = "localStorage";
+      return null;
+    }
+    return new Promise(resolve => {
+      try {
+        const request = indexedDB.open("mmorpg_click_game", 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains("players")) {
+            db.createObjectStore("players", { keyPath: "id", autoIncrement: true });
+          }
+        };
+        request.onsuccess = () => {
+          state.storageDriver = "indexeddb";
+          resolve(request.result);
+        };
+        request.onerror = () => {
+          state.storageDriver = "localStorage";
+          resolve(null);
+        };
+      } catch {
+        state.storageDriver = "localStorage";
+        resolve(null);
+      }
     });
   },
   async getAllPlayers() {
+    if (state.storageDriver === "localStorage") {
+      return readLocalPlayers();
+    }
     return transaction("players", "readonly", store => store.getAll());
   },
   async addPlayer(player) {
+    if (state.storageDriver === "localStorage") {
+      const players = readLocalPlayers();
+      const nextId = players.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
+      players.push({ ...structuredClone(player), id: nextId });
+      writeLocalPlayers(players);
+      return nextId;
+    }
     return transaction("players", "readwrite", store => store.add(player));
   },
   async updatePlayer(player) {
+    if (state.storageDriver === "localStorage") {
+      const players = readLocalPlayers();
+      const index = players.findIndex(item => Number(item.id) === Number(player.id));
+      if (index >= 0) {
+        players[index] = structuredClone(player);
+      } else {
+        players.push(structuredClone(player));
+      }
+      writeLocalPlayers(players);
+      return player.id;
+    }
     return transaction("players", "readwrite", store => store.put(player));
   },
   async getPlayer(id) {
+    if (state.storageDriver === "localStorage") {
+      return readLocalPlayers().find(player => Number(player.id) === Number(id)) || null;
+    }
     return transaction("players", "readonly", store => store.get(id));
   },
 };
 
+const advancedClassDefinitions = [
+  {
+    code: "spellblade",
+    name: "????",
+    armorType: "????",
+    description: "??????????????",
+    advantage: "????????????????",
+    branches: ["???", "???", "????"],
+    bonuses: { maxHp: 8, maxMp: 18, attack: 4, defense: 4, magic: 5, resistance: 2, speed: 1, luck: 1 },
+    requirements: [{ classCode: "mage", level: 40 }, { classCode: "warrior", level: 40 }],
+  },
+  {
+    code: "battle_master",
+    name: "????",
+    armorType: "????",
+    description: "????????????????",
+    advantage: "??????????????",
+    branches: ["???", "???", "???"],
+    bonuses: { maxHp: 14, maxMp: 6, attack: 5, defense: 4, magic: 1, resistance: 2, speed: 4, luck: 1 },
+    requirements: [{ classCode: "martial", level: 40 }, { classCode: "warrior", level: 40 }],
+  },
+  {
+    code: "sage",
+    name: "??",
+    armorType: "????",
+    description: "????????????????",
+    advantage: "???? MP?????????",
+    branches: ["???", "???", "???"],
+    bonuses: { maxHp: 6, maxMp: 22, attack: 1, defense: 1, magic: 7, resistance: 5, speed: 1, luck: 2 },
+    requirements: [{ classCode: "monk", level: 40 }, { classCode: "mage", level: 40 }],
+  },
+  {
+    code: "paladin",
+    name: "???",
+    armorType: "????",
+    description: "???????????????",
+    advantage: "????????????????",
+    branches: ["???", "???", "???"],
+    bonuses: { maxHp: 15, maxMp: 12, attack: 2, defense: 5, magic: 4, resistance: 5, speed: 1, luck: 1 },
+    requirements: [{ classCode: "monk", level: 40 }, { classCode: "martial", level: 40 }],
+  },
+  {
+    code: "assassin",
+    name: "???",
+    armorType: "????",
+    description: "??????????????????",
+    advantage: "??????????????",
+    branches: ["???", "???", "???"],
+    bonuses: { maxHp: 6, maxMp: 14, attack: 5, defense: 2, magic: 3, resistance: 2, speed: 6, luck: 2 },
+    requirements: [{ classCode: "traveler", level: 40 }, { classCode: "rogue", level: 40 }],
+  },
+  {
+    code: "hero",
+    name: "??",
+    armorType: "????",
+    description: "?????????????????",
+    advantage: "???????????????????????",
+    branches: ["???", "???"],
+    bonuses: { maxHp: 14, maxMp: 16, attack: 5, defense: 5, magic: 5, resistance: 5, speed: 4, luck: 4 },
+    requirements: [{ classCode: "battle_master", level: 60 }, { classCode: "sage", level: 60 }],
+  },
+  {
+    code: "demon_king",
+    name: "??",
+    armorType: "????",
+    description: "??????????????????",
+    advantage: "??????????????????????",
+    branches: ["???", "???"],
+    bonuses: { maxHp: 12, maxMp: 20, attack: 5, defense: 4, magic: 7, resistance: 4, speed: 4, luck: 2 },
+    requirements: [{ classCode: "spellblade", level: 60 }, { classCode: "assassin", level: 60 }],
+  },
+];
+
+const advancedClassGrowth = {
+  "????": { maxHp: 12, maxMp: 10, attack: 3, defense: 3, magic: 3, resistance: 2, speed: 1, luck: 1 },
+  "????": { maxHp: 15, maxMp: 6, attack: 4, defense: 3, magic: 1, resistance: 2, speed: 3, luck: 1 },
+  "??": { maxHp: 8, maxMp: 14, attack: 1, defense: 1, magic: 5, resistance: 4, speed: 1, luck: 1 },
+  "???": { maxHp: 14, maxMp: 10, attack: 2, defense: 4, magic: 3, resistance: 4, speed: 1, luck: 1 },
+  "???": { maxHp: 10, maxMp: 9, attack: 4, defense: 2, magic: 2, resistance: 2, speed: 5, luck: 2 },
+  "??": { maxHp: 14, maxMp: 12, attack: 4, defense: 4, magic: 4, resistance: 4, speed: 3, luck: 3 },
+  "??": { maxHp: 12, maxMp: 15, attack: 4, defense: 3, magic: 5, resistance: 3, speed: 3, luck: 2 },
+};
+
+function ensureAdvancedClassData() {
+  advancedClassDefinitions.forEach(definition => {
+    const existing = data.classes.find(item => item.code === definition.code);
+    if (!existing) {
+      data.classes.push(structuredClone(definition));
+    } else {
+      Object.assign(existing, structuredClone(definition));
+    }
+    if (!data.classSkills[definition.name]) {
+      data.classSkills[definition.name] = [];
+    }
+  });
+
+  data.classes = data.classes.filter(item => !["sword_saint", "saint"].includes(item.code));
+
+  Object.assign(classAutoGrowth, advancedClassGrowth);
+  Object.assign(data.branchEffects, {
+    "???": ["attack", 2],
+    "???": ["magic", 2],
+    "????": ["maxMp", 5],
+    "???": ["maxHp", 5],
+    "???": ["attack", 2],
+    "???": ["speed", 2],
+    "???": ["magic", 2],
+    "???": ["resistance", 2],
+    "???": ["maxMp", 5],
+    "???": ["defense", 2],
+    "???": ["resistance", 2],
+    "???": ["attack", 2],
+    "???": ["attack", 2],
+    "???": ["speed", 2],
+    "???": ["luck", 2],
+    "???": ["attack", 3],
+    "???": ["magic", 3],
+    "???": ["attack", 3],
+    "???": ["magic", 3],
+  });
+
+  Object.assign(defaultEquipRules.weaponRules, {
+    "????": ["?", "???", "??", "??"],
+    "????": ["?", "?", "?", "???", "??"],
+    "??": ["??", "??"],
+    "???": ["?", "?", "??"],
+    "???": ["??", "?"],
+    "??": ["?", "???", "??", "??", "?"],
+    "??": ["?", "??", "??", "??"],
+  });
+
+  Object.assign(defaultEquipRules.armorRules, {
+    "????": ["????", "????", "????", "????"],
+    "????": ["????", "????", "????"],
+    "??": ["????", "????", "????"],
+    "???": ["????", "????", "????", "????"],
+    "???": ["????", "????"],
+    "??": ["????", "????", "????", "????"],
+    "??": ["????", "????", "????"],
+  });
+
+  delete data.classSkills["??"];
+  delete data.classSkills["??"];
+}
+
+function ensureAdvancedClassSkills() {
+  const advancedSkills = {
+    "????": [
+      { name: "???", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "?", duration: 5, school: "???", branch: "???", requiredPoints: 0 },
+      { name: "???", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "?", duration: 5, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "???", cost: 8, power: 1.15, kind: "elementEnchantSelf", stat: "attack", element: "?", duration: 5, school: "???", branch: "???", requiredPoints: 6 },
+      { name: "??????", cost: 14, power: 1.2, kind: "multiElementEnchantSelf", stat: "attack", duration: 5, school: "???", branch: "???", requiredPoints: 9 },
+      { name: "???", cost: 14, power: 1.7, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 0 },
+      { name: "???", cost: 16, power: 1.35, kind: "attackRandom", stat: "attack", element: "?", hits: 3, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "???", cost: 18, power: 2.1, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 6 },
+      { name: "???", cost: 22, power: 1.7, kind: "attackAllMulti", stat: "attack", element: "?", hits: 2, school: "???", branch: "???", requiredPoints: 9 },
+      { name: "??", cost: 0, power: 0.1, kind: "mpHealPercent", stat: "magic", school: "???", branch: "????", requiredPoints: 0 },
+      { name: "????", cost: 10, power: 0.08, kind: "regenMp", stat: "magic", duration: 5, school: "???", branch: "????", requiredPoints: 3 },
+      { name: "????", cost: 14, power: 0, kind: "spellbladeMode", stat: "magic", duration: 5, school: "???", branch: "????", requiredPoints: 6 },
+    ],
+    "????": [
+      { name: "??", cost: 12, power: 0, kind: "berserk", stat: "attack", duration: 4, school: "???", branch: "???", requiredPoints: 0 },
+      { name: "??", cost: 16, power: 0.72, kind: "multiHit", stat: "attack", hits: 4, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "???", cost: 18, power: 3.0, kind: "riskyTriple", stat: "attack", school: "???", branch: "???", requiredPoints: 6 },
+      { name: "????", cost: 22, power: 0, kind: "allIn", stat: "attack", duration: 1, school: "???", branch: "???", requiredPoints: 9 },
+      { name: "??", cost: 14, power: 0, kind: "allStun", stat: "attack", chance: 0.5, duration: 1, school: "???", branch: "???", requiredPoints: 0 },
+      { name: "??", cost: 14, power: 0, kind: "fearAll", stat: "attack", chance: 0.3, duration: 4, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 12, power: 3.0, kind: "executeAilment", stat: "attack", school: "???", branch: "???", requiredPoints: 6 },
+      { name: "???", cost: 12, power: 1.9, kind: "attackDebuffDefense", stat: "attack", duration: 4, school: "???", branch: "???", requiredPoints: 0 },
+      { name: "???", cost: 12, power: 1.9, kind: "attackDebuffAttack", stat: "attack", duration: 4, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 16, power: 1.2, kind: "multiHitStun", stat: "attack", hits: 2, chance: 0.5, duration: 1, school: "???", branch: "???", requiredPoints: 6 },
+    ],
+    "??": [
+      { name: "????", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 0 },
+      { name: "??", cost: 14, power: 0, kind: "buffDefensePartyStrong", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 3 },
+      { name: "???", cost: 14, power: 0, kind: "buffResistancePartyStrong", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 6 },
+      { name: "????", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 9 },
+      { name: "???", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 12 },
+      { name: "?????", cost: 26, power: 3.1, kind: "attackAll", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 15 },
+      { name: "??", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 0 },
+      { name: "???", cost: 14, power: 0, kind: "debuffDefenseAll", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 3 },
+      { name: "???", cost: 14, power: 0, kind: "debuffResistanceAll", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 6 },
+      { name: "??", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 9 },
+      { name: "??", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 12 },
+      { name: "?????", cost: 26, power: 3.15, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 15 },
+      { name: "??", cost: 10, power: 0.08, kind: "regenHpSingle", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 0 },
+      { name: "????", cost: 14, power: 0.12, kind: "regenHpSingle", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "?????", cost: 16, power: 0, kind: "cleanseAll", stat: "magic", school: "???", branch: "???", requiredPoints: 6 },
+      { name: "??", cost: 18, power: 0.18, kind: "regenHpSingle", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 9 },
+    ],
+    "???": [
+      { name: "hp??", cost: 0, power: 0.5, kind: "allyHpTransfer", stat: "magic", school: "????", branch: "???", requiredPoints: 0 },
+      { name: "mp??", cost: 0, power: 0.5, kind: "allyMpTransfer", stat: "magic", school: "????", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 16, power: 0, kind: "coverAll", stat: "defense", duration: 3, school: "????", branch: "???", requiredPoints: 6 },
+      { name: "????", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "?", duration: 4, school: "???", branch: "???", requiredPoints: 0 },
+      { name: "????", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "?", duration: 4, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "?", duration: 4, school: "???", branch: "???", requiredPoints: 6 },
+      { name: "????", cost: 10, power: 0, kind: "elementalWardParty", stat: "magic", element: "?", duration: 4, school: "???", branch: "???", requiredPoints: 9 },
+      { name: "??", cost: 12, power: 1.75, kind: "attack", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 0 },
+      { name: "???", cost: 16, power: 1.85, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 16, power: 1.8, kind: "attackDrain", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 6 },
+      { name: "????", cost: 20, power: 2.4, kind: "attack", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 9 },
+    ],
+    "???": [
+      { name: "????", cost: 10, power: 1.85, kind: "attackIgnoreDefense", stat: "attack", school: "???", branch: "???", requiredPoints: 0 },
+      { name: "????", cost: 14, power: 1.6, kind: "attackInstantDeath", stat: "attack", chance: 0.05, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 16, power: 0, kind: "randomAilmentAll", stat: "attack", chance: 1, duration: 3, school: "???", branch: "???", requiredPoints: 6 },
+      { name: "??", cost: 18, power: 3.0, kind: "executeAilment", stat: "attack", school: "???", branch: "???", requiredPoints: 9 },
+      { name: "??", cost: 8, power: 0, kind: "buffSpeedSingleStrong", stat: "speed", duration: 3, school: "???", branch: "???", requiredPoints: 0 },
+      { name: "??", cost: 12, power: 1.7, kind: "attackDebuffDefense", stat: "attack", duration: 4, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 12, power: 0, kind: "evadeCounter", stat: "speed", duration: 3, school: "???", branch: "???", requiredPoints: 6 },
+      { name: "??", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 0 },
+      { name: "???", cost: 14, power: 0, kind: "debuffDefenseAll", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 3 },
+      { name: "???", cost: 14, power: 0, kind: "debuffResistanceAll", stat: "magic", element: "?", duration: 4, school: "?", branch: "???", requiredPoints: 6 },
+      { name: "??", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 9 },
+      { name: "??", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 12 },
+      { name: "?????", cost: 26, power: 3.15, kind: "attack", stat: "magic", element: "?", school: "?", branch: "???", requiredPoints: 15 },
+    ],
+    "??": [
+      { name: "???", cost: 16, power: 1.8, kind: "attack", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 0 },
+      { name: "??", cost: 18, power: 0, kind: "buffAllParty", stat: "magic", duration: 4, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "???", cost: 22, power: 2.3, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 6 },
+      { name: "????", cost: 30, power: 3.25, kind: "attack", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 9 },
+      { name: "???", cost: 0, power: 0, kind: "superTranscend", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 12 },
+      { name: "??", cost: 10, power: 1.3, kind: "attackParalyze", stat: "magic", element: "?", chance: 0.3, duration: 3, school: "???", branch: "???", requiredPoints: 0 },
+      { name: "??", cost: 14, power: 1.15, kind: "attackAllParalyze", stat: "magic", element: "?", chance: 0.3, duration: 3, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "???", cost: 18, power: 1.85, kind: "attackParalyze", stat: "magic", element: "?", chance: 0.35, duration: 3, school: "???", branch: "???", requiredPoints: 6 },
+      { name: "????", cost: 24, power: 2.25, kind: "attackAllParalyze", stat: "magic", element: "?", chance: 0.4, duration: 3, school: "???", branch: "???", requiredPoints: 9 },
+      { name: "????", cost: 30, power: 3.2, kind: "attackParalyze", stat: "magic", element: "?", chance: 0.45, duration: 3, school: "???", branch: "???", requiredPoints: 12 },
+    ],
+    "??": [
+      { name: "???", cost: 16, power: 1.85, kind: "attackDualElement", stat: "attack", element: "?|?", school: "???", branch: "???", requiredPoints: 0 },
+      { name: "????", cost: 18, power: 0.5, kind: "overloadMagic", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 24, power: 2.25, kind: "attackAll", stat: "attack", element: "?", school: "???", branch: "???", requiredPoints: 6 },
+      { name: "????", cost: 30, power: 3.25, kind: "attackDualElement", stat: "attack", element: "?|?", school: "???", branch: "???", requiredPoints: 9 },
+      { name: "???", cost: 0, power: 0, kind: "superTranscend", stat: "magic", duration: 5, school: "???", branch: "???", requiredPoints: 12 },
+      { name: "???", cost: 10, power: 1.3, kind: "attack", stat: "magic", element: "?", school: "???", branch: "???", requiredPoints: 0 },
+      { name: "??", cost: 14, power: 1.15, kind: "attackAll", stat: "magic", element: "?", school: "???", branch: "???", requiredPoints: 3 },
+      { name: "????", cost: 18, power: 1.85, kind: "attack", stat: "magic", element: "?", school: "???", branch: "???", requiredPoints: 6 },
+      { name: "???", cost: 24, power: 2.25, kind: "attackAllStun", stat: "magic", element: "?", chance: 0.3, duration: 1, school: "???", branch: "???", requiredPoints: 9 },
+      { name: "????", cost: 30, power: 3.1, kind: "attackAll", stat: "magic", element: "?", school: "???", branch: "???", requiredPoints: 12 },
+    ],
+  };
+
+  Object.entries(advancedSkills).forEach(([className, skills]) => {
+    data.classSkills[className] = skills.map(skill => ({ ...skill }));
+  });
+  delete data.classSkills["??"];
+  delete data.classSkills["??"];
+}
+
 function transaction(storeName, mode, action) {
   return new Promise((resolve, reject) => {
+    if (!state.db) {
+      reject(new Error("database unavailable"));
+      return;
+    }
     const tx = state.db.transaction(storeName, mode);
     const store = tx.objectStore(storeName);
     const request = action(store);
@@ -355,6 +724,7 @@ function csvItemToCatalogEntry(row) {
   if (row.slot) entry.slot = row.slot;
   if (row.weapon_type) entry.weaponType = row.weapon_type;
   if (row.armor_class) entry.armorClass = row.armor_class;
+  if (row.exclusive_classes) entry.exclusiveClasses = row.exclusive_classes.split("|").map(value => value.trim()).filter(Boolean);
   if (row.element) entry.element = row.element;
   if (Object.keys(bonuses).length) entry.bonuses = bonuses;
   if (row.type === "consumable") {
@@ -655,6 +1025,8 @@ async function loadCsvDatabases() {
     data.quests = [];
     data.monsterSkills = {};
   }
+  ensureAdvancedClassData();
+  ensureAdvancedClassSkills();
 }
 
 function renderMenu() {
@@ -712,7 +1084,7 @@ function renderHome() {
     <p class="hint">${state.csvLoaded ? "CSV 資料庫已載入，目前遊戲會優先使用 data/csv 內的資料。" : "目前使用內建資料。若瀏覽器允許讀取本機 CSV，會自動改用 data/csv 內的資料。"}</p>
     <div class="card-grid">
       <div class="stat"><strong>開始方式</strong><p>先建立角色或讀取角色，進入後才會看到遊戲內功能頁面。</p></div>
-      <div class="stat"><strong>存檔方式</strong><p>所有角色資料都會存在你的瀏覽器 IndexedDB。</p></div>
+      <div class="stat"><strong>存檔方式</strong><p>角色資料會優先存在 IndexedDB，若瀏覽器限制則自動改用 localStorage。</p></div>
       <div class="stat"><strong>目前支援</strong><p>建角、戰鬥、升級、技能樹、主線與副本。</p></div>
     </div>
   `;
@@ -723,7 +1095,10 @@ function renderCreateCharacter() {
   applyAreaTheme(null);
   renderMenu();
   const raceCards = data.races.map(race => choiceCard(race.name, race.description, race.advantage, "race", race.code)).join("");
-  const classCards = data.classes.map(job => choiceCard(job.name, job.description, job.advantage, "class", job.code)).join("");
+  const classCards = data.classes
+    .filter(job => !(job.requirements?.length))
+    .map(job => choiceCard(job.name, job.description, job.advantage, "class", job.code))
+    .join("");
   app.innerHTML = `
     <h3>建立新角色</h3>
     <div class="spacer"></div>
@@ -823,6 +1198,54 @@ function currentMainQuest(player) {
   return data.quests?.find(quest => quest.storyStage === player.storyStage && quest.isMain) || null;
 }
 
+function rewardItemKeys(value) {
+  return String(value || "").split("|").map(item => item.trim()).filter(Boolean);
+}
+
+function renderMediaThumb(path, alt, className = "") {
+  if (!path) return "";
+  const classes = ["media-thumb", className].filter(Boolean).join(" ");
+  return `<img class="${classes}" src="${path}" alt="${alt}" loading="lazy" onerror="this.classList.add('hidden');this.removeAttribute('src');">`;
+}
+
+function firstElementOf(value) {
+  if (!value) return "";
+  return String(value).split("|").map(item => item.trim()).find(Boolean) || "";
+}
+
+function itemImagePath(item) {
+  if (!item) return "";
+  if (item.imagePath) return item.imagePath;
+  if (imageCatalog.specialItems[item.key]) return imageCatalog.specialItems[item.key];
+  if (item.type === "consumable") {
+    if (item.key?.includes("potion") || item.healHp || item.healMp) return imageCatalog.consumables.potion;
+    if (item.key?.includes("antidote")) return imageCatalog.consumables.remedy;
+    return imageCatalog.consumables.misc;
+  }
+  if (item.weaponType && imageCatalog.weapons[item.weaponType]) return imageCatalog.weapons[item.weaponType];
+  if (item.slot && imageCatalog.armor[item.slot]) return imageCatalog.armor[item.slot];
+  if (item.element) return imageCatalog.elements[firstElementOf(item.element)] || "";
+  return "";
+}
+
+function skillImagePath(skill) {
+  if (!skill) return "";
+  const element = firstElementOf(skill.element);
+  if (element && imageCatalog.elements[element]) return imageCatalog.elements[element];
+  if (String(skill.kind).includes("heal") || String(skill.kind).includes("cleanse") || skill.kind === "reviveOne") return imageCatalog.support.heal;
+  if (String(skill.kind).includes("buff") || skill.kind === "sanctuary" || skill.kind === "statusWardParty") return imageCatalog.support.buff;
+  if (String(skill.kind).includes("debuff") || String(skill.kind).includes("Poison") || String(skill.kind).includes("Blind") || String(skill.kind).includes("Trap")) return imageCatalog.support.debuff;
+  if (String(skill.kind).includes("magic") || skill.stat === "magic") return imageCatalog.support.arcane;
+  return imageCatalog.support.sword;
+}
+
+function monsterImagePath(monster) {
+  if (!monster) return "";
+  const element = firstElementOf((monster.elements || []).join("|"));
+  if (element && imageCatalog.elements[element]) return imageCatalog.elements[element];
+  return imageCatalog.support.arcane;
+}
+
 function applyAreaTheme(area) {
   document.body.dataset.areaTheme = area?.theme || "title";
 }
@@ -868,7 +1291,7 @@ function renderGameHub(message = "") {
       <div class="stat">
         <strong>${player.name}</strong>
         <p>${player.raceName} / ${player.className}</p>
-        <p>Lv.${player.level} | 職業 Lv.${player.classLevel} / 100</p>
+        <p>總等級 Lv.${player.level} / 1000 | 職業 Lv.${player.classLevel} / 100</p>
       </div>
       <div class="stat">
         <strong>目前進度</strong>
@@ -915,11 +1338,13 @@ function renderGameHub(message = "") {
       <button class="secondary" type="button" id="hub-story">主線推進</button>
     </div>
   `;
+  document.querySelector(".action-grid")?.insertAdjacentHTML("beforeend", `<button class="secondary" type="button" id="hub-classes">轉職</button>`);
   document.querySelector("#hub-status").addEventListener("click", () => renderStatus());
   document.querySelector("#hub-equipment").addEventListener("click", () => renderEquipmentPage());
   document.querySelector("#hub-inventory").addEventListener("click", () => renderInventory());
   document.querySelector("#hub-shop").addEventListener("click", () => renderShop());
   document.querySelector("#hub-companions").addEventListener("click", () => renderCompanions());
+  document.querySelector("#hub-classes").addEventListener("click", () => renderClassManagement());
   document.querySelector("#hub-skills").addEventListener("click", () => renderSkillTree());
   document.querySelector("#hub-normal").addEventListener("click", () => startBattle("normal"));
   document.querySelector("#hub-dungeon").addEventListener("click", () => startBattle("dungeon"));
@@ -949,8 +1374,8 @@ function renderStatus(message = "") {
       <div class="stat">
         <h4>${player.name}</h4>
         <p>${player.raceName} / ${player.className}</p>
-        <p>Lv.${player.level} | 職業 Lv.${player.classLevel} / 100</p>
-        <p>EXP ${player.exp} / ${nextLevelExp(player.level)} | 技能點 ${player.skillPoints}</p>
+        <p>總等級 Lv.${player.level} / 1000 | 職業 Lv.${player.classLevel} / 100</p>
+        <p>目前職業 EXP ${player.exp} / ${nextLevelExp(player.classLevel)} | 技能點 ${player.skillPoints}</p>
         <p>金幣 ${player.gold}</p>
       </div>
       <div class="stat">
@@ -979,6 +1404,19 @@ function renderStatus(message = "") {
       ${player.equipment.map(item => renderEquipmentCard(item)).join("")}
     </div>
   `;
+  app.insertAdjacentHTML("beforeend", `
+    <div class="spacer"></div>
+    <h3>職業列表</h3>
+    <div class="card-grid">
+      ${getPlayerClasses(player).map(classEntry => `
+        <div class="stat">
+          <strong>${classEntry.className}</strong>
+          <p>Lv.${classEntry.classLevel} / 100</p>
+          <p>${classEntry.classCode === player.activeClassCode ? "目前職業" : "已解鎖"}</p>
+        </div>
+      `).join("")}
+    </div>
+  `);
   attachPageLinks();
 }
 
@@ -996,7 +1434,10 @@ function renderInventory(message = "") {
     <div class="card-grid">
       ${inventory.length ? inventory.map((item, index) => `
         <div class="choice-card">
-          <h4>${item.name}</h4>
+          <div class="card-visual">
+            ${renderMediaThumb(itemImagePath(item), item.name)}
+            <div><h4>${item.name}</h4></div>
+          </div>
           <p>${item.description || ""}</p>
           ${item.weaponType ? `<p>武器種類：${item.weaponType}</p>` : ""}
           ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
@@ -1038,7 +1479,10 @@ function renderEquipmentPage(message = "") {
     <div class="card-grid">
       ${player.equipment.map((item, index) => `
         <div class="choice-card ${item.element ? elementClassName(item.element) : ""}">
-          <h4>${item.slot}：${item.name}</h4>
+          <div class="card-visual">
+            ${renderMediaThumb(itemImagePath(item), item.name)}
+            <div><h4>${item.slot}：${item.name}</h4></div>
+          </div>
           <p>強度評分：${itemPower(item)}</p>
           <p>${formatItemBonuses(item.bonuses)}</p>
           ${item.element ? `<p>屬性：${item.element}</p>` : ""}
@@ -1078,7 +1522,10 @@ function renderShop(message = "") {
         const item = data.itemCatalog[key];
         return `
           <div class="choice-card">
-            <h4>${item.name}</h4>
+            <div class="card-visual">
+              ${renderMediaThumb(itemImagePath(item), item.name)}
+              <div><h4>${item.name}</h4></div>
+            </div>
             <p>${item.description}</p>
             ${item.weaponType ? `<p>武器種類：${item.weaponType}</p>` : ""}
             ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
@@ -1095,7 +1542,10 @@ function renderShop(message = "") {
     <div class="card-grid">
       ${(player.inventory || []).length ? player.inventory.map((item, index) => `
         <div class="choice-card ${item.element ? elementClassName(item.element) : ""}">
-          <h4>${item.name}</h4>
+          <div class="card-visual">
+            ${renderMediaThumb(itemImagePath(item), item.name)}
+            <div><h4>${item.name}</h4></div>
+          </div>
           <p>${item.description || ""}</p>
           ${item.weaponType ? `<p>武器種類：${item.weaponType}</p>` : ""}
           ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
@@ -1110,7 +1560,10 @@ function renderShop(message = "") {
     <div class="card-grid">
       ${(player.equipment || []).length ? player.equipment.map((item, index) => `
         <div class="choice-card ${item.element ? elementClassName(item.element) : ""}">
-          <h4>${item.slot}：${item.name}</h4>
+          <div class="card-visual">
+            ${renderMediaThumb(itemImagePath(item), item.name)}
+            <div><h4>${item.slot}：${item.name}</h4></div>
+          </div>
           ${item.weaponType ? `<p>武器種類：${item.weaponType}</p>` : ""}
           ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
           <p>強度評分：${itemPower(item)}</p>
@@ -1176,7 +1629,7 @@ function renderCompanions(message = "") {
     <input type="text" id="companion-name" placeholder="輸入同伴名字">
     <div class="spacer"></div>
     <div class="card-grid">
-      ${data.classes.map(job => choiceCard(job.name, job.description, job.advantage, "companion-class", job.code)).join("")}
+      ${data.classes.filter(job => !(job.requirements?.length)).map(job => choiceCard(job.name, job.description, job.advantage, "companion-class", job.code)).join("")}
     </div>
     <div class="spacer"></div>
     <button class="primary" type="button" id="recruit-companion">招募同伴</button>
@@ -1196,6 +1649,97 @@ function renderCompanions(message = "") {
     await saveCurrentPlayer(false);
     renderCompanions(result);
   });
+  attachPageLinks();
+}
+
+function renderClassManagement(message = "") {
+  if (!state.currentPlayer) return renderHome();
+  state.screen = "classes";
+  renderMenu();
+  const player = state.currentPlayer;
+  commitActiveClassState(player);
+  normalizePlayer(player);
+  const ownedClasses = getPlayerClasses(player);
+  const availableClasses = data.classes.filter(classDef => {
+    if (getClassEntry(player, classDef.code)) return false;
+    return !classDef.requirements?.length || canUnlockClass(player, classDef);
+  });
+  const lockedAdvancedClasses = data.classes.filter(classDef => {
+    if (getClassEntry(player, classDef.code)) return false;
+    return classDef.requirements?.length && !canUnlockClass(player, classDef);
+  });
+
+  app.innerHTML = `
+    <h3>轉職</h3>
+    ${message ? `<p class="success">${message}</p>` : ""}
+    ${renderPageLinks("classes")}
+    <div class="card-grid">
+      <div class="stat">
+        <h4>角色職業總覽</h4>
+        <p>總等級 Lv.${player.level} / 1000</p>
+        <p>目前職業：${player.className} Lv.${player.classLevel} / 100</p>
+      </div>
+      <div class="stat">
+        <h4>轉職說明</h4>
+        <p>能力值與已學技能會保留，經驗值只會灌到目前職業。</p>
+        <p>可同時擁有複數職業，但所有職業累計最高為 1000 級。</p>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <h3>已擁有職業</h3>
+    <div class="card-grid">
+      ${ownedClasses.map(classEntry => `
+        <div class="choice-card ${classEntry.classCode === player.activeClassCode ? "selected" : ""}">
+          <h4>${classEntry.className}</h4>
+          <p>Lv.${classEntry.classLevel} / 100</p>
+          <p>${classEntry.classCode === player.activeClassCode ? "目前職業" : "可切換使用"}</p>
+          <button type="button" data-switch-class="${classEntry.classCode}" ${classEntry.classCode === player.activeClassCode ? "disabled" : ""}>切換</button>
+        </div>
+      `).join("")}
+    </div>
+    <div class="spacer"></div>
+    <h3>可解鎖職業</h3>
+    <div class="card-grid">
+      ${availableClasses.length ? availableClasses.map(classDef => `
+        <div class="choice-card">
+          <h4>${classDef.name}</h4>
+          <p>${classDef.description}</p>
+          <p>${classDef.advantage}</p>
+          <p>條件：${classRequirementText(classDef)}</p>
+          <button type="button" data-unlock-class="${classDef.code}">解鎖並轉職</button>
+        </div>
+      `).join("") : `<div class="stat"><strong>目前沒有新職業</strong><p>先提升既有職業等級，再回來查看。</p></div>`}
+    </div>
+    ${lockedAdvancedClasses.length ? `
+      <div class="spacer"></div>
+      <h3>尚未達成條件</h3>
+      <div class="card-grid">
+        ${lockedAdvancedClasses.map(classDef => `
+          <div class="stat">
+            <strong>${classDef.name}</strong>
+            <p>${classRequirementText(classDef)}</p>
+          </div>
+        `).join("")}
+      </div>
+    ` : ""}
+  `;
+
+  app.querySelectorAll("[data-switch-class]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const result = unlockOrSwitchClass(player, button.dataset.switchClass);
+      await saveCurrentPlayer(false);
+      renderClassManagement(result);
+    });
+  });
+
+  app.querySelectorAll("[data-unlock-class]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const result = unlockOrSwitchClass(player, button.dataset.unlockClass);
+      await saveCurrentPlayer(false);
+      renderClassManagement(result);
+    });
+  });
+
   attachPageLinks();
 }
 
@@ -1229,7 +1773,10 @@ function renderSkillTree() {
     <div class="card-grid">
       ${data.classSkills[player.className].map((skill, index) => `
         <div class="stat">
-          <strong>${skill.name}</strong>
+          <div class="card-visual">
+            ${renderMediaThumb(skillImagePath(skill), skill.name)}
+            <div><strong>${skill.name}</strong></div>
+          </div>
           <p>MP ${skill.cost} | 屬性 ${skill.element || "無"}</p>
           <p>${skillKindText(skill.kind)}</p>
           <p>${skill.branch ? `綁定分支 ${skill.branch}` : "無分支限制"}</p>
@@ -1322,17 +1869,20 @@ function renderBattle() {
   const monster = selectedEnemy(battle);
   const battleEnded = !livingEnemies(battle).length || partyDefeated(player, battle);
   const enemyCards = (battle.enemies || []).map((enemy, index) => `
-    <button class="choice-card ${battle.selectedEnemy === index ? "selected" : ""}" type="button" data-battle-enemy="${index}">
-      <h4>${enemy.name}</h4>
+    <button class="choice-card compact-enemy-card ${battle.selectedEnemy === index ? "selected" : ""}" type="button" data-battle-enemy="${index}">
+      <div class="card-visual">
+        ${renderMediaThumb(monsterImagePath(enemy), enemy.name)}
+        <div><h4>${enemy.name}</h4></div>
+      </div>
       <p>HP ${Math.max(0, enemy.currentHp)} / ${enemy.maxHp}</p>
       <p>${enemy.elements.join(" / ")}</p>
       <p>${formatMonsterAilments(enemy.ailments)}</p>
     </button>
   `).join("");
-  const targetPanel = battle.targetMode ? `
+  const targetPanel = battle.targetMode && battle.targetMode.type !== "enemy" ? `
     <div class="spacer"></div>
     <div class="card">
-      <h4>請選擇目標</h4>
+      <h4>選擇目標</h4>
       <div class="inline-actions">
         ${battle.targetMode.type === "enemy"
           ? livingEnemies(battle).map(enemy => {
@@ -1343,81 +1893,84 @@ function renderBattle() {
               .map((member, index) => ({ member, index }))
               .filter(({ member }) => battle.targetMode.type !== "fallen_ally" || member.hp <= 0)
               .map(({ member, index }) => `<button class="action" type="button" data-target-ally="${index}">${member.name} HP ${member.hp}/${member.maxHp}</button>`).join("")}
-        <button class="action" type="button" data-action="cancel-target">取消指向</button>
+        <button class="action" type="button" data-action="cancel-target">取消選擇</button>
       </div>
     </div>
   ` : "";
   app.innerHTML = `
     <h3>${battle.type === "normal" ? "野外戰鬥" : battle.type === "dungeon" ? "副本戰鬥" : "主線戰鬥"}</h3>
-    <p class="hint">目前區域：${battle.areaName || "未設定"}</p>
-    <div class="battle-layout">
-      <div>
-        <div class="battle-player">
-          <h4>${player.name}</h4>
-          <p>HP ${player.hp} / ${stats.maxHp}</p>
-          <p>MP ${player.mp} / ${stats.maxMp}</p>
-          <p>${player.raceName} / ${player.className}</p>
-        </div>
-        ${(battle.companions || []).length ? `<div class="spacer"></div><div class="card-grid">${battle.companions.map(companion => `
-          <div class="stat">
-            <strong>${companion.name}</strong>
-            <p>${companion.className}</p>
-            <p>HP ${companion.hp}/${companion.maxHp} | MP ${companion.mp}/${companion.maxMp}</p>
-          </div>
-        `).join("")}</div>` : ""}
-        <div class="spacer"></div>
-        <div class="card">
+    <p class="hint">目前區域：${battle.areaName || "未知地區"}</p>
+    <div class="battle-stack">
+      <div class="battle-overview">
+        <div class="card compact-card">
           <h4>敵方陣列</h4>
-          <div class="card-grid">${enemyCards}</div>
+          <div class="card-grid enemy-grid-tight">${enemyCards}</div>
         </div>
-        <div class="spacer"></div>
-        <div class="battle-monster">
-          <h4>目前目標：${monster ? monster.name : "無"}</h4>
-          <p>HP ${monster ? Math.max(0, monster.currentHp) : 0} / ${monster ? monster.maxHp : 0}</p>
-          <p>屬性 ${monster ? monster.elements.join(" / ") : "無"}</p>
-          <p>狀態 ${monster ? formatMonsterAilments(monster.ailments) : "無"}</p>
-          <p>技能 ${monster ? formatMonsterSkillList(monster) : "無"}</p>
+        <div class="battle-monster compact-card">
+          <div class="monster-focus">
+            ${renderMediaThumb(monster ? monsterImagePath(monster) : "", monster?.name || "目標", "large")}
+            <div class="monster-focus-copy">
+              <h4>目前目標：${monster ? monster.name : "無"}</h4>
+              <p>HP ${monster ? Math.max(0, monster.currentHp) : 0} / ${monster ? monster.maxHp : 0}</p>
+              <p>屬性：${monster ? monster.elements.join(" / ") : "無"}</p>
+              <p>異常：${monster ? formatMonsterAilments(monster.ailments) : "無"}</p>
+              <p>技能：${monster ? formatMonsterSkillList(monster) : "無"}</p>
+            </div>
+          </div>
         </div>
-        <div class="battle-actions">
-          ${battleEnded ? `
-            <button class="action" type="button" data-action="return">返回冒險</button>
-          ` : player.hp <= 0 ? `
-            <button class="action" type="button" data-action="ally-turn">同伴接戰</button>
-            <button class="action" type="button" data-action="status">查看狀態</button>
-          ` : `
-            <button class="action" type="button" data-action="attack">普通攻擊</button>
-            <button class="action" type="button" data-action="skills">職業技能</button>
-            <button class="action" type="button" data-action="race">種族技能</button>
-            <button class="action" type="button" data-action="defend">防禦</button>
-            <button class="action" type="button" data-action="status">查看狀態</button>
-            <button class="action" type="button" data-action="escape">逃跑</button>
-          `}
-        </div>
-        <div class="inline-actions" id="skill-panel"></div>
-        ${targetPanel}
       </div>
-      <div>
-        <div class="log">${battle.log.join("\n")}</div>
+      <div class="log">${battle.log.join("\n")}</div>
+      <div class="battle-layout">
+        <div class="battle-left">
+          <div class="battle-player">
+            <h4>${player.name}</h4>
+            <p>HP ${player.hp} / ${stats.maxHp}</p>
+            <p>MP ${player.mp} / ${stats.maxMp}</p>
+            <p>${player.raceName} / ${player.className}</p>
+          </div>
+          ${(battle.companions || []).length ? `<div class="card-grid">${battle.companions.map(companion => `
+            <div class="stat">
+              <strong>${companion.name}</strong>
+              <p>${companion.className}</p>
+              <p>HP ${companion.hp}/${companion.maxHp} | MP ${companion.mp}/${companion.maxMp}</p>
+            </div>
+          `).join("")}</div>` : ""}
+          <div class="battle-actions">
+            ${battleEnded ? `
+              <button class="action" type="button" data-action="return">返回冒險</button>
+            ` : player.hp <= 0 ? `
+              <button class="action" type="button" data-action="ally-turn">交給同伴</button>
+              <button class="action" type="button" data-action="status">查看狀態</button>
+            ` : `
+              <button class="action" type="button" data-action="attack">普通攻擊</button>
+              <button class="action" type="button" data-action="skills">施放技能</button>
+              <button class="action" type="button" data-action="race">種族技能</button>
+              <button class="action" type="button" data-action="defend">防禦</button>
+              <button class="action" type="button" data-action="status">查看狀態</button>
+              <button class="action" type="button" data-action="escape">逃跑</button>
+            `}
+          </div>
+          <div class="inline-actions" id="skill-panel"></div>
+          ${targetPanel}
+        </div>
       </div>
     </div>
   `;
   app.querySelectorAll("[data-battle-enemy]").forEach(button => {
     button.addEventListener("click", () => {
-      battle.selectedEnemy = Number(button.dataset.battleEnemy);
+      const targetIndex = Number(button.dataset.battleEnemy);
+      if (battle.targetMode?.type === "enemy") {
+        const mode = battle.targetMode;
+        battle.targetMode = null;
+        if (mode.action === "attack") return performBattleTurn({ type: "attack", targetIndex });
+        if (mode.action === "skill") return performBattleTurn({ type: "skill", index: mode.index, targetIndex });
+      }
+      battle.selectedEnemy = targetIndex;
       renderBattle();
     });
   });
   app.querySelectorAll("[data-action]").forEach(button => {
     button.addEventListener("click", () => handleBattleAction(button.dataset.action));
-  });
-  app.querySelectorAll("[data-target-enemy]").forEach(button => {
-    button.addEventListener("click", () => {
-      const targetIndex = Number(button.dataset.targetEnemy);
-      const mode = battle.targetMode;
-      battle.targetMode = null;
-      if (mode?.action === "attack") performBattleTurn({ type: "attack", targetIndex });
-      if (mode?.action === "skill") performBattleTurn({ type: "skill", index: mode.index, targetIndex });
-    });
   });
   app.querySelectorAll("[data-target-ally]").forEach(button => {
     button.addEventListener("click", () => {
@@ -1489,8 +2042,8 @@ async function performBattleTurn(action) {
       battle.log.push("請選擇普通攻擊的目標。");
       return renderBattle();
     }
-    const weapon = player.equipment.find(item => item.slot === "主手");
-    const damage = dealDamage(stats.attack, monsterBattleStats(monster, battle).defense, 1 + dualWieldBonus(player), weapon?.element, monster);
+    const attackElement = resolvePlayerAttackElement(player, battle);
+    const damage = dealDamage(stats.attack, monsterBattleStats(monster, battle).defense, 1 + dualWieldBonus(player), attackElement, monster);
     monster.currentHp = Math.max(0, monster.currentHp - damage);
     battle.log.push(`${player.name} 的普通攻擊造成 ${damage} 點傷害。`);
     applyLifesteal(player, damage, battle);
@@ -1608,179 +2161,364 @@ function handleSkill(skill, player, battle, monster, stats, action = {}) {
   const targetType = skillTargetType(skill);
   const allyPool = allyTargets(player, battle, targetType === "fallen_ally");
   const targetAlly = action.allyIndex !== undefined ? allyPool[action.allyIndex] : player;
+  const party = [player].concat(battle.companions || []);
 
   if (skill.kind === "attack") return castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+  if (skill.kind === "attackAll") {
+    castAttackAll(skill, player, battle, stats);
+    return;
+  }
+  if (skill.kind === "attackRandom") {
+    castAttackRandom(skill, player, battle, stats, skill.hits || 3);
+    return;
+  }
+  if (skill.kind === "attackAllMulti") {
+    for (let i = 0; i < (skill.hits || 2); i += 1) {
+      if (!livingEnemies(battle).length) break;
+      castAttackAll(skill, player, battle, stats);
+    }
+    return;
+  }
   if (skill.kind === "attackDebuffDefense") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "defenseDown", skill.duration || 3, `${monster.name} 的防禦被削弱。`, battle);
+    applyMonsterAilment(monster, "defenseDown", skill.duration || 3, `${monster.name} ????????`, battle);
     return;
   }
   if (skill.kind === "attackDebuffAttack") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "attackDown", skill.duration || 3, `${monster.name} 的攻擊被壓制。`, battle);
+    applyMonsterAilment(monster, "attackDown", skill.duration || 3, `${monster.name} ????????`, battle);
     return;
   }
   if (skill.kind === "attackDebuffResistance") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "resistanceDown", skill.duration || 3, `${monster.name} 的魔法抗性下降。`, battle);
+    applyMonsterAilment(monster, "resistanceDown", skill.duration || 3, `${monster.name} ????????`, battle);
+    return;
+  }
+  if (skill.kind === "debuffDefenseAll") {
+    livingEnemies(battle).forEach(target => applyMonsterAilment(target, "defenseDown", skill.duration || 4, `${target.name} ????????`, battle));
+    return;
+  }
+  if (skill.kind === "debuffResistanceAll") {
+    livingEnemies(battle).forEach(target => applyMonsterAilment(target, "resistanceDown", skill.duration || 4, `${target.name} ????????`, battle));
+    return;
+  }
+  if (skill.kind === "attackDualElement") {
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    return;
+  }
+  if (skill.kind === "attackAllStun") {
+    livingEnemies(battle).forEach(target => {
+      castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
+      if (Math.random() < (skill.chance || 0.3)) applyMonsterAilment(target, "stun", skill.duration || 1, `${target.name} ?????`, battle);
+    });
+    return;
+  }
+  if (skill.kind === "attackAllParalyze") {
+    livingEnemies(battle).forEach(target => {
+      castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
+      if (Math.random() < (skill.chance || 0.3)) applyMonsterAilment(target, "paralyze", skill.duration || 3, `${target.name} ?????`, battle);
+    });
     return;
   }
   if (skill.kind === "attackPoison") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "poison", skill, monster.name, "陷入中毒", battle);
+    tryApplyChanceAilment(monster, "poison", skill, monster.name, "????", battle);
     return;
   }
   if (skill.kind === "attackSleep") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "sleep", skill, monster.name, "陷入睡眠", battle);
+    tryApplyChanceAilment(monster, "sleep", skill, monster.name, "????", battle);
     return;
   }
   if (skill.kind === "attackBlind") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "blind", skill, monster.name, "陷入失明", battle);
+    tryApplyChanceAilment(monster, "blind", skill, monster.name, "????", battle);
     return;
   }
   if (skill.kind === "attackTrap") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "trap", skill.duration || 2, `${monster.name} 被布下陷阱。`, battle);
+    applyMonsterAilment(monster, "trap", skill.duration || 2, `${monster.name} ??????`, battle);
     return;
   }
   if (skill.kind === "attackDebuffSpeed") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    applyMonsterAilment(monster, "speedDown", skill.duration || 3, `${monster.name} 的行動變慢了。`, battle);
+    applyMonsterAilment(monster, "speedDown", skill.duration || 3, `${monster.name} ???????`, battle);
     return;
   }
   if (skill.kind === "attackStun") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "stun", skill, monster.name, "被震得暈頭轉向", battle);
+    tryApplyChanceAilment(monster, "stun", skill, monster.name, "????", battle);
     return;
   }
   if (skill.kind === "attackFreeze") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "freeze", skill, monster.name, "被寒氣凍結", battle);
+    tryApplyChanceAilment(monster, "freeze", skill, monster.name, "????", battle);
     return;
   }
   if (skill.kind === "attackBurn") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "burn", skill, monster.name, "陷入灼燒", battle);
+    tryApplyChanceAilment(monster, "burn", skill, monster.name, "????", battle);
     return;
   }
   if (skill.kind === "multiHit") {
-    const hits = skill.hits || 2;
     let total = 0;
-    for (let i = 0; i < hits && monster.currentHp > 0; i += 1) {
-      total += castAttackSkill({ ...skill, name: `${skill.name}(${i + 1})` }, player, battle, monster, stats, monsterStats);
-      if (monster.ailments.sleep > 0 && Math.random() < 0.3) {
-        monster.ailments.sleep = 0;
-        battle.log.push(`${monster.name} 被攻擊驚醒了。`);
-      }
+    for (let i = 0; i < (skill.hits || 2) && monster?.currentHp > 0; i += 1) {
+      total += castAttackSkill(skill, player, battle, monster, stats, monsterBattleStats(monster, battle));
     }
-    battle.log.push(`${skill.name} 總共造成 ${total} 點傷害。`);
+    battle.log.push(`${skill.name} ????? ${total} ????`);
+    return;
+  }
+  if (skill.kind === "multiHitStun") {
+    let total = 0;
+    for (let i = 0; i < (skill.hits || 2) && monster?.currentHp > 0; i += 1) {
+      total += castAttackSkill(skill, player, battle, monster, stats, monsterBattleStats(monster, battle));
+    }
+    battle.log.push(`${skill.name} ????? ${total} ????`);
+    tryApplyChanceAilment(monster, "stun", skill, monster.name, "????", battle);
     return;
   }
   if (skill.kind === "attackIgnoreDefense") {
-    const damage = dealDamage(stats[skill.stat], 0, skill.power, skill.element, monster);
+    const attackElement = resolvePlayerAttackElement(player, battle, skill.element || null);
+    const damage = dealDamage(stats[skill.stat], 0, skill.power, attackElement, monster);
     monster.currentHp = Math.max(0, monster.currentHp - damage);
-    battle.log.push(`${player.name} 施放 ${skill.name}，無視防禦造成 ${damage} 點傷害。`);
+    battle.log.push(`${player.name} ?? ${skill.name}??????? ${damage} ????`);
+    wakeSleepingMonster(monster, battle);
     applyLifesteal(player, damage, battle);
     return;
   }
   if (skill.kind === "attackParalyze") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    tryApplyChanceAilment(monster, "paralyze", skill, monster.name, "陷入麻痺", battle);
+    tryApplyChanceAilment(monster, "paralyze", skill, monster.name, "????", battle);
     return;
   }
   if (skill.kind === "attackDrain") {
     const damage = castAttackSkill(skill, player, battle, monster, stats, monsterStats);
     const heal = Math.max(1, Math.floor(damage * 0.35));
     player.hp = Math.min(stats.maxHp, player.hp + heal);
-    battle.log.push(`${skill.name} 吸收月力，回復 ${heal} HP。`);
+    battle.log.push(`${player.name} ??? ${heal} HP?`);
     return;
   }
   if (skill.kind === "attackBuffSpeed") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
-    battle.buffs.speed = Math.max(battle.buffs.speed, 3);
-    battle.buffs.evade = Math.max(battle.buffs.evade, 0.1);
-    battle.log.push(`${player.name} 的步調變得更加輕盈。`);
+    battle.selfBuffs.speed = Math.max(battle.selfBuffs.speed, 3);
+    battle.selfBuffs.evade = Math.max(battle.selfBuffs.evade, 0.1);
+    battle.log.push(`${player.name} ???????`);
+    return;
+  }
+  if (skill.kind === "riskyTriple") {
+    if (Math.random() < 0.7) {
+      battle.log.push(`${player.name} ?? ${skill.name}??????`);
+      return;
+    }
+    castAttackSkill(skill, player, battle, monster, stats, monsterStats);
+    return;
+  }
+  if (skill.kind === "executeAilment") {
+    if (!monster) return;
+    const executeSkill = { ...skill, power: monsterHasAnyAilment(monster) ? skill.power : Math.max(1, skill.power * 0.75) };
+    castAttackSkill(executeSkill, player, battle, monster, stats, monsterStats);
+    return;
+  }
+  if (skill.kind === "attackInstantDeath") {
+    const attackElement = resolvePlayerAttackElement(player, battle, skill.element || null);
+    const isBoss = ["story", "boss"].includes(monster.category) || monster.storyOrder;
+    if (!isBoss && Math.random() < (skill.chance || 0.05)) {
+      monster.currentHp = 0;
+      battle.log.push(`${player.name} ? ${skill.name} ?????${monster.name} ?????`);
+      return;
+    }
+    const damage = dealDamage(stats[skill.stat], 0, skill.power, attackElement, monster);
+    monster.currentHp = Math.max(0, monster.currentHp - damage);
+    battle.log.push(`${player.name} ?? ${skill.name}??? ${damage} ????`);
+    wakeSleepingMonster(monster, battle);
+    return;
+  }
+  if (skill.kind === "randomAilmentAll") {
+    const ailmentPool = ["poison", "blind", "sleep", "burn", "freeze", "paralyze", "stun"];
+    const ailmentLabel = { poison: "??", blind: "??", sleep: "??", burn: "??", freeze: "??", paralyze: "??", stun: "??" };
+    livingEnemies(battle).forEach(target => {
+      const ailment = ailmentPool[Math.floor(Math.random() * ailmentPool.length)];
+      applyMonsterAilment(target, ailment, skill.duration || 3, `${target.name} ???${ailmentLabel[ailment]}?`, battle);
+    });
+    return;
+  }
+  if (skill.kind === "allStun") {
+    livingEnemies(battle).forEach(target => {
+      if (Math.random() < (skill.chance || 0.5)) {
+        applyMonsterAilment(target, "stun", skill.duration || 1, `${target.name} ???????`, battle);
+      }
+    });
+    return;
+  }
+  if (skill.kind === "fearAll") {
+    livingEnemies(battle).forEach(target => {
+      if (Math.random() < (skill.chance || 0.3)) {
+        applyMonsterAilment(target, "fear", skill.duration || 4, `${target.name} ?????`, battle);
+      }
+    });
+    return;
+  }
+  if (skill.kind === "buffAllParty") {
+    battle.buffs.attack = Math.max(battle.buffs.attack, 4);
+    battle.buffs.defense = Math.max(battle.buffs.defense, 4);
+    battle.buffs.magic = Math.max(battle.buffs.magic, 4);
+    battle.buffs.resistance = Math.max(battle.buffs.resistance, 4);
+    battle.buffs.speed = Math.max(battle.buffs.speed, 4);
+    battle.buffs.evade = Math.max(battle.buffs.evade, 0.25);
+    battle.log.push(`${player.name} ?? ${skill.name}?????????`);
+    return;
+  }
+  if (skill.kind === "superTranscend") {
+    const spend = Math.floor(player.mp / 2);
+    player.mp = Math.max(0, player.mp - spend);
+    battle.selfBuffs.transcend = Math.max(battle.selfBuffs.transcend || 0, skill.duration || 5);
+    battle.log.push(`${player.name} ?? ${spend} MP?????????`);
+    return;
+  }
+  if (skill.kind === "overloadMagic") {
+    battle.selfBuffs.regenMp = Math.max(battle.selfBuffs.regenMp, skill.duration || 5);
+    battle.selfBuffs.magicBoost = Math.max(battle.selfBuffs.magicBoost || 0, 1.5);
+    battle.log.push(`${player.name} ? MP ???????????????`);
     return;
   }
   if (skill.kind === "heal") {
     const heal = holyHealAmount(player, skill, stats, skill.power, 4, 10);
     targetAlly.hp = Math.min(targetAlly.maxHp, targetAlly.hp + heal);
-    battle.log.push(`${player.name} 施放 ${skill.name}，使 ${targetAlly.name} 回復 ${heal} HP。`);
+    battle.log.push(`${player.name} ?? ${skill.name}?? ${targetAlly.name} ?? ${heal} HP?`);
+    return;
+  }
+  if (skill.kind === "regenHpSingle") {
+    const buffStore = targetAlly === player ? battle.selfBuffs : targetAlly.battleBuffs;
+    buffStore.regen = Math.max(buffStore.regen || 0, skill.duration || 5);
+    battle.log.push(`${player.name} ? ${targetAlly.name} ????????`);
     return;
   }
   if (skill.kind === "cleanse") {
-    battle.log.push(`${player.name} 施放 ${skill.name}，清除了中毒、燒傷與凍結。`);
+    battle.log.push(`${player.name} ?? ${skill.name}???? ${targetAlly.name} ??????`);
     return;
   }
   if (skill.kind === "cleanseAll") {
-    battle.log.push(`${player.name} 施放 ${skill.name}，清除了全隊所有異常狀態。`);
+    battle.log.push(`${player.name} ?? ${skill.name}?????????????`);
     return;
   }
   if (skill.kind === "healAll") {
     const amount = holyHealAmount(player, skill, stats, skill.power, 6, 12);
-    [player].concat(battle.companions || []).forEach(member => {
+    party.forEach(member => {
       member.hp = Math.min(member.maxHp, member.hp + amount);
     });
-    battle.log.push(`${player.name} 施放 ${skill.name}，全隊回復 ${amount} HP。`);
+    battle.log.push(`${player.name} ?? ${skill.name}????? ${amount} HP?`);
     return;
   }
   if (skill.kind === "fullHeal") {
-    [player].concat(battle.companions || []).forEach(member => {
+    party.forEach(member => {
       member.hp = member.maxHp;
     });
     player.mp = Math.min(stats.maxMp, player.mp + Math.floor(stats.maxMp * 0.25));
-    battle.log.push(`${player.name} 施放 ${skill.name}，全隊恢復到最佳狀態。`);
+    battle.log.push(`${player.name} ?? ${skill.name}????????`);
     return;
   }
   if (skill.kind === "fullHealSingle") {
     targetAlly.hp = targetAlly.maxHp;
-    battle.log.push(`${player.name} 施放 ${skill.name}，使 ${targetAlly.name} 完全恢復。`);
+    battle.log.push(`${player.name} ?? ${skill.name}?? ${targetAlly.name} ?????`);
+    return;
+  }
+  if (skill.kind === "revive") {
+    const fallen = party.filter(member => member.hp <= 0);
+    if (!fallen.length) {
+      battle.log.push(`${skill.name} ????????????`);
+      return;
+    }
+    fallen.forEach(member => {
+      member.hp = Math.floor(member.maxHp * 0.45);
+      member.mp = Math.floor(member.maxMp * 0.35);
+    });
+    battle.log.push(`${player.name} ?? ${skill.name}?????????????`);
+    return;
+  }
+  if (skill.kind === "reviveOne") {
+    if (!targetAlly || targetAlly.hp > 0) {
+      battle.log.push(`${skill.name} ??????????`);
+      return;
+    }
+    targetAlly.hp = Math.floor(targetAlly.maxHp * 0.4);
+    targetAlly.mp = Math.floor(targetAlly.maxMp * 0.3);
+    battle.log.push(`${player.name} ?? ${skill.name}?? ${targetAlly.name} ????`);
     return;
   }
   if (skill.kind === "buffAttack") {
     battle.selfBuffs.attack = Math.max(battle.selfBuffs.attack, 3);
-    battle.log.push(`${player.name} 的攻擊提升 3 回合。`);
+    battle.log.push(`${player.name} ????????`);
     return;
   }
   if (skill.kind === "guardShield") {
     battle.selfBuffs.shield = Math.max(battle.selfBuffs.shield, 2);
-    battle.log.push(`${player.name} 展開護盾，本次防禦效果更強。`);
+    battle.log.push(`${player.name} ????????????`);
     return;
   }
   if (skill.kind === "taunt") {
     battle.selfBuffs.taunt = Math.max(battle.selfBuffs.taunt, 3);
-    battle.log.push(`${player.name} 成功吸引魔物仇恨。`);
+    battle.log.push(`${player.name} ?????????`);
     return;
   }
   if (skill.kind === "counterStance") {
     battle.selfBuffs.counter = Math.max(battle.selfBuffs.counter, 3);
-    battle.log.push(`${player.name} 擺出格擋反擊架勢。`);
+    battle.log.push(`${player.name} ???????`);
     return;
   }
   if (skill.kind === "healPercent") {
     const heal = Math.max(1, Math.floor(stats.maxHp * skill.power));
     player.hp = Math.min(stats.maxHp, player.hp + heal);
-    battle.log.push(`${player.name} 恢復了 ${heal} HP。`);
+    battle.log.push(`${player.name} ??? ${heal} HP?`);
+    return;
+  }
+  if (skill.kind === "mpHealPercent") {
+    const restore = Math.max(1, Math.floor(stats.maxMp * skill.power));
+    player.mp = Math.min(stats.maxMp, player.mp + restore);
+    battle.log.push(`${player.name} ??? ${restore} MP?`);
+    return;
+  }
+  if (skill.kind === "regenMp") {
+    battle.selfBuffs.regenMp = Math.max(battle.selfBuffs.regenMp, skill.duration || 5);
+    battle.log.push(`${player.name} ? MP ??????`);
+    return;
+  }
+  if (skill.kind === "spellbladeMode") {
+    battle.selfBuffs.spellblade = Math.max(battle.selfBuffs.spellblade, skill.duration || 5);
+    battle.log.push(`${player.name} ???????????????????`);
+    return;
+  }
+  if (skill.kind === "elementEnchantSelf") {
+    battle.selfBuffs.weaponElement = skill.element;
+    battle.selfBuffs.weaponElements = null;
+    battle.selfBuffs.weaponEnchantTurns = Math.max(battle.selfBuffs.weaponEnchantTurns || 0, skill.duration || 5);
+    refreshPlayerStanceBuffs(battle);
+    battle.log.push(`${player.name} ????? ${skill.element} ?????`);
+    return;
+  }
+  if (skill.kind === "multiElementEnchantSelf") {
+    battle.selfBuffs.weaponElement = null;
+    battle.selfBuffs.weaponElements = ["\u5730", "\u6c34", "\u706b", "\u98a8"];
+    battle.selfBuffs.weaponEnchantTurns = Math.max(battle.selfBuffs.weaponEnchantTurns || 0, skill.duration || 5);
+    refreshPlayerStanceBuffs(battle);
+    battle.log.push(`${player.name} ??????????????????`);
     return;
   }
   if (skill.kind === "buffMagic") {
     battle.selfBuffs.magic = Math.max(battle.selfBuffs.magic, 3);
-    battle.log.push(`${player.name} 的魔法輸出提升 3 回合。`);
+    battle.log.push(`${player.name} ????????`);
     return;
   }
   if (skill.kind === "buffDefense") {
     battle.selfBuffs.defense = Math.max(battle.selfBuffs.defense, 3);
-    battle.log.push(`${player.name} 的防禦提升 3 回合。`);
+    battle.log.push(`${player.name} ????????`);
     return;
   }
   if (skill.kind === "buffResistance") {
     battle.selfBuffs.resistance = Math.max(battle.selfBuffs.resistance, 3);
-    battle.log.push(`${player.name} 的抵抗提升 3 回合。`);
+    battle.log.push(`${player.name} ????????`);
     return;
   }
-  if (["buffAttackDefenseSingle", "buffAttackSingle", "buffDefenseSingle", "buffMagicResistanceSingle", "buffSpeedSingle", "buffResistanceSingle", "buffAttackSingleStrong"].includes(skill.kind)) {
+  if (["buffAttackDefenseSingle", "buffAttackSingle", "buffDefenseSingle", "buffMagicResistanceSingle", "buffSpeedSingle", "buffResistanceSingle", "buffAttackSingleStrong", "buffSpeedSingleStrong"].includes(skill.kind)) {
     const buffStore = targetAlly === player ? battle.selfBuffs : targetAlly.battleBuffs;
     if (skill.kind === "buffAttackDefenseSingle") {
       buffStore.attack = Math.max(buffStore.attack, 3);
@@ -1799,106 +2537,145 @@ function handleSkill(skill, player, battle, monster, stats, action = {}) {
       buffStore.resistance = Math.max(buffStore.resistance, 3);
     } else if (skill.kind === "buffAttackSingleStrong") {
       buffStore.attack = Math.max(buffStore.attack, 4);
+    } else if (skill.kind === "buffSpeedSingleStrong") {
+      buffStore.speed = Math.max(buffStore.speed, 4);
+      buffStore.evade = Math.max(buffStore.evade, 0.35);
     }
-    battle.log.push(`${player.name} 施放 ${skill.name}，${targetAlly.name} 獲得增幅。`);
+    battle.log.push(`${player.name} ?? ${skill.name}???? ${targetAlly.name}?`);
     return;
   }
   if (skill.kind === "buffAttackParty") {
     battle.buffs.attack = Math.max(battle.buffs.attack, 3);
-    battle.log.push(`${player.name} 施放 ${skill.name}，全隊攻擊氣勢高漲。`);
+    battle.log.push(`${player.name} ?? ${skill.name}?????????`);
     return;
   }
   if (skill.kind === "buffAttackDefense") {
     battle.buffs.attack = Math.max(battle.buffs.attack, 3);
     battle.buffs.defense = Math.max(battle.buffs.defense, 3);
-    battle.log.push(`${player.name} 施放 ${skill.name}，攻擊與防禦同步提升。`);
+    battle.log.push(`${player.name} ?? ${skill.name}????????`);
     return;
   }
   if (skill.kind === "buffMagicResistance") {
     battle.buffs.magic = Math.max(battle.buffs.magic, 3);
     battle.buffs.resistance = Math.max(battle.buffs.resistance, 3);
-    battle.log.push(`${player.name} 施放 ${skill.name}，魔法與抵抗同步提升。`);
+    battle.log.push(`${player.name} ?? ${skill.name}???????????`);
     return;
   }
   if (skill.kind === "buffSpeedParty") {
     battle.buffs.speed = Math.max(battle.buffs.speed, 3);
     battle.buffs.evade = Math.max(battle.buffs.evade, 0.2);
-    battle.log.push(`${player.name} 施放 ${skill.name}，全隊行動更敏捷。`);
+    battle.log.push(`${player.name} ?? ${skill.name}????????`);
+    return;
+  }
+  if (skill.kind === "buffDefensePartyStrong") {
+    battle.buffs.defense = Math.max(battle.buffs.defense, 4);
+    battle.log.push(`${player.name} ?? ${skill.name}????????????`);
+    return;
+  }
+  if (skill.kind === "buffResistancePartyStrong") {
+    battle.buffs.resistance = Math.max(battle.buffs.resistance, 4);
+    battle.log.push(`${player.name} ?? ${skill.name}????????????`);
     return;
   }
   if (skill.kind === "statusWardParty") {
     battle.selfBuffs.statusWard = Math.max(battle.selfBuffs.statusWard, 3);
-    battle.log.push(`${player.name} 張開祈禱結界，短時間免疫異常。`);
+    battle.log.push(`${player.name} ??????????????`);
     return;
   }
   if (skill.kind === "sanctuary") {
     battle.selfBuffs.sanctuary = Math.max(battle.selfBuffs.sanctuary, 5);
     battle.selfBuffs.regen = Math.max(battle.selfBuffs.regen, 5);
-    battle.log.push(`${player.name} 展開和平聖域，全隊受到的傷害減半。`);
+    battle.log.push(`${player.name} ???????????????????`);
     return;
   }
-  if (skill.kind === "revive") {
-    const fallen = [player].concat(battle.companions || []).filter(member => member.hp <= 0);
-    if (!fallen.length) {
-      battle.log.push(`${skill.name} 沒有找到可復活的目標。`);
-      return;
-    }
-    fallen.forEach(member => {
-      member.hp = Math.floor(member.maxHp * 0.45);
-      member.mp = Math.floor(member.maxMp * 0.35);
-    });
-    battle.log.push(`${player.name} 施放 ${skill.name}，倒下的同伴重新站起來了。`);
+  if (skill.kind === "berserk") {
+    battle.selfBuffs.berserk = Math.max(battle.selfBuffs.berserk, skill.duration || 4);
+    refreshPlayerStanceBuffs(battle);
+    battle.log.push(`${player.name} ?????????????????`);
     return;
   }
-  if (skill.kind === "reviveOne") {
-    if (!targetAlly || targetAlly.hp > 0) {
-      battle.log.push(`${skill.name} 沒有找到可復活的同伴。`);
+  if (skill.kind === "allIn") {
+    battle.selfBuffs.allIn = Math.max(battle.selfBuffs.allIn, skill.duration || 1);
+    refreshPlayerStanceBuffs(battle);
+    battle.log.push(`${player.name} ???????????????????`);
+    return;
+  }
+  if (skill.kind === "allyHpTransfer") {
+    if (!targetAlly || targetAlly === player) {
+      battle.log.push(`${skill.name} ?????????`);
       return;
     }
-    targetAlly.hp = Math.floor(targetAlly.maxHp * 0.4);
-    targetAlly.mp = Math.floor(targetAlly.maxMp * 0.3);
-    battle.log.push(`${player.name} 施放 ${skill.name}，${targetAlly.name} 重返戰場。`);
+    const amount = Math.max(1, Math.floor(player.hp * (skill.power || 0.5)));
+    player.hp = Math.max(1, player.hp - amount);
+    targetAlly.hp = Math.min(targetAlly.maxHp, targetAlly.hp + amount);
+    battle.log.push(`${player.name} ? ${amount} HP ??? ${targetAlly.name}?`);
+    return;
+  }
+  if (skill.kind === "allyMpTransfer") {
+    if (!targetAlly || targetAlly === player) {
+      battle.log.push(`${skill.name} ?????????`);
+      return;
+    }
+    const amount = Math.max(1, Math.floor(player.mp * (skill.power || 0.5)));
+    player.mp = Math.max(0, player.mp - amount);
+    targetAlly.mp = Math.min(targetAlly.maxMp, targetAlly.mp + amount);
+    battle.log.push(`${player.name} ? ${amount} MP ??? ${targetAlly.name}?`);
+    return;
+  }
+  if (skill.kind === "coverAll") {
+    battle.selfBuffs.coverAll = Math.max(battle.selfBuffs.coverAll, skill.duration || 3);
+    battle.selfBuffs.taunt = Math.max(battle.selfBuffs.taunt, skill.duration || 3);
+    battle.selfBuffs.shield = Math.max(battle.selfBuffs.shield, skill.duration || 3);
+    battle.log.push(`${player.name} ?????????????????`);
+    return;
+  }
+  if (skill.kind === "elementalWardParty") {
+    battle.buffs.resistance = Math.max(battle.buffs.resistance, 3);
+    battle.selfBuffs.elementalWard = skill.element;
+    battle.log.push(`${player.name} ?? ${skill.name}???? ${skill.element} ????????`);
     return;
   }
   if (skill.kind === "chargeUp") {
     battle.selfBuffs.chi = Math.min(5, (battle.selfBuffs.chi || 0) + 1);
-    battle.log.push(`${player.name} 聚氣成功，目前累積 ${battle.selfBuffs.chi} 層。`);
+    battle.log.push(`${player.name} ?????????? ${battle.selfBuffs.chi}?`);
     return;
   }
   if (skill.kind === "chiBlast") {
     const bonus = battle.selfBuffs.chi || 0;
-    const damage = dealDamage(stats.attack + bonus * 4, monsterStats.resistance, skill.power + bonus * 0.25, skill.element, monster);
+    const damage = dealDamage(stats.attack + bonus * 4, monsterStats.resistance, skill.power + bonus * 0.25, resolvePlayerAttackElement(player, battle, skill.element || null), monster);
     monster.currentHp = Math.max(0, monster.currentHp - damage);
-    battle.log.push(`${player.name} 以 ${skill.name} 造成 ${damage} 點傷害並驅散敵方減益。`);
+    battle.log.push(`${player.name} ? ${skill.name} ?? ${damage} ??????????????`);
     ["attackDown", "defenseDown", "resistanceDown", "speedDown"].forEach(key => { monster.ailments[key] = 0; });
     battle.selfBuffs.chi = 0;
+    wakeSleepingMonster(monster, battle);
     return;
   }
   if (skill.kind === "afterimage") {
     battle.selfBuffs.afterimage = Math.max(battle.selfBuffs.afterimage, 1);
-    battle.log.push(`${player.name} 進入殘影狀態，將迴避下一次攻擊。`);
+    battle.log.push(`${player.name} ????????????????`);
     return;
   }
   if (skill.kind === "attackAfterimage") {
     castAttackSkill(skill, player, battle, monster, stats, monsterStats);
     battle.selfBuffs.afterimage = Math.max(battle.selfBuffs.afterimage, 1);
-    battle.log.push(`${player.name} 攻擊後留下殘影。`);
+    battle.log.push(`${player.name} ????????????`);
+    return;
+  }
+  if (skill.kind === "evadeCounter") {
+    battle.selfBuffs.evade = Math.max(battle.selfBuffs.evade, 0.35);
+    battle.selfBuffs.counter = Math.max(battle.selfBuffs.counter, skill.duration || 3);
+    battle.log.push(`${player.name} ?????????????`);
     return;
   }
   if (skill.kind === "steal") {
     if (Math.random() < 0.55) {
       const stolenGold = randomInt(5, 18);
       player.gold += stolenGold;
-      battle.log.push(`${player.name} 竊盜成功，取得 ${stolenGold} 金幣。`);
+      battle.log.push(`${player.name} ??? ${stolenGold} ???`);
     } else {
-      battle.log.push(`${player.name} 竊盜失敗。`);
+      battle.log.push(`${player.name} ?????`);
     }
     return;
-  }
-  if (skill.kind === "evade") {
-    battle.selfBuffs.speed = Math.max(battle.selfBuffs.speed, 2);
-    battle.selfBuffs.evade = Math.max(battle.selfBuffs.evade, 0.2);
-    battle.log.push(`${player.name} 的閃避率大幅提高。`);
   }
 }
 
@@ -1950,9 +2727,27 @@ async function finishVictory() {
   const battle = state.battle;
   const totalExp = (battle.enemies || []).reduce((sum, enemy) => sum + enemy.exp, 0);
   const totalGold = (battle.enemies || []).reduce((sum, enemy) => sum + enemy.gold, 0);
+  const storyChapter = battle.type === "story" ? currentStoryChapter(player) : null;
+  const mainQuest = battle.type === "story" ? currentMainQuest(player) : null;
   player.exp += totalExp;
+  commitActiveClassState(player);
   player.gold += totalGold;
+  const storyBonusExp = battle.type === "story" ? (mainQuest?.rewardExp || 0) : 0;
+  const storyBonusGold = battle.type === "story" ? Math.max(storyChapter?.rewardGold || 0, mainQuest?.rewardGold || 0) : 0;
+  const storyRewardItems = battle.type === "story" ? rewardItemKeys(storyChapter?.rewardItem || mainQuest?.rewardItem || "") : [];
   battle.log.push(`你擊敗了本次敵群，獲得 EXP ${totalExp}、金幣 ${totalGold}。`);
+  if (storyBonusExp) {
+    player.exp += storyBonusExp;
+    battle.log.push(`主線獎勵獲得 EXP ${storyBonusExp}`);
+  }
+  if (storyBonusGold) {
+    player.gold += storyBonusGold;
+    battle.log.push(`主線獎勵獲得金幣 ${storyBonusGold}`);
+  }
+  storyRewardItems.forEach(itemKey => {
+    const rewardItem = addItemToInventory(player, itemKey);
+    if (rewardItem) battle.log.push(`主線獎勵獲得 ${rewardItem.name}`);
+  });
   (battle.enemies || []).forEach(enemy => {
     const droppedItemKey = rollDrop(enemy);
     if (droppedItemKey) {
@@ -1960,17 +2755,20 @@ async function finishVictory() {
       battle.log.push(`掉落物品：${droppedItem.name}`);
     }
   });
-  while (player.exp >= nextLevelExp(player.level)) {
-    player.exp -= nextLevelExp(player.level);
-    player.level += 1;
-    player.classLevel = Math.min(100, player.classLevel + 1);
+  while (player.exp >= nextLevelExp(player.classLevel) && player.classLevel < 100 && totalPlayerLevel(player) < 1000) {
+    player.exp -= nextLevelExp(player.classLevel);
+    player.classLevel += 1;
     player.skillPoints += 1;
     applyClassLevelGrowth(player, player.className);
     (player.companions || []).forEach(companion => levelUpCompanion(companion));
     player.hp = player.maxHp;
     player.mp = player.maxMp;
+    commitActiveClassState(player);
+    syncActiveClassState(player);
     battle.log.push(`升級了，現在是 Lv.${player.level}，能力值已依職業自動成長。`);
   }
+  commitActiveClassState(player);
+  syncActiveClassState(player);
   if (battle.type === "story") {
     player.storyStage += 1;
     const nextStoryArea = availableAreas("story", player)[0];
@@ -2026,6 +2824,17 @@ function buildPlayer(name, raceCode, classCode) {
     mp: stats.maxMp,
     ...stats,
     gold: 30,
+    activeClassCode: job.code,
+    classes: [
+      {
+        classCode: job.code,
+        className: job.name,
+        classLevel: 1,
+        exp: 0,
+        skillPoints: 1,
+        branches: job.branches.map(branchName => ({ name: branchName, level: 0 })),
+      },
+    ],
     branches: job.branches.map(name => ({ name, level: 0 })),
     equipment: starterEquipmentForClass(job.name),
     companions: [],
@@ -2034,6 +2843,105 @@ function buildPlayer(name, raceCode, classCode) {
       { ...structuredClone(data.itemCatalog.potion_mp_s), quantity: 1 },
     ],
   };
+}
+
+function getPlayerClasses(player) {
+  player.classes ??= [];
+  return player.classes;
+}
+
+function getClassDefinition(codeOrName) {
+  return data.classes.find(item => item.code === codeOrName || item.name === codeOrName) || null;
+}
+
+function getClassEntry(player, classCode) {
+  return getPlayerClasses(player).find(entry => entry.classCode === classCode) || null;
+}
+
+function totalPlayerLevel(player) {
+  return getPlayerClasses(player).reduce((sum, entry) => sum + Math.max(1, entry.classLevel || 1), 0);
+}
+
+function currentActiveClass(player) {
+  const classes = getPlayerClasses(player);
+  if (!classes.length) return null;
+  return getClassEntry(player, player.activeClassCode) || classes[0];
+}
+
+function commitActiveClassState(player) {
+  const active = currentActiveClass(player);
+  if (!active) return;
+  active.classCode = player.classCode;
+  active.className = player.className;
+  active.classLevel = player.classLevel;
+  active.exp = player.exp;
+  active.skillPoints = player.skillPoints;
+  active.branches = (player.branches || []).map(branch => ({ ...branch }));
+}
+
+function syncActiveClassState(player) {
+  const active = currentActiveClass(player);
+  if (!active) return;
+  player.activeClassCode = active.classCode;
+  player.classCode = active.classCode;
+  player.className = active.className;
+  player.classLevel = active.classLevel || 1;
+  player.exp = active.exp || 0;
+  player.skillPoints = active.skillPoints ?? 0;
+  player.branches = active.branches || [];
+  player.level = totalPlayerLevel(player);
+}
+
+function playerClassLevel(player, classCode) {
+  return getClassEntry(player, classCode)?.classLevel || 0;
+}
+
+function canUnlockClass(player, classDef) {
+  if (getClassEntry(player, classDef.code)) return false;
+  const requirements = classDef.requirements || [];
+  return requirements.every(requirement => playerClassLevel(player, requirement.classCode) >= requirement.level);
+}
+
+function classRequirementText(classDef) {
+  if (!classDef.requirements?.length) return "基礎職業，可直接轉職。";
+  return classDef.requirements
+    .map(requirement => {
+      const job = getClassDefinition(requirement.classCode);
+      return `${job?.name || requirement.classCode} Lv.${requirement.level}`;
+    })
+    .join(" + ");
+}
+
+function unlockOrSwitchClass(player, classCode) {
+  commitActiveClassState(player);
+  const existing = getClassEntry(player, classCode);
+  if (existing) {
+    player.activeClassCode = classCode;
+    syncActiveClassState(player);
+    return `${player.className} 已設為目前職業。`;
+  }
+  const classDef = getClassDefinition(classCode);
+  if (!classDef) return "找不到該職業。";
+  if (totalPlayerLevel(player) >= 1000) return "總等級已達 1000，無法再新增職業。";
+  if (!canUnlockClass(player, classDef) && classDef.requirements?.length) {
+    return "尚未達成轉職條件。";
+  }
+  const gainedHp = classDef.bonuses?.maxHp || 0;
+  const gainedMp = classDef.bonuses?.maxMp || 0;
+  applyBonuses(player, classDef.bonuses || {});
+  player.hp += gainedHp;
+  player.mp += gainedMp;
+  getPlayerClasses(player).push({
+    classCode: classDef.code,
+    className: classDef.name,
+    classLevel: 1,
+    exp: 0,
+    skillPoints: 1,
+    branches: (classDef.branches || []).map(name => ({ name, level: 0 })),
+  });
+  player.activeClassCode = classDef.code;
+  syncActiveClassState(player);
+  return `${classDef.name} 已解鎖並成為目前職業。`;
 }
 
 function effectiveStats(player) {
@@ -2057,10 +2965,10 @@ function effectiveStats(player) {
 
 function battleStats(player, battle) {
   const stats = effectiveStats(player);
-  if (player.raceName === "人族" && battle.turn <= 3) {
+  if (player.raceName === "??" && battle.turn <= 3) {
     ["attack", "defense", "magic", "resistance", "speed", "luck"].forEach(key => { stats[key] += 2; });
   }
-  if (player.raceName === "獸人" && player.hp <= stats.maxHp * 0.4) stats.attack += 5;
+  if (player.raceName === "??" && player.hp <= stats.maxHp * 0.4) stats.attack += 5;
   if (battle.buffs.attack) stats.attack += 5;
   if (battle.buffs.defense) stats.defense += 5;
   if (battle.buffs.magic) stats.magic += 5;
@@ -2071,17 +2979,33 @@ function battleStats(player, battle) {
   if (battle.selfBuffs?.magic) stats.magic += 5;
   if (battle.selfBuffs?.resistance) stats.resistance += 5;
   if (battle.selfBuffs?.speed) stats.speed += 5;
-  if (skillKnown(player, "決死反攻") && player.hp <= stats.maxHp * 0.4) stats.attack += 8;
+  if (skillKnown(player, "????") && player.hp <= stats.maxHp * 0.4) stats.attack += 8;
   if (battle.buffs.dragon) {
     stats.attack += 6;
     stats.magic += 6;
   }
+  refreshPlayerStanceBuffs(battle);
+  if (battle.selfBuffs?.attackBoost) stats.attack = Math.floor(stats.attack * battle.selfBuffs.attackBoost);
+  if (battle.selfBuffs?.magicBoost) stats.magic = Math.floor(stats.magic * battle.selfBuffs.magicBoost);
+  if (battle.selfBuffs?.transcend > 0) {
+    stats.attack *= 2;
+    stats.defense *= 2;
+    stats.magic *= 2;
+    stats.resistance *= 2;
+    stats.speed *= 2;
+  }
+  if (battle.selfBuffs && Number.isFinite(battle.selfBuffs.defensePenalty) && battle.selfBuffs.defensePenalty >= 0 && ((battle.selfBuffs.berserk || 0) > 0 || (battle.selfBuffs.allIn || 0) > 0)) {
+    stats.defense = Math.max(0, Math.floor(stats.defense * battle.selfBuffs.defensePenalty));
+  }
+  if ((battle.selfBuffs?.spellblade || 0) > 0) stats.attack += stats.magic;
   return stats;
 }
 
 function dealDamage(attackValue, defenseValue, power, element, monster) {
   const base = Math.max(1, Math.floor(attackValue * power - defenseValue / 2 + randomInt(0, 5)));
-  return Math.max(1, Math.floor(base * elementMultiplier(element, monster.elements)));
+  const elements = typeof element === "string" && element.includes("|") ? element.split("|") : [element];
+  const multiplier = Math.max(...elements.filter(Boolean).map(item => elementMultiplier(item, monster.elements)), 1);
+  return Math.max(1, Math.floor(base * multiplier));
 }
 
 function chooseMonsterSkill(monster, battle) {
@@ -2229,11 +3153,39 @@ function skillCost(player, skill) {
 }
 
 function createMonsterAilments() {
-  return { burn: 0, poison: 0, freeze: 0, paralyze: 0, blind: 0, sleep: 0, trap: 0, stun: 0, attackDown: 0, defenseDown: 0, resistanceDown: 0, speedDown: 0 };
+  return { burn: 0, poison: 0, freeze: 0, paralyze: 0, blind: 0, sleep: 0, trap: 0, stun: 0, fear: 0, attackDown: 0, defenseDown: 0, resistanceDown: 0, speedDown: 0 };
 }
 
 function createBattleBuffs() {
-  return { attack: 0, defense: 0, magic: 0, resistance: 0, speed: 0, evade: 0, shield: 0, counter: 0, afterimage: 0, statusWard: 0, sanctuary: 0, regen: 0, taunt: 0, chi: 0 };
+  return {
+    attack: 0,
+    defense: 0,
+    magic: 0,
+    resistance: 0,
+    speed: 0,
+    evade: 0,
+    shield: 0,
+    counter: 0,
+    afterimage: 0,
+    statusWard: 0,
+    sanctuary: 0,
+    regen: 0,
+    regenMp: 0,
+    taunt: 0,
+    chi: 0,
+    coverAll: 0,
+    spellblade: 0,
+    allIn: 0,
+    berserk: 0,
+    attackBoost: 0,
+    defensePenalty: 0,
+    magicBoost: 0,
+    transcend: 0,
+    weaponElement: null,
+    weaponElements: null,
+    weaponEnchantTurns: 0,
+    elementalWard: null,
+  };
 }
 
 function buildBattleEnemy(monster) {
@@ -2269,8 +3221,19 @@ function allyTargets(player, battle, includeFallen = false) {
 }
 
 function skillTargetType(skill) {
-  const enemyKinds = new Set(["attack", "attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance", "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze", "attackBurn", "multiHit", "attackIgnoreDefense", "attackParalyze", "attackDrain", "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal"]);
-  const allyKinds = new Set(["heal", "fullHealSingle", "buffAttackSingle", "buffDefenseSingle", "buffResistanceSingle", "buffAttackSingleStrong", "buffAttackDefenseSingle", "buffMagicResistanceSingle", "buffSpeedSingle"]);
+  const enemyKinds = new Set([
+    "attack", "attackAll", "attackRandom", "attackAllMulti", "attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance",
+    "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze",
+    "attackBurn", "multiHit", "attackIgnoreDefense", "attackParalyze", "attackAllParalyze", "attackDualElement", "attackAllStun",
+    "attackParalyze", "attackDrain", "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal", "riskyTriple",
+    "executeAilment", "attackInstantDeath", "allStun", "fearAll", "debuffDefenseAll", "debuffResistanceAll",
+    "randomAilmentAll", "multiHitStun"
+  ]);
+  const allyKinds = new Set([
+    "heal", "fullHealSingle", "buffAttackSingle", "buffDefenseSingle", "buffResistanceSingle", "buffAttackSingleStrong",
+    "buffAttackDefenseSingle", "buffMagicResistanceSingle", "buffSpeedSingle", "regenHpSingle", "allyHpTransfer",
+    "allyMpTransfer", "buffSpeedSingleStrong"
+  ]);
   if (enemyKinds.has(skill.kind)) return "enemy";
   if (allyKinds.has(skill.kind)) return "ally";
   if (skill.kind === "reviveOne") return "fallen_ally";
@@ -2289,19 +3252,112 @@ function monsterBattleStats(monster, battle) {
   };
 }
 
-function castAttackSkill(skill, player, battle, monster, stats, monsterStats) {
-  const targetDefense = skill.stat === "magic" ? monsterStats.resistance : monsterStats.defense;
-  const damage = dealDamage(stats[skill.stat], targetDefense, skill.power, skill.element, monster);
-  monster.currentHp = Math.max(0, monster.currentHp - damage);
-  battle.log.push(`${player.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
-  if (monster.ailments.sleep > 0 && Math.random() < 0.3) {
-    monster.ailments.sleep = 0;
-    battle.log.push(`${monster.name} 被攻擊驚醒了。`);
+function resolvePlayerAttackElement(player, battle, fallbackElement = null) {
+  if (fallbackElement) return fallbackElement;
+  const selfBuffs = battle?.selfBuffs || {};
+  if (Array.isArray(selfBuffs.weaponElements) && selfBuffs.weaponElements.length) {
+    return selfBuffs.weaponElements[randomInt(0, selfBuffs.weaponElements.length - 1)];
   }
+  if (selfBuffs.weaponElement) return selfBuffs.weaponElement;
+  const weapon = (player.equipment || []).find(item => item.slot === "主手");
+  return weapon?.element || null;
+}
+
+function refreshPlayerStanceBuffs(battle) {
+  if (!battle?.selfBuffs) return;
+  if ((battle.selfBuffs.weaponEnchantTurns || 0) <= 0) {
+    battle.selfBuffs.weaponElement = null;
+    battle.selfBuffs.weaponElements = null;
+  }
+  if ((battle.selfBuffs.allIn || 0) > 0) {
+    battle.selfBuffs.attackBoost = 4;
+    battle.selfBuffs.defensePenalty = 0;
+    return;
+  }
+  if ((battle.selfBuffs.berserk || 0) > 0) {
+    battle.selfBuffs.attackBoost = 2;
+    battle.selfBuffs.defensePenalty = 0.5;
+    return;
+  }
+  if ((battle.selfBuffs.weaponEnchantTurns || 0) > 0) {
+    battle.selfBuffs.attackBoost = Math.max(1.15, battle.selfBuffs.attackBoost || 0);
+  } else {
+    battle.selfBuffs.attackBoost = 0;
+  }
+  battle.selfBuffs.defensePenalty = 0;
+}
+
+function wakeSleepingMonster(monster, battle) {
+  if (monster?.ailments?.sleep > 0 && Math.random() < 0.3) {
+    monster.ailments.sleep = 0;
+    battle.log.push(`${monster.name} ????????`);
+  }
+}
+
+function monsterHasAnyAilment(monster) {
+  return Object.values(monster?.ailments || {}).some(value => value > 0);
+}
+
+function castAttackAll(skill, player, battle, stats) {
+  let total = 0;
+  livingEnemies(battle).forEach(target => {
+    total += castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
+  });
+  return total;
+}
+
+function castAttackRandom(skill, player, battle, stats, hitCount = 1) {
+  let total = 0;
+  for (let i = 0; i < hitCount; i += 1) {
+    const targets = livingEnemies(battle);
+    if (!targets.length) break;
+    const target = targets[randomInt(0, targets.length - 1)];
+    total += castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
+  }
+  return total;
+}
+
+function clearPlayerStanceBuffs(battle, key) {
+  if (!battle?.selfBuffs) return;
+  if (key === "weaponEnchantTurns" && battle.selfBuffs.weaponEnchantTurns <= 0) {
+    battle.selfBuffs.weaponElement = null;
+    battle.selfBuffs.weaponElements = null;
+  }
+  refreshPlayerStanceBuffs(battle);
+}
+
+function tickActorBuffs(actor, buffs, battle, label) {
+  if (!buffs) return;
+  ["attack", "defense", "magic", "resistance", "speed", "shield", "counter", "afterimage", "statusWard", "sanctuary", "regen", "regenMp", "taunt", "coverAll", "spellblade", "allIn", "berserk", "transcend", "weaponEnchantTurns"].forEach(key => {
+    if (buffs[key] > 0) buffs[key] -= 1;
+  });
+  buffs.evade = Math.max(0, (buffs.evade || 0) - 0.15);
+  if (buffs.regen > 0) {
+    const heal = Math.max(1, Math.floor(actor.maxHp * 0.1));
+    actor.hp = Math.min(actor.maxHp, actor.hp + heal);
+    battle.log.push(`${label} ???????? ${heal} HP?`);
+  }
+  if (buffs.regenMp > 0) {
+    const restore = Math.max(1, Math.floor(actor.maxMp * 0.08));
+    actor.mp = Math.min(actor.maxMp, actor.mp + restore);
+    battle.log.push(`${label} ? MP ????? ${restore}?`);
+  }
+  if ((buffs.regenMp || 0) <= 0) buffs.magicBoost = 0;
+}
+
+function castAttackSkill(skill, player, battle, monster, stats, monsterStats) {
+  if (!monster || monster.currentHp <= 0) return 0;
+  const targetStats = monsterStats || monsterBattleStats(monster, battle);
+  const attackElement = resolvePlayerAttackElement(player, battle, skill.element || null);
+  const targetDefense = skill.stat === "magic" ? targetStats.resistance : targetStats.defense;
+  const damage = dealDamage(stats[skill.stat], targetDefense, skill.power, attackElement, monster);
+  monster.currentHp = Math.max(0, monster.currentHp - damage);
+  battle.log.push(`${player.name} 使用 ${skill.name}，對 ${monster.name} 造成 ${damage} 點傷害。`);
+  wakeSleepingMonster(monster, battle);
   applyLifesteal(player, damage, battle);
-  if (player.raceName === "精靈" && skill.stat === "magic" && Math.random() < 0.35) {
+  if (player.raceName === "吸血族" && skill.stat === "magic" && Math.random() < 0.35) {
     player.mp = Math.min(effectiveStats(player).maxMp, player.mp + 5);
-    battle.log.push("自然共鳴發動，回復 5 MP。");
+    battle.log.push("吸血族天賦發動，回復 5 MP。");
   }
   return damage;
 }
@@ -2328,44 +3384,62 @@ function tryApplyChanceAilment(monster, key, skill, monsterName, detail, battle)
 function processMonsterAilments(battle, monster) {
   const ailments = monster.ailments || createMonsterAilments();
   if (ailments.burn > 0) {
-    const damage = Math.max(4, Math.floor(monster.maxHp * 0.06) + randomInt(1, 4));
+    const damage = Math.max(4, Math.floor(monster.maxHp * 0.08) + randomInt(1, 4));
     monster.currentHp = Math.max(0, monster.currentHp - damage);
-    battle.log.push(`${monster.name} 受到灼燒傷害 ${damage} 點。`);
+    battle.log.push(`${monster.name} ????? ${damage} ????`);
     if (monster.currentHp <= 0) return "defeated";
   }
   if (ailments.poison > 0) {
     const damage = Math.max(3, Math.floor(monster.maxHp * 0.1) + randomInt(1, 3));
     monster.currentHp = Math.max(0, monster.currentHp - damage);
-    battle.log.push(`${monster.name} 受到中毒傷害 ${damage} 點。`);
+    battle.log.push(`${monster.name} ????? ${damage} ????`);
     if (monster.currentHp <= 0) return "defeated";
   }
   if (ailments.trap > 0) {
     monster.currentHp = Math.max(0, monster.currentHp - 50);
-    battle.log.push(`${monster.name} 踩中陷阱，受到 50 點傷害。`);
+    battle.log.push(`${monster.name} ??????? 50 ????`);
     if (monster.currentHp <= 0) return "defeated";
   }
   if (ailments.sleep > 0) {
-    battle.log.push(`${monster.name} 陷入睡眠，無法行動。`);
+    battle.log.push(`${monster.name} ???????????`);
     return "skip";
   }
   if (ailments.stun > 0) {
-    battle.log.push(`${monster.name} 仍在暈眩中，行動失敗。`);
+    battle.log.push(`${monster.name} ?????????`);
+    return "skip";
+  }
+  if (ailments.fear > 0 && Math.random() < 0.35) {
+    battle.log.push(`${monster.name} ????????`);
     return "skip";
   }
   if (ailments.freeze > 0 && Math.random() < 0.55) {
-    battle.log.push(`${monster.name} 被冰封牽制，無法順利出手。`);
+    battle.log.push(`${monster.name} ?????????????????`);
     return "skip";
   }
   if (ailments.paralyze > 0 && Math.random() < 0.4) {
-    battle.log.push(`${monster.name} 因麻痺而動作停滯。`);
+    battle.log.push(`${monster.name} ?????????`);
     return "skip";
   }
   return "act";
 }
 
 function formatMonsterAilments(ailments = {}) {
-  const labels = { burn: "灼燒", poison: "中毒", freeze: "凍結", paralyze: "麻痺", blind: "失明", sleep: "睡眠", trap: "陷阱", stun: "暈眩", attackDown: "攻擊下降", defenseDown: "防禦下降", resistanceDown: "抗性下降", speedDown: "速度下降" };
-  const active = Object.entries(ailments).filter(([, value]) => value > 0).map(([key, value]) => `${labels[key]} ${value}`);
+  const labels = {
+    burn: "燒傷",
+    poison: "中毒",
+    freeze: "凍結",
+    paralyze: "麻痺",
+    blind: "失明",
+    sleep: "睡眠",
+    trap: "陷阱",
+    stun: "暈眩",
+    fear: "恐懼",
+    attackDown: "攻擊下降",
+    defenseDown: "防禦下降",
+    resistanceDown: "抵抗下降",
+    speedDown: "速度下降",
+  };
+  const active = Object.entries(ailments).filter(([, value]) => value > 0).map(([key, value]) => `${labels[key] || key} ${value}`);
   return active.length ? active.join(" / ") : "無";
 }
 
@@ -2379,31 +3453,26 @@ function tickBuffs(battle) {
     if (battle.buffs[key] > 0) battle.buffs[key] -= 1;
   });
   battle.buffs.evade = Math.max(0, battle.buffs.evade - 0.15);
-  ["attack", "defense", "magic", "resistance", "speed", "shield", "counter", "afterimage", "statusWard", "sanctuary", "regen", "taunt"].forEach(key => {
-    if (battle.selfBuffs?.[key] > 0) battle.selfBuffs[key] -= 1;
-  });
-  if (battle.selfBuffs?.regen > 0 && state.currentPlayer) {
-    const stats = battleStats(state.currentPlayer, battle);
-    const heal = Math.max(1, Math.floor(stats.maxHp * 0.1));
-    state.currentPlayer.hp = Math.min(stats.maxHp, state.currentPlayer.hp + heal);
-    battle.log.push(`和平聖域回復 ${heal} HP。`);
+
+  if (state.currentPlayer) {
+    tickActorBuffs(state.currentPlayer, battle.selfBuffs, battle, state.currentPlayer.name);
+    clearPlayerStanceBuffs(battle, "weaponEnchantTurns");
   }
-  if (battle.selfBuffs) battle.selfBuffs.evade = Math.max(0, battle.selfBuffs.evade - 0.15);
+
   (battle.companions || []).forEach(companion => {
     if (!companion.battleBuffs) return;
-    ["attack", "defense", "magic", "resistance", "speed", "shield", "counter", "afterimage", "statusWard", "sanctuary", "regen", "taunt"].forEach(key => {
-      if (companion.battleBuffs[key] > 0) companion.battleBuffs[key] -= 1;
-    });
-    companion.battleBuffs.evade = Math.max(0, (companion.battleBuffs.evade || 0) - 0.15);
+    tickActorBuffs(companion, companion.battleBuffs, battle, companion.name);
   });
+
   (battle.enemies || []).forEach(enemy => {
     Object.keys(enemy.ailments || {}).forEach(key => {
       if (enemy.ailments[key] > 0) enemy.ailments[key] -= 1;
     });
     if (enemy.battleBuffs) {
-      ["attack", "defense", "magic", "resistance", "speed", "shield", "counter", "afterimage", "statusWard", "sanctuary", "regen", "taunt"].forEach(key => {
+      ["attack", "defense", "magic", "resistance", "speed", "shield", "counter", "afterimage", "statusWard", "sanctuary", "regen", "regenMp", "taunt", "coverAll", "spellblade", "allIn", "berserk", "transcend", "weaponEnchantTurns"].forEach(key => {
         if (enemy.battleBuffs[key] > 0) enemy.battleBuffs[key] -= 1;
       });
+      enemy.battleBuffs.evade = Math.max(0, (enemy.battleBuffs.evade || 0) - 0.15);
     }
   });
 }
@@ -2419,6 +3488,7 @@ async function restPlayer() {
 
 async function saveCurrentPlayer(showMessage = true) {
   if (!state.currentPlayer) return;
+  commitActiveClassState(state.currentPlayer);
   normalizePlayer(state.currentPlayer);
   await dbApi.updatePlayer(state.currentPlayer);
   if (showMessage) toast("角色已儲存。", "success");
@@ -2517,18 +3587,45 @@ function normalizePlayer(player) {
   player.inventory ??= [];
   player.equipment ??= [];
   player.companions ??= [];
-   player.currentAreaId ??= "green_fields";
-   if (!getAreaById(player.currentAreaId)) {
-     player.currentAreaId = "green_fields";
-   }
-  if (!player.branches || player.branches.length !== (job?.branches || []).length || player.branches.some((branch, index) => branch.name !== job.branches[index])) {
-    player.branches = (job?.branches || []).map(name => {
-      const existing = (player.branches || []).find(branch => branch.name === name);
-      return { name, level: existing?.level || 0 };
-    });
+  player.currentAreaId ??= "green_fields";
+  if (!getAreaById(player.currentAreaId)) {
+    player.currentAreaId = "green_fields";
+  }
+  if (!player.classes?.length && job) {
+    player.classes = [{
+      classCode: job.code,
+      className: job.name,
+      classLevel: player.classLevel || player.level || 1,
+      exp: player.exp || 0,
+      skillPoints: player.skillPoints ?? 1,
+      branches: (player.branches || job.branches || []).map(nameOrBranch => {
+        if (typeof nameOrBranch === "string") return { name: nameOrBranch, level: 0 };
+        return { name: nameOrBranch.name, level: nameOrBranch.level || 0 };
+      }),
+    }];
+    player.activeClassCode = job.code;
+  }
+  getPlayerClasses(player).forEach(entry => {
+    const classDef = getClassDefinition(entry.classCode || entry.className);
+    entry.classCode = classDef?.code || entry.classCode;
+    entry.className = classDef?.name || entry.className;
+    entry.classLevel = entry.classLevel || 1;
+    entry.exp ??= 0;
+    entry.skillPoints ??= 1;
+    const branchNames = classDef?.branches || [];
+    if (!entry.branches || entry.branches.length !== branchNames.length || entry.branches.some((branch, index) => branch.name !== branchNames[index])) {
+      entry.branches = branchNames.map(name => {
+        const existing = (entry.branches || []).find(branch => branch.name === name);
+        return { name, level: existing?.level || 0 };
+      });
+    }
+  });
+  if (!player.activeClassCode || !getClassEntry(player, player.activeClassCode)) {
+    player.activeClassCode = getPlayerClasses(player)[0]?.classCode || job?.code;
   }
   player.equipment = player.equipment.map(item => ({ bonuses: {}, ...item, bonuses: item.bonuses || {} }));
   player.companions = player.companions.map(companion => ({ ...companion, level: companion.level || 1, classLevel: companion.classLevel || 1 }));
+  syncActiveClassState(player);
 }
 
 function starterEquipmentForClass(className) {
@@ -2829,7 +3926,7 @@ function partyDefeated(player, battle) {
 }
 
 function renderEquipmentCard(item) {
-  return `<div class="stat ${item.element ? elementClassName(item.element) : ""}"><strong>${item.slot}</strong><p>${item.name}${item.element ? ` [${item.element}]` : ""}</p>${item.weaponType ? `<p>武器：${item.weaponType}</p>` : ""}${item.armorClass ? `<p>裝甲：${item.armorClass}</p>` : ""}<p>強度：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p></div>`;
+  return `<div class="stat ${item.element ? elementClassName(item.element) : ""}"><div class="card-visual">${renderMediaThumb(itemImagePath(item), item.name)}<div><strong>${item.slot}</strong><p>${item.name}${item.element ? ` [${item.element}]` : ""}</p></div></div>${item.weaponType ? `<p>武器：${item.weaponType}</p>` : ""}${item.armorClass ? `<p>裝甲：${item.armorClass}</p>` : ""}<p>強度：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p></div>`;
 }
 
 function elementClassName(element) {
@@ -2886,13 +3983,14 @@ function displayStatName(key) {
 
 function renderPageLinks(active) {
   const links = [
-    ["hub", "冒險首頁", renderGameHub],
-    ["status", "狀態", renderStatus],
-    ["equipment", "裝備", renderEquipmentPage],
-    ["inventory", "背包", renderInventory],
-    ["shop", "商店", renderShop],
-    ["companions", "同伴", renderCompanions],
-    ["skills", "技能樹", renderSkillTree],
+    ["hub", "\u5192\u96aa\u9996\u9801", renderGameHub],
+    ["status", "\u72c0\u614b", renderStatus],
+    ["classes", "\u8f49\u8077", renderClassManagement],
+    ["equipment", "\u88dd\u5099", renderEquipmentPage],
+    ["inventory", "\u80cc\u5305", renderInventory],
+    ["shop", "\u5546\u5e97", renderShop],
+    ["companions", "\u540c\u4f34", renderCompanions],
+    ["skills", "\u6280\u80fd\u6a39", renderSkillTree],
   ];
   return `
     <div class="page-links">
@@ -2904,6 +4002,9 @@ function renderPageLinks(active) {
 function canEquipItem(className, item) {
   const weaponRules = state.equipRules?.weaponRules || defaultEquipRules.weaponRules;
   const armorRules = state.equipRules?.armorRules || defaultEquipRules.armorRules;
+  if (item.exclusiveClasses?.length && !item.exclusiveClasses.includes(className)) {
+    return `${className} 無法裝備 ${item.name}。`;
+  }
   if (item.weaponType && !(weaponRules[className] || []).includes(item.weaponType)) {
     return `${className} 無法裝備 ${item.weaponType}。`;
   }
@@ -2917,6 +4018,7 @@ function attachPageLinks() {
   const map = {
     hub: renderGameHub,
     status: renderStatus,
+    classes: renderClassManagement,
     equipment: renderEquipmentPage,
     inventory: renderInventory,
     shop: renderShop,

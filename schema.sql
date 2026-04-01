@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS equipment (
     slot TEXT NOT NULL,
     weapon_type TEXT,
     armor_class TEXT,
+    exclusive_classes_csv TEXT,
     element TEXT,
     price INTEGER NOT NULL DEFAULT 0,
     max_hp_bonus INTEGER NOT NULL DEFAULT 0,

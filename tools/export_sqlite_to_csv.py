@@ -78,8 +78,8 @@ TABLE_EXPORTS: list[tuple[str, str, list[str], str | None]] = [
     (
         "equipment",
         "equipment.csv",
-        ["key", "name", "type", "slot", "weapon_type", "armor_class", "element", "price", "max_hp_bonus", "max_mp_bonus", "attack_bonus", "defense_bonus", "magic_bonus", "resistance_bonus", "speed_bonus", "luck_bonus", "description"],
-        "SELECT key, name, type, slot, COALESCE(weapon_type, '') AS weapon_type, COALESCE(armor_class, '') AS armor_class, COALESCE(element, '') AS element, price, max_hp_bonus, max_mp_bonus, attack_bonus, defense_bonus, magic_bonus, resistance_bonus, speed_bonus, luck_bonus, description FROM equipment ORDER BY key",
+        ["key", "name", "type", "slot", "weapon_type", "armor_class", "exclusive_classes", "element", "price", "max_hp_bonus", "max_mp_bonus", "attack_bonus", "defense_bonus", "magic_bonus", "resistance_bonus", "speed_bonus", "luck_bonus", "description"],
+        "SELECT key, name, type, slot, COALESCE(weapon_type, '') AS weapon_type, COALESCE(armor_class, '') AS armor_class, COALESCE(exclusive_classes_csv, '') AS exclusive_classes, COALESCE(element, '') AS element, price, max_hp_bonus, max_mp_bonus, attack_bonus, defense_bonus, magic_bonus, resistance_bonus, speed_bonus, luck_bonus, description FROM equipment ORDER BY key",
     ),
     (
         "consumables",

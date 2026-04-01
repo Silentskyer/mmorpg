@@ -208,10 +208,10 @@ def import_master_tables(conn: sqlite3.Connection, csv_dir: Path) -> tuple[set[s
     cur.executemany(
         """
         INSERT INTO equipment (
-            key, name, type, slot, weapon_type, armor_class, element, price,
+            key, name, type, slot, weapon_type, armor_class, exclusive_classes_csv, element, price,
             max_hp_bonus, max_mp_bonus, attack_bonus, defense_bonus,
             magic_bonus, resistance_bonus, speed_bonus, luck_bonus, description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -221,6 +221,7 @@ def import_master_tables(conn: sqlite3.Connection, csv_dir: Path) -> tuple[set[s
                 row["slot"],
                 row["weapon_type"] or None,
                 row["armor_class"] or None,
+                row.get("exclusive_classes") or None,
                 row["element"] or None,
                 to_int(row["price"]),
                 to_int(row["max_hp_bonus"]),

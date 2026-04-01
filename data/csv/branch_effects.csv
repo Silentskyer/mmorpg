@@ -1,4 +1,4 @@
-﻿branch_name,stat_key,value
+branch_name,stat_key,value
 冰水系,resistance,2
 反擊系,luck,1
 增幅系,maxMp,5
@@ -15,3 +15,21 @@
 聖護系,resistance,2
 詭計系,luck,2
 連段系,speed,2
+附加系,attack,2
+魔法劍,attack,2
+魔力系,maxMp,5
+無雙系,attack,2
+威壓系,resistance,2
+破壞系,attack,2
+日,magic,2
+月,magic,2
+賢術系,resistance,2
+我為人人,maxHp,5
+加護系,resistance,2
+騎士道,attack,2
+致死系,attack,2
+生存系,speed,2
+勇者系,attack,3
+雷霆系,magic,3
+魔王系,attack,3
+大地系,magic,3

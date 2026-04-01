@@ -1,9 +1,9 @@
 ﻿chapter_id,story_stage,title,area_id,boss_code,summary,reward_gold,reward_item
-chapter_1,1,裂口巨狼的呼號,story_1,wolf_king,冒險者公會委託你調查綠原平野外圍的裂口之森，討伐襲擊商隊的狼王。,35,wood_shield
-chapter_2,2,腐根林地的低語,story_2,tree_spirit,樹靈遭到月屬性污染，林地失去生機，你必須深入腐根林地淨化暴走核心。,55,moon_charm
-chapter_3,3,砂暴峽口的暴君,story_3,desert_rex,峽口商路被砂塵暴君封鎖，必須突破灼熱沙暴並擊退巨獸。,90,steel_axe_fire
-chapter_4,4,深潮海眼的咆哮,story_4,sea_serpent,海蛇自深潮海眼甦醒，港鎮漁隊無法出海，你受命前往海眼平息災厄。,120,frost_ring
-chapter_5,5,天穹裂谷的王影,story_5,sky_tyrant,飛禽霸主盤據高空裂谷，切斷山道與王都聯繫，必須在暴風中奪回天空航路。,150,storm_greatsword
-chapter_6,6,蝕月墓園的收割者,story_6,moon_reaper,墓園深處的月蝕收割者持續召喚亡影，王都要求立即封鎖並討伐。,190,moon_greatsword
-chapter_7,7,日輪神壇的審判,story_7,sun_hierophant,日輪大祭司以扭曲的聖光阻擋前路，你必須突破神壇結界，奪回日輪核心。,230,saint_robe
-chapter_8,8,虛蝕龍域的終末,story_8,void_dragon,所有異象的源頭終於顯現，虛蝕龍王吞噬七屬之力，最終決戰正式展開。,360,dragon_eye
+chapter_1,1,裂口巨狼的呼號,story_1,wolf_king,你必須在裂口之森擊敗狼王，為更深層的異變揭開序幕。,120,wood_shield
+chapter_2,2,腐根林地的低語,story_2,tree_spirit,腐根林地遭到月屬性污染，你必須淨化暴走樹靈核心。,260,moon_charm
+chapter_3,3,砂暴峽口的暴君,story_3,desert_rex,砂暴峡口的暴君已成為國境大患，必須以更強階的戰力突破。,520,steel_axe_fire
+chapter_4,4,深潮海眼的咆哮,story_4,sea_serpent,深潮海眼的異變擴大，你必須擊敗深潮海蛇以奚回沿海生機。,900,frost_ring
+chapter_5,5,天穹裂谷的王影,story_5,sky_tyrant,天穹裂谷成為高空死域，只有更高階的隊伍才能穿過暴風討伐霸鳥。,1400,storm_greatsword
+chapter_6,6,蝕月墓園的收割者,story_6,moon_reaper,蝕月墓園深處藏著英雄與魔王兩把專屬武器，完成第六階段後將正式解放。,2200,legend_sword|abyss_demonblade
+chapter_7,7,日輪神壇的審判,story_7,sun_hierophant,日輪神壇的聖光已扭曲成審判之火，這是進入後盤的分水嶺。,3400,saint_robe
+chapter_8,8,虛蝕龍域的終末,story_8,void_dragon,虛蝕龍王吞噬七屬之力，需要遠超於傳統終盤的戰力才能挑戰。,5200,dragon_eye
