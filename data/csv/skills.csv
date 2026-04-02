@@ -61,7 +61,7 @@
 魔法師,吹雪,21,2.5,attackFreeze,magic,水,0.35,2,,,冰水系,6,data/jpg/skills/support/arcane/S_Magic03.png
 魔法師,暴風雪,21,2.5,attackFreeze,magic,水,0.45,2,,,冰水系,9,data/jpg/skills/support/arcane/S_Magic03.png
 魔法師,霜天葬送,33,3.5,attackFreeze,magic,水,0.65,3,,,冰水系,12,data/jpg/skills/support/arcane/S_Magic03.png
-魔法師,火球,21,2.5,attackBurn,magic,火,0.2,2,,,火焰系,0,data/jpg/skills/support/arcane/S_Magic03.png
+魔法師,火球,12,1.5,attackBurn,magic,火,0.2,2,,,火焰系,0,data/jpg/skills/support/arcane/S_Magic03.png
 魔法師,豪火柱,21,2.5,attackBurn,magic,火,0.2,2,,,火焰系,3,data/jpg/skills/support/arcane/S_Magic03.png
 魔法師,火焰之槍,21,2.5,attackBurn,magic,火,0.2,2,,,火焰系,6,data/jpg/skills/support/arcane/S_Magic03.png
 魔法師,焦土,31,3.5,attackBurn,magic,火,0.6,3,,,火焰系,9,data/jpg/skills/support/arcane/S_Magic03.png

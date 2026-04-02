@@ -1,3 +1,13 @@
-﻿key,name,type,price,heal_hp,heal_mp,description
-potion_hp_s,小型生命藥水,consumable,18,45,0,回復 45 HP。
-potion_mp_s,小型魔力藥水,consumable,20,0,30,回復 30 MP。
+﻿key,name,type,price,heal_hp,heal_mp,target_scope,revive_hp_percent,cure_ailments,description
+potion_hp_s,小型生命藥水,consumable,18,45,0,single_ally,0,,回復 45 HP。
+potion_mp_s,小型魔力藥水,consumable,20,0,30,single_ally,0,,回復 30 MP。
+field_bandage,急救繃帶,consumable,14,28,0,single_ally,0,,回復 28 HP。
+ration_pack,冒險乾糧,consumable,26,35,15,single_ally,0,,回復 35 HP 與 15 MP。
+potion_hp_m,中型生命藥水,consumable,42,120,0,single_ally,0,,回復 120 HP。
+potion_mp_m,中型魔力藥水,consumable,46,0,80,single_ally,0,,回復 80 MP。
+party_bread,行軍麵包,consumable,65,60,0,all_allies,0,,全隊回復 60 HP。
+party_tea,提神香茶,consumable,72,0,40,all_allies,0,,全隊回復 40 MP。
+potion_hp_l,大型生命藥水,consumable,88,260,0,single_ally,0,,回復 260 HP。
+potion_mp_l,大型魔力藥水,consumable,92,0,180,single_ally,0,,回復 180 MP。
+revive_leaf,復甦葉,consumable,120,0,0,fallen_ally,0.25,,使一名倒下隊友以 25% HP 復活。
+revive_crystal,復甦水晶,consumable,220,0,0,fallen_ally,0.5,,使一名倒下隊友以 50% HP 復活。

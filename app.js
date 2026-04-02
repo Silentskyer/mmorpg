@@ -134,8 +134,18 @@ const data = {
     wood_gauntlet: { key: "wood_gauntlet", name: "木拳套", type: "equipment", price: 15, slot: "主手", weaponType: "拳套", element: null, description: "武鬥家入門木製拳套。", bonuses: { attack: 5, speed: 1 } },
     copper_sword: { key: "copper_sword", name: "銅劍", type: "equipment", price: 40, slot: "主手", weaponType: "劍", element: null, description: "比木劍更穩定的攻擊提升。", bonuses: { attack: 10 } },
     iron_sword: { key: "iron_sword", name: "鐵劍", type: "equipment", price: 85, slot: "主手", weaponType: "劍", element: null, description: "中期近戰的實用劍。", bonuses: { attack: 20 } },
-    potion_hp_s: { key: "potion_hp_s", name: "小型生命藥水", type: "consumable", price: 18, description: "回復 45 HP。", healHp: 45 },
-    potion_mp_s: { key: "potion_mp_s", name: "小型魔力藥水", type: "consumable", price: 20, description: "回復 30 MP。", healMp: 30 },
+    potion_hp_s: { key: "potion_hp_s", name: "小型生命藥水", type: "consumable", price: 18, description: "回復 45 HP。", healHp: 45, targetScope: "single_ally" },
+    potion_mp_s: { key: "potion_mp_s", name: "小型魔力藥水", type: "consumable", price: 20, description: "回復 30 MP。", healMp: 30, targetScope: "single_ally" },
+    potion_hp_m: { key: "potion_hp_m", name: "中型生命藥水", type: "consumable", price: 42, description: "回復 120 HP。", healHp: 120, targetScope: "single_ally" },
+    potion_hp_l: { key: "potion_hp_l", name: "大型生命藥水", type: "consumable", price: 88, description: "回復 260 HP。", healHp: 260, targetScope: "single_ally" },
+    potion_mp_m: { key: "potion_mp_m", name: "中型魔力藥水", type: "consumable", price: 46, description: "回復 80 MP。", healMp: 80, targetScope: "single_ally" },
+    potion_mp_l: { key: "potion_mp_l", name: "大型魔力藥水", type: "consumable", price: 92, description: "回復 180 MP。", healMp: 180, targetScope: "single_ally" },
+    ration_pack: { key: "ration_pack", name: "冒險乾糧", type: "consumable", price: 26, description: "回復 35 HP 與 15 MP。", healHp: 35, healMp: 15, targetScope: "single_ally" },
+    field_bandage: { key: "field_bandage", name: "急救繃帶", type: "consumable", price: 14, description: "回復 28 HP。", healHp: 28, targetScope: "single_ally" },
+    party_bread: { key: "party_bread", name: "行軍麵包", type: "consumable", price: 65, description: "全隊回復 60 HP。", healHp: 60, targetScope: "all_allies" },
+    party_tea: { key: "party_tea", name: "提神香茶", type: "consumable", price: 72, description: "全隊回復 40 MP。", healMp: 40, targetScope: "all_allies" },
+    revive_leaf: { key: "revive_leaf", name: "復甦葉", type: "consumable", price: 120, description: "使一名倒下隊友以 25% HP 復活。", reviveHpPercent: 0.25, targetScope: "fallen_ally" },
+    revive_crystal: { key: "revive_crystal", name: "復甦水晶", type: "consumable", price: 220, description: "使一名倒下隊友以 50% HP 復活。", reviveHpPercent: 0.5, targetScope: "fallen_ally" },
     leather_cap: { key: "leather_cap", name: "皮帽", type: "equipment", price: 40, slot: "頭", armorClass: "輕型裝甲", element: null, description: "基礎輕裝頭部防具。", bonuses: { defense: 1, speed: 1 } },
     padded_vest: { key: "padded_vest", name: "襯墊皮甲", type: "equipment", price: 52, slot: "身體", armorClass: "輕型裝甲", element: null, description: "適合靈活戰士的輕型護甲。", bonuses: { defense: 3, speed: 1 } },
     chain_armor: { key: "chain_armor", name: "鎖子甲", type: "equipment", price: 70, slot: "身體", armorClass: "重型裝甲", element: null, description: "戰士常用的基礎重甲。", bonuses: { defense: 5, resistance: 1 } },
@@ -151,7 +161,7 @@ const data = {
     mage_staff: { key: "mage_staff", name: "魔法師之杖", type: "equipment", price: 45, slot: "主手", weaponType: "長杖", element: null, description: "比木長杖更強的法術輸出武器。", bonuses: { magic: 10 } },
     prayer_short_staff: { key: "prayer_short_staff", name: "祈禱短杖", type: "equipment", price: 45, slot: "主手", weaponType: "短杖", element: null, description: "支援型職業適用的短杖。", bonuses: { magic: 6, resistance: 4 } },
   },
-  shopItems: ["potion_hp_s", "potion_mp_s", "copper_sword", "iron_sword", "mage_staff", "oak_staff", "prayer_short_staff", "bronze_dagger", "training_mace", "leather_cap", "padded_vest", "chain_armor", "apprentice_robe", "stone_ring", "ember_blade", "gale_boots", "sun_emblem"],
+  shopItems: ["potion_hp_s", "potion_mp_s", "potion_hp_m", "potion_mp_m", "ration_pack", "field_bandage", "party_bread", "party_tea", "revive_leaf", "copper_sword", "iron_sword", "mage_staff", "oak_staff", "prayer_short_staff", "bronze_dagger", "training_mace", "leather_cap", "padded_vest", "chain_armor", "apprentice_robe", "stone_ring", "ember_blade", "gale_boots", "sun_emblem"],
   monsters: [
     { code: "slime", name: "草原史萊姆", category: "normal", level: 1, elements: ["水"], hp: 55, mp: 10, attack: 8, defense: 5, magic: 6, resistance: 6, speed: 7, luck: 4, exp: 20, gold: 8, note: "黏液衝擊", drops: ["potion_hp_s", "potion_mp_s"] },
     { code: "wolf", name: "狂牙野狼", category: "normal", level: 2, elements: ["風"], hp: 70, mp: 10, attack: 12, defense: 7, magic: 4, resistance: 5, speed: 12, luck: 5, exp: 28, gold: 12, note: "撕裂撲擊", drops: ["potion_hp_s", "leather_cap"] },
@@ -244,6 +254,7 @@ const state = {
   storageDriver: "indexeddb",
   currentPlayer: null,
   battle: null,
+  inventoryTargeting: null,
   screen: "landing",
   shopStock: [],
   equipRules: structuredClone(defaultEquipRules),
@@ -860,7 +871,14 @@ function skillDamageWeight(skill) {
   return power;
 }
 
+const skillTierOverrides = {
+  "火球": "weak",
+};
+
 function classifyDamageTier(skill) {
+  if (skill?.name && skillTierOverrides[skill.name]) {
+    return skillTierOverrides[skill.name];
+  }
   const weight = skillDamageWeight(skill);
   if (weight <= 0) return null;
   if (weight >= 3.4) return "max";
@@ -1045,13 +1063,17 @@ function csvItemToCatalogEntry(row) {
   if (row.slot) entry.slot = row.slot;
   if (row.weapon_type) entry.weaponType = row.weapon_type;
   if (row.armor_class) entry.armorClass = row.armor_class;
-  if (row.exclusive_classes) entry.exclusiveClasses = row.exclusive_classes.split("|").map(value => value.trim()).filter(Boolean);
+  const exclusiveClasses = row.exclusive_classes || row.exclusive_classes_csv;
+  if (exclusiveClasses) entry.exclusiveClasses = exclusiveClasses.split("|").map(value => value.trim()).filter(Boolean);
   if (row.image_path) entry.imagePath = row.image_path;
   if (row.element) entry.element = row.element;
   if (Object.keys(bonuses).length) entry.bonuses = bonuses;
   if (row.type === "consumable") {
     if (toNumber(row.heal_hp)) entry.healHp = toNumber(row.heal_hp);
     if (toNumber(row.heal_mp)) entry.healMp = toNumber(row.heal_mp);
+    if (row.target_scope) entry.targetScope = row.target_scope;
+    if (Number(row.revive_hp_percent) > 0) entry.reviveHpPercent = Number(row.revive_hp_percent);
+    if (row.cure_ailments) entry.cureAilments = row.cure_ailments.split("|").map(value => value.trim()).filter(Boolean);
   }
   return entry;
 }
@@ -1818,11 +1840,15 @@ function renderInventory(message = "") {
   renderMenu();
   const player = state.currentPlayer;
   const inventory = player.inventory || [];
+  const targeting = state.inventoryTargeting && inventory[state.inventoryTargeting.index]
+    ? { index: state.inventoryTargeting.index, item: inventory[state.inventoryTargeting.index] }
+    : null;
+  const targetOptions = targeting ? targetableMembersForConsumable(player, targeting.item) : [];
   app.innerHTML = `
     <h3>背包</h3>
     ${message ? `<p class="success">${message}</p>` : ""}
     ${renderPageLinks("inventory")}
-    <p class="hint">可以在這裡使用消耗品或裝備新物品。</p>
+    <p class="hint">可以在這裡使用消耗品、指定隊友，或更換裝備。</p>
     <div class="card-grid">
       ${inventory.length ? inventory.map((item, index) => `
         <div class="choice-card">
@@ -1835,17 +1861,47 @@ function renderInventory(message = "") {
           ${item.armorClass ? `<p>裝甲種類：${item.armorClass}</p>` : ""}
           ${item.type === "equipment" ? `<p>強度評分：${itemPower(item)}</p><p>${formatItemBonuses(item.bonuses)}</p><p>${compareItemAgainstEquipped(item, player.equipment)}</p>` : ""}
           <p>種類：${item.type === "consumable" ? "消耗品" : "裝備"}${item.quantity ? ` | 數量 ${item.quantity}` : ""}</p>
+          ${item.type === "consumable" ? `<p>目標：${consumableTargetLabel(item)}</p>` : ""}
           ${item.element ? `<p class="${elementClassName(item.element)}">屬性：${item.element}</p>` : ""}
-          ${item.type === "consumable" ? `<button type="button" data-use-index="${index}">使用</button>` : `<button type="button" data-equip-index="${index}">裝備</button>`}
+          ${item.type === "consumable"
+            ? `<button type="button" data-use-index="${index}">${targeting?.index === index ? "重新選擇對象" : "使用"}</button>`
+            : `<button type="button" data-equip-index="${index}">裝備</button>`}
         </div>
       `).join("") : `<div class="stat"><p>背包目前是空的。</p></div>`}
     </div>
+    ${targeting ? `
+      <div class="spacer"></div>
+      <div class="card">
+        <h4>選擇 ${targeting.item.name} 的使用對象</h4>
+        <div class="inline-actions">
+          ${targetOptions.length
+            ? targetOptions.map(({ member, partyIndex }) => `<button class="action" type="button" data-use-target-party="${partyIndex}">${member.name} HP ${Math.max(0, member.hp)}/${memberMaxStats(member, player).maxHp} | MP ${Math.max(0, member.mp)}/${memberMaxStats(member, player).maxMp}</button>`).join("")
+            : `<span class="hint">目前沒有可使用的對象。</span>`}
+          <button class="action" type="button" data-use-target-cancel="1">取消</button>
+        </div>
+      </div>
+    ` : ""}
   `;
   app.querySelectorAll("[data-use-index]").forEach(button => {
     button.addEventListener("click", async () => {
-      const result = useInventoryItem(Number(button.dataset.useIndex));
-      await saveCurrentPlayer(false);
-      renderInventory(result);
+      const result = requestInventoryItemUse(Number(button.dataset.useIndex));
+      if (result.changed) await saveCurrentPlayer(false);
+      renderInventory(result.message);
+    });
+  });
+  app.querySelectorAll("[data-use-target-party]").forEach(button => {
+    button.addEventListener("click", async () => {
+      if (!state.inventoryTargeting) return;
+      const result = useInventoryItem(state.inventoryTargeting.index, { partyIndex: Number(button.dataset.useTargetParty) });
+      state.inventoryTargeting = null;
+      if (result.ok) await saveCurrentPlayer(false);
+      renderInventory(result.message);
+    });
+  });
+  app.querySelectorAll("[data-use-target-cancel]").forEach(button => {
+    button.addEventListener("click", () => {
+      state.inventoryTargeting = null;
+      renderInventory();
     });
   });
   app.querySelectorAll("[data-equip-index]").forEach(button => {
@@ -2271,20 +2327,25 @@ function renderBattle() {
       <p>${formatMonsterAilments(enemy.ailments)}</p>
     </button>
   `).join("");
+  const targetButtons = battle.targetMode && battle.targetMode.type !== "enemy"
+    ? (battle.targetMode.partyIndices?.length
+        ? battle.targetMode.partyIndices.map(partyIndex => {
+            const member = getPartyMembers(player, battle.companions || [])[partyIndex];
+            if (!member) return "";
+            const maxStats = memberMaxStats(member, player);
+            return `<button class="action" type="button" data-target-party="${partyIndex}">${member.name} HP ${Math.max(0, member.hp)}/${maxStats.maxHp} | MP ${Math.max(0, member.mp)}/${maxStats.maxMp}</button>`;
+          }).join("")
+        : allyTargets(player, battle, battle.targetMode.type === "fallen_ally")
+            .map((member, index) => ({ member, index }))
+            .filter(({ member }) => battle.targetMode.type !== "fallen_ally" || member.hp <= 0)
+            .map(({ member, index }) => `<button class="action" type="button" data-target-ally="${index}">${member.name} HP ${member.hp}/${memberMaxStats(member, player).maxHp}</button>`).join(""))
+    : "";
   const targetPanel = battle.targetMode && battle.targetMode.type !== "enemy" ? `
     <div class="spacer"></div>
     <div class="card">
       <h4>選擇目標</h4>
       <div class="inline-actions">
-        ${battle.targetMode.type === "enemy"
-          ? livingEnemies(battle).map(enemy => {
-              const realIndex = battle.enemies.indexOf(enemy);
-              return `<button class="action" type="button" data-target-enemy="${realIndex}">${enemy.name} HP ${enemy.currentHp}/${enemy.maxHp}</button>`;
-            }).join("")
-          : allyTargets(player, battle, battle.targetMode.type === "fallen_ally")
-              .map((member, index) => ({ member, index }))
-              .filter(({ member }) => battle.targetMode.type !== "fallen_ally" || member.hp <= 0)
-              .map(({ member, index }) => `<button class="action" type="button" data-target-ally="${index}">${member.name} HP ${member.hp}/${member.maxHp}</button>`).join("")}
+        ${targetButtons}
         <button class="action" type="button" data-action="cancel-target">取消選擇</button>
       </div>
     </div>
@@ -2332,10 +2393,12 @@ function renderBattle() {
               <button class="action" type="button" data-action="return">返回冒險</button>
             ` : player.hp <= 0 ? `
               <button class="action" type="button" data-action="ally-turn">交給同伴</button>
+              <button class="action" type="button" data-action="items">使用道具</button>
               <button class="action" type="button" data-action="status">查看狀態</button>
             ` : `
               <button class="action" type="button" data-action="attack">普通攻擊</button>
               <button class="action" type="button" data-action="skills">施放技能</button>
+              <button class="action" type="button" data-action="items">使用道具</button>
               <button class="action" type="button" data-action="race">種族技能</button>
               <button class="action" type="button" data-action="defend">防禦</button>
               <button class="action" type="button" data-action="status">查看狀態</button>
@@ -2372,6 +2435,14 @@ function renderBattle() {
       if (mode?.action === "skill") performBattleTurn({ type: "skill", index: mode.index, allyIndex });
     });
   });
+  app.querySelectorAll("[data-target-party]").forEach(button => {
+    button.addEventListener("click", () => {
+      const partyIndex = Number(button.dataset.targetParty);
+      const mode = battle.targetMode;
+      battle.targetMode = null;
+      if (mode?.action === "item") performBattleTurn({ type: "item", index: mode.index, partyIndex });
+    });
+  });
 }
 
 function handleBattleAction(action) {
@@ -2391,6 +2462,7 @@ function handleBattleAction(action) {
     return renderBattle();
   }
   if (action === "skills") return renderSkillButtons();
+  if (action === "items") return renderItemButtons();
   if (action === "ally-turn") return performBattleTurn({ type: "allyTurn" });
   if (action === "attack") return performBattleTurn({ type: "attack" });
   if (action === "race") return performBattleTurn({ type: "race" });
@@ -2409,6 +2481,24 @@ function renderSkillButtons() {
   }
   panel.querySelectorAll("[data-skill-index]").forEach(button => {
     button.addEventListener("click", () => performBattleTurn({ type: "skill", index: Number(button.dataset.skillIndex) }));
+  });
+}
+
+function renderItemButtons() {
+  const panel = document.querySelector("#skill-panel");
+  const inventory = (state.currentPlayer?.inventory || []).filter(item => item.type === "consumable" && (item.quantity || 0) > 0);
+  panel.innerHTML = inventory
+    .map(item => {
+      const index = state.currentPlayer.inventory.indexOf(item);
+      return `<button class="skill-button" type="button" data-item-index="${index}">${item.name}<br><small>${consumableTargetLabel(item)} | x${item.quantity || 1}</small></button>`;
+    })
+    .join("");
+  if (!panel.innerHTML) {
+    panel.innerHTML = `<div class="stat">目前沒有可用道具。</div>`;
+    return;
+  }
+  panel.querySelectorAll("[data-item-index]").forEach(button => {
+    button.addEventListener("click", () => performBattleTurn({ type: "item", index: Number(button.dataset.itemIndex) }));
   });
 }
 
@@ -2439,6 +2529,36 @@ async function performBattleTurn(action) {
     monster.currentHp = Math.max(0, monster.currentHp - damage);
     battle.log.push(`${player.name} 的普通攻擊造成 ${damage} 點傷害。`);
     applyLifesteal(player, damage, battle);
+  } else if (action.type === "item") {
+    const item = player.inventory[action.index];
+    if (!item || item.type !== "consumable") {
+      battle.log.push("找不到可使用的道具。");
+      acted = false;
+      return renderBattle();
+    }
+    const scope = consumableTargetScope(item);
+    const targets = targetableMembersForConsumable(player, item, battle.companions || []);
+    if (!targets.length) {
+      battle.log.push(scope === "fallen_ally" ? "目前沒有倒下的隊友可使用該道具。" : "目前沒有需要使用該道具的隊友。");
+      acted = false;
+      return renderBattle();
+    }
+    if (scope !== "all_allies" && !Number.isInteger(action.partyIndex)) {
+      if (targets.length === 1) {
+        action.partyIndex = targets[0].partyIndex;
+      } else {
+        battle.targetMode = { action: "item", type: scope === "fallen_ally" ? "fallen_ally" : "ally", index: action.index, partyIndices: targets.map(target => target.partyIndex) };
+        battle.log.push(`請選擇 ${item.name} 的使用對象。`);
+        return renderBattle();
+      }
+    }
+    const result = useInventoryItem(action.index, { partyIndex: action.partyIndex, companions: battle.companions || [] });
+    if (!result.ok) {
+      battle.log.push(result.message);
+      acted = false;
+      return renderBattle();
+    }
+    battle.log.push(result.message);
   } else if (action.type === "skill") {
     const skill = data.classSkills[player.className][action.index];
     if (!skill || !isSkillUnlocked(player, action.index)) {
@@ -3233,6 +3353,7 @@ function buildPlayer(name, raceCode, classCode) {
     inventory: [
       { ...structuredClone(data.itemCatalog.potion_hp_s), quantity: 2 },
       { ...structuredClone(data.itemCatalog.potion_mp_s), quantity: 1 },
+      { ...structuredClone(data.itemCatalog.field_bandage), quantity: 1 },
     ],
   };
 }
@@ -3609,7 +3730,7 @@ function selectedEnemy(battle) {
 }
 
 function allyTargets(player, battle, includeFallen = false) {
-  return [player].concat(battle.companions || []).filter(member => includeFallen || member.hp > 0);
+  return getPartyMembers(player, battle.companions || []).filter(member => includeFallen || member.hp > 0);
 }
 
 function skillTargetType(skill) {
@@ -4081,19 +4202,150 @@ function addItemToInventory(player, itemKey) {
   return template;
 }
 
-function useInventoryItem(index) {
-  const player = state.currentPlayer;
+function consumableTargetScope(item) {
+  if (item?.targetScope) return item.targetScope;
+  if (item?.reviveHpPercent) return "fallen_ally";
+  return "single_ally";
+}
+
+function consumableTargetLabel(item) {
+  const scope = consumableTargetScope(item);
+  if (scope === "all_allies") return "全隊";
+  if (scope === "fallen_ally") return "倒下隊友";
+  return "單體隊友";
+}
+
+function getPartyMembers(player, companions = player?.companions || []) {
+  return [player].concat(companions || []).filter(Boolean);
+}
+
+function memberMaxStats(member, player) {
+  if (member === player) return effectiveStats(player);
+  return { maxHp: member.maxHp || member.hp || 0, maxMp: member.maxMp || member.mp || 0 };
+}
+
+function targetableMembersForConsumable(player, item, companions = player?.companions || []) {
+  const members = getPartyMembers(player, companions);
+  const scope = consumableTargetScope(item);
+  return members
+    .map((member, partyIndex) => ({ member, partyIndex }))
+    .filter(({ member }) => {
+      if (scope === "fallen_ally") return member.hp <= 0;
+      return member.hp > 0;
+    });
+}
+
+function applyConsumableToTarget(item, target, player) {
+  const maxStats = memberMaxStats(target, player);
+  let hpGain = 0;
+  let mpGain = 0;
+  let revived = false;
+
+  if (item.reviveHpPercent && target.hp <= 0) {
+    const revivedHp = Math.max(1, Math.floor(maxStats.maxHp * item.reviveHpPercent));
+    target.hp = revivedHp;
+    if (typeof target.mp === "number" && target.mp < 0) target.mp = 0;
+    revived = true;
+    hpGain += revivedHp;
+  }
+
+  if (item.healHp && target.hp > 0) {
+    const nextHp = Math.min(maxStats.maxHp, target.hp + item.healHp);
+    hpGain += Math.max(0, nextHp - target.hp);
+    target.hp = nextHp;
+  }
+  if (item.healMp && typeof target.mp === "number" && target.hp > 0) {
+    const nextMp = Math.min(maxStats.maxMp, target.mp + item.healMp);
+    mpGain += Math.max(0, nextMp - target.mp);
+    target.mp = nextMp;
+  }
+  if (item.cureAilments?.length && target.ailments) {
+    item.cureAilments.forEach(key => {
+      if (target.ailments[key]) target.ailments[key] = 0;
+    });
+  }
+
+  return { hpGain, mpGain, revived, changed: revived || hpGain > 0 || mpGain > 0 };
+}
+
+function consumeInventoryStack(player, index) {
   const item = player.inventory[index];
-  if (!item) return "找不到這個物品。";
-  if (item.type !== "consumable") return "這個物品不能直接使用。";
-  const stats = effectiveStats(player);
-  if (item.healHp) player.hp = Math.min(stats.maxHp, player.hp + item.healHp);
-  if (item.healMp) player.mp = Math.min(stats.maxMp, player.mp + item.healMp);
-  item.quantity -= 1;
+  item.quantity = (item.quantity || 1) - 1;
   if (item.quantity <= 0) {
     player.inventory.splice(index, 1);
   }
-  return `${item.name} 已使用。`;
+}
+
+function useInventoryItem(index, options = {}) {
+  const player = state.currentPlayer;
+  const item = player.inventory[index];
+  if (!item) return { ok: false, message: "找不到這個物品。" };
+  if (item.type !== "consumable") return { ok: false, message: "這個物品不能直接使用。" };
+
+  const companions = options.companions || player.companions || [];
+  const scope = consumableTargetScope(item);
+  const targets = targetableMembersForConsumable(player, item, companions);
+  if (!targets.length) {
+    return { ok: false, message: scope === "fallen_ally" ? "目前沒有倒下的隊友可使用此道具。" : "目前沒有需要使用此道具的隊友。" };
+  }
+
+  if (scope === "all_allies") {
+    const results = targets.map(({ member }) => ({ member, effect: applyConsumableToTarget(item, member, player) })).filter(entry => entry.effect.changed);
+    if (!results.length) return { ok: false, message: "目前沒有需要使用此道具的隊友。" };
+    consumeInventoryStack(player, index);
+    const totalHp = results.reduce((sum, entry) => sum + entry.effect.hpGain, 0);
+    const totalMp = results.reduce((sum, entry) => sum + entry.effect.mpGain, 0);
+    const pieces = [];
+    if (totalHp) pieces.push(`共回復 ${totalHp} HP`);
+    if (totalMp) pieces.push(`共回復 ${totalMp} MP`);
+    return { ok: true, changed: true, message: `${item.name} 已使用，${pieces.join("、")}。` };
+  }
+
+  let targetEntry = null;
+  if (Number.isInteger(options.partyIndex)) {
+    targetEntry = targets.find(entry => entry.partyIndex === options.partyIndex) || null;
+    if (!targetEntry) return { ok: false, message: "這個目標目前不能使用該道具。" };
+  } else if (targets.length === 1) {
+    targetEntry = targets[0];
+  } else {
+    return { ok: false, pending: true, message: `請選擇 ${item.name} 的使用對象。` };
+  }
+
+  const effect = applyConsumableToTarget(item, targetEntry.member, player);
+  if (!effect.changed) return { ok: false, message: `${targetEntry.member.name} 目前不需要使用 ${item.name}。` };
+  consumeInventoryStack(player, index);
+  const pieces = [];
+  if (effect.revived) pieces.push("復活");
+  if (effect.hpGain) pieces.push(`回復 ${effect.hpGain} HP`);
+  if (effect.mpGain) pieces.push(`回復 ${effect.mpGain} MP`);
+  return { ok: true, changed: true, message: `${item.name} 已對 ${targetEntry.member.name} 使用，${pieces.join("、")}。` };
+}
+
+function requestInventoryItemUse(index) {
+  const player = state.currentPlayer;
+  const item = player.inventory[index];
+  if (!item) return { changed: false, message: "找不到這個物品。" };
+  if (item.type !== "consumable") return { changed: false, message: "這個物品不能直接使用。" };
+
+  const scope = consumableTargetScope(item);
+  if (scope === "all_allies") {
+    state.inventoryTargeting = null;
+    const result = useInventoryItem(index);
+    return { changed: result.ok, message: result.message };
+  }
+
+  const targets = targetableMembersForConsumable(player, item);
+  if (!targets.length) {
+    state.inventoryTargeting = null;
+    return { changed: false, message: scope === "fallen_ally" ? "目前沒有倒下的隊友可使用此道具。" : "目前沒有需要使用此道具的隊友。" };
+  }
+  if (targets.length === 1) {
+    state.inventoryTargeting = null;
+    const result = useInventoryItem(index, { partyIndex: targets[0].partyIndex });
+    return { changed: result.ok, message: result.message };
+  }
+  state.inventoryTargeting = { index };
+  return { changed: false, message: `請選擇 ${item.name} 的使用對象。` };
 }
 
 function equipInventoryItem(index) {
