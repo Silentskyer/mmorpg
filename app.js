@@ -842,6 +842,119 @@ function ensureAdvancedClassSkills() {
   delete data.classSkills["聖人"];
 }
 
+
+const offensiveSkillKinds = new Set([
+  "attack", "attackAll", "attackRandom", "attackAllMulti", "attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance",
+  "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze", "attackBurn",
+  "multiHit", "attackIgnoreDefense", "attackParalyze", "attackAllParalyze", "attackDualElement", "attackAllStun", "attackDrain",
+  "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal", "riskyTriple", "executeAilment", "attackInstantDeath", "allStun",
+  "fearAll", "debuffDefenseAll", "debuffResistanceAll", "randomAilmentAll", "multiHitStun"
+]);
+
+function skillDamageWeight(skill) {
+  const power = Number(skill?.power || 0);
+  const hits = Math.max(1, Number(skill?.hits || 1));
+  if (skill?.kind === "multiHit" || skill?.kind === "multiHitStun" || skill?.kind === "attackRandom" || skill?.kind === "attackAllMulti") {
+    return power * hits;
+  }
+  return power;
+}
+
+function classifyDamageTier(skill) {
+  const weight = skillDamageWeight(skill);
+  if (weight <= 0) return null;
+  if (weight >= 3.4) return "max";
+  if (weight >= 2.1) return "large";
+  if (weight >= 1.6) return "medium";
+  return "weak";
+}
+
+function tierTargetPower(tier) {
+  return {
+    weak: 1.5,
+    medium: 2.5,
+    large: 3.5,
+    max: 5.0,
+  }[tier] || 0;
+}
+
+function powerForSkillTier(skill, tier) {
+  const target = tierTargetPower(tier);
+  const hits = Math.max(1, Number(skill?.hits || 1));
+  if (skill?.kind === "multiHit" || skill?.kind === "multiHitStun" || skill?.kind === "attackRandom" || skill?.kind === "attackAllMulti") {
+    return Number((target / hits).toFixed(2));
+  }
+  return target;
+}
+
+function tierBaseCost(tier) {
+  return {
+    weak: 12,
+    medium: 18,
+    large: 28,
+    max: 40,
+  }[tier] || 0;
+}
+
+function skillCostModifier(skill) {
+  if (skill?.kind === "attackAllMulti") return 8;
+  if (skill?.kind === "attackAll" || skill?.kind === "attackAllStun" || skill?.kind === "attackAllParalyze") return 6;
+  if (skill?.kind === "attackRandom") return 5;
+  if (skill?.kind === "multiHit" || skill?.kind === "multiHitStun") return 4;
+  if (["attackIgnoreDefense", "attackDualElement", "attackDrain", "riskyTriple", "executeAilment", "attackInstantDeath", "allStun", "fearAll", "randomAilmentAll"].includes(skill?.kind)) return 5;
+  if (["attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance", "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze", "attackBurn", "attackParalyze", "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal", "debuffDefenseAll", "debuffResistanceAll"].includes(skill?.kind)) return 3;
+  return 0;
+}
+
+function rebalanceSkillData() {
+  Object.values(data.classSkills || {}).forEach(skills => {
+    skills.forEach(skill => {
+      if (!offensiveSkillKinds.has(skill.kind)) return;
+      const tier = classifyDamageTier(skill);
+      if (!tier) return;
+      skill.power = powerForSkillTier(skill, tier);
+      const originalCost = Math.max(0, Number(skill.cost || 0));
+      if (originalCost <= 0) return;
+      const raisedCost = Math.ceil(originalCost * 1.5);
+      skill.cost = Math.max(raisedCost, tierBaseCost(tier) + skillCostModifier(skill));
+    });
+  });
+}
+
+function monsterTierBaseCost(tier) {
+  return {
+    weak: 6,
+    medium: 10,
+    large: 16,
+    max: 24,
+  }[tier] || 0;
+}
+
+function monsterSkillCostModifier(skill) {
+  if (skill?.kind === "attackAllMulti") return 5;
+  if (skill?.kind === "attackAll" || skill?.kind === "attackAllStun" || skill?.targetScope === "all_party") return 4;
+  if (skill?.kind === "attackRandom") return 3;
+  if (skill?.kind === "multiHit" || skill?.kind === "multiHitStun") return 3;
+  if (["attackIgnoreDefense", "attackDualElement", "attackDrain", "riskyTriple", "executeAilment", "attackInstantDeath", "allStun", "fearAll", "randomAilmentAll"].includes(skill?.kind)) return 3;
+  if (["attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance", "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze", "attackBurn", "attackParalyze", "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal", "debuffDefenseAll", "debuffResistanceAll"].includes(skill?.kind)) return 2;
+  return 0;
+}
+
+function rebalanceMonsterSkillData() {
+  Object.values(data.monsterSkills || {}).forEach(skills => {
+    skills.forEach(skill => {
+      if (!offensiveSkillKinds.has(skill.kind)) return;
+      const tier = classifyDamageTier(skill);
+      if (!tier) return;
+      skill.power = powerForSkillTier(skill, tier);
+      const originalCost = Math.max(0, Number(skill.cost || 0));
+      if (originalCost <= 0) return;
+      const raisedCost = Math.ceil(originalCost * 1.35);
+      skill.cost = Math.max(raisedCost, monsterTierBaseCost(tier) + monsterSkillCostModifier(skill));
+    });
+  });
+}
+
 function transaction(storeName, mode, action) {
   return new Promise((resolve, reject) => {
     if (!state.db) {
@@ -1238,6 +1351,8 @@ async function loadCsvDatabases() {
   }
   ensureAdvancedClassData();
   ensureAdvancedClassSkills();
+  rebalanceSkillData();
+  rebalanceMonsterSkillData();
 }
 
 function renderMenu() {
