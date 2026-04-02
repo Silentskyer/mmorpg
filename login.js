@@ -44,7 +44,7 @@ function renderMissingConfig() {
       <p class="hint">目前站點還沒有成功讀到 Supabase 登入設定，所以無法建立帳號或登入。</p>
       <p class="hint">請在 Vercel 補上 <code>SUPABASE_URL</code>、<code>SUPABASE_ANON_KEY</code>、<code>SUPABASE_SERVICE_ROLE_KEY</code>，重新部署後再試。</p>
       <div class="inline-actions">
-        <button class="primary" type="button" id="back-home">返回遊戲首頁</button>
+        <button class="primary" type="button" id="back-home">返回遊戲</button>
       </div>
     </div>
   `);
@@ -63,12 +63,16 @@ function renderLoggedIn() {
       <p class="hint">存檔權限：${state.profile?.save_permission || "owner_write"}</p>
       <div class="inline-actions">
         <button class="primary" type="button" id="enter-game">進入遊戲</button>
+        ${state.profile?.role === "admin" ? `<button class="secondary" type="button" id="enter-admin">前往後台</button>` : ""}
         <button class="secondary" type="button" id="do-logout">登出</button>
       </div>
     </div>
   `);
   document.querySelector("#enter-game").addEventListener("click", () => {
     window.location.href = "./index.html";
+  });
+  document.querySelector("#enter-admin")?.addEventListener("click", () => {
+    window.location.href = "./admin.html";
   });
   document.querySelector("#do-logout").addEventListener("click", async () => {
     await state.client.auth.signOut();
@@ -84,7 +88,7 @@ function renderForm(viewMode = "login") {
   setView(`
     <div class="auth-card">
       <h3>${isLogin ? "帳號登入" : "建立帳號"}</h3>
-      <p class="hint">${isLogin ? "登入後即可讀取自己的角色與雲端存檔。" : "建立新帳號後，就能用相同信箱與密碼登入遊戲。"} </p>
+      <p class="hint">${isLogin ? "登入後即可讀取自己的角色與雲端存檔。" : "建立新帳號後，就能用相同信箱與密碼登入遊戲。"}</p>
       <div class="spacer"></div>
       <label>電子郵件</label>
       <input type="email" id="auth-email" placeholder="name@example.com">
@@ -140,7 +144,7 @@ function renderForm(viewMode = "login") {
       message.textContent = error.message;
       return;
     }
-    message.textContent = "註冊成功。若 Supabase 有啟用信箱驗證，請先驗證後再登入。";
+    message.textContent = "註冊成功。若 Supabase 有啟用信箱驗證，請先完成驗證後再登入。";
   });
 }
 
