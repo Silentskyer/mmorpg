@@ -23,6 +23,7 @@ dragon_eye,龍眼石,equipment,飾品1,,,,雷,240,10,10,6,2,6,4,1,1,高階攻魔
 dragon_gauntlet,龍魂拳套,equipment,主手,拳套,,,火,430,10,10,58,4,6,0,4,0,高階武鬥家專用武器。,
 dragon_mace,龍骨鎚,equipment,主手,鎚,,,地,430,10,0,68,8,0,4,-1,0,以龍骨打造的高階重鎚。,
 dragonbone_staff,龍骨杖,equipment,主手,長杖,,,雷,520,0,30,0,0,80,8,0,3,終盤法術武器。,
+ember_blade,???,equipment,??,?,,,?,72,,,14,,,,,,?????????????,
 ember_ring,餘燼戒,equipment,飾品1,,,,火,82,0,0,3,0,2,0,0,0,提高火屬性輸出傾向。,
 frost_ring,霜晶戒,equipment,飾品1,,,,水,82,0,6,0,0,2,2,0,0,偏重水系與續航的戒指。,data/jpg/equipment/accessory/ring/Ac_Ring04.png
 gale_boots,疾風靴,equipment,腳,,輕型裝甲,,風,68,0,0,0,0,0,0,3,0,讓步伐更輕盈。,
