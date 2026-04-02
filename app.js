@@ -2528,7 +2528,6 @@ async function performBattleTurn(action) {
     return;
   }
   if (partyDefeated(player, battle)) {
-    battle.log.push("全隊倒下了，戰鬥失敗。");
     player.hp = Math.max(1, Math.floor(player.maxHp / 4));
     player.mp = Math.max(0, Math.floor(player.maxMp / 4));
     syncBattleCompanions(player, battle);
@@ -2536,8 +2535,9 @@ async function performBattleTurn(action) {
       companion.hp = Math.max(1, Math.floor(companion.maxHp / 4));
       companion.mp = Math.max(0, Math.floor(companion.maxMp / 4));
     });
+    state.battle = null;
     await saveCurrentPlayer(false);
-    renderBattle();
+    renderGameHub("全隊戰敗，已撤退回冒險首頁。角色與同伴恢復到瀕危狀態。");
     return;
   }
 
@@ -3871,11 +3871,22 @@ function tickBuffs(battle) {
 
 async function restPlayer() {
   if (!state.currentPlayer) return toast("請先建立或讀取角色。", "warning");
-  const stats = effectiveStats(state.currentPlayer);
-  state.currentPlayer.hp = stats.maxHp;
-  state.currentPlayer.mp = stats.maxMp;
+  const player = state.currentPlayer;
+  const partySize = 1 + ((player.companions || []).length);
+  const restCost = partySize * 5;
+  if (player.gold < restCost) {
+    return toast(`金幣不足，旅店休息需要 ${restCost} 金幣。`, "warning");
+  }
+  player.gold -= restCost;
+  const stats = effectiveStats(player);
+  player.hp = stats.maxHp;
+  player.mp = stats.maxMp;
+  (player.companions || []).forEach(companion => {
+    companion.hp = companion.maxHp;
+    companion.mp = companion.maxMp;
+  });
   await saveCurrentPlayer(false);
-  renderStatus("你在營地休息完畢，HP / MP 已恢復。");
+  renderGameHub(`你在旅店休息，花費 ${restCost} 金幣，隊伍全員已完全恢復。`);
 }
 
 async function saveCurrentPlayer(showMessage = true) {
