@@ -857,7 +857,7 @@ function ensureAdvancedClassSkills() {
 
 const offensiveSkillKinds = new Set([
   "attack", "attackAll", "attackRandom", "attackAllMulti", "attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance",
-  "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze", "attackBurn",
+  "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze", "attackBurn", "attackAllPoison", "attackAllFreeze", "attackAllBurn",
   "multiHit", "attackIgnoreDefense", "attackParalyze", "attackAllParalyze", "attackDualElement", "attackAllStun", "attackDrain",
   "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal", "riskyTriple", "executeAilment", "attackInstantDeath", "allStun",
   "fearAll", "debuffDefenseAll", "debuffResistanceAll", "randomAilmentAll", "multiHitStun"
@@ -917,7 +917,7 @@ function tierBaseCost(tier) {
 
 function skillCostModifier(skill) {
   if (skill?.kind === "attackAllMulti") return 8;
-  if (skill?.kind === "attackAll" || skill?.kind === "attackAllStun" || skill?.kind === "attackAllParalyze") return 6;
+  if (["attackAll", "attackAllStun", "attackAllParalyze", "attackAllPoison", "attackAllFreeze", "attackAllBurn"].includes(skill?.kind)) return 6;
   if (skill?.kind === "attackRandom") return 5;
   if (skill?.kind === "multiHit" || skill?.kind === "multiHitStun") return 4;
   if (["attackIgnoreDefense", "attackDualElement", "attackDrain", "riskyTriple", "executeAilment", "attackInstantDeath", "allStun", "fearAll", "randomAilmentAll"].includes(skill?.kind)) return 5;
@@ -951,7 +951,7 @@ function monsterTierBaseCost(tier) {
 
 function monsterSkillCostModifier(skill) {
   if (skill?.kind === "attackAllMulti") return 5;
-  if (skill?.kind === "attackAll" || skill?.kind === "attackAllStun" || skill?.targetScope === "all_party") return 4;
+  if (["attackAll", "attackAllStun", "attackAllParalyze", "attackAllPoison", "attackAllFreeze", "attackAllBurn"].includes(skill?.kind) || skill?.targetScope === "all_party") return 4;
   if (skill?.kind === "attackRandom") return 3;
   if (skill?.kind === "multiHit" || skill?.kind === "multiHitStun") return 3;
   if (["attackIgnoreDefense", "attackDualElement", "attackDrain", "riskyTriple", "executeAilment", "attackInstantDeath", "allStun", "fearAll", "randomAilmentAll"].includes(skill?.kind)) return 3;
@@ -970,6 +970,22 @@ function rebalanceMonsterSkillData() {
       if (originalCost <= 0) return;
       const raisedCost = Math.ceil(originalCost * 1.35);
       skill.cost = Math.max(raisedCost, monsterTierBaseCost(tier) + monsterSkillCostModifier(skill));
+    });
+  });
+}
+
+function normalizeGroupMagicKinds() {
+  const groupKindOverrides = {
+    "酸雨": "attackAllPoison",
+    "暴風雪": "attackAllFreeze",
+    "焦土": "attackAllBurn",
+  };
+  Object.values(data.classSkills || {}).forEach(skills => {
+    skills.forEach(skill => {
+      const overrideKind = groupKindOverrides[skill.name];
+      if (overrideKind) {
+        skill.kind = overrideKind;
+      }
     });
   });
 }
@@ -1374,6 +1390,7 @@ async function loadCsvDatabases() {
   }
   ensureAdvancedClassData();
   ensureAdvancedClassSkills();
+  normalizeGroupMagicKinds();
   rebalanceSkillData();
   rebalanceMonsterSkillData();
 }
