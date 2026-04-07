@@ -256,6 +256,7 @@ const state = {
   battle: null,
   inventoryTargeting: null,
   screen: "landing",
+  skillTreeBranchFilter: "all",
   shopStock: [],
   equipRules: structuredClone(defaultEquipRules),
   classGrowth: structuredClone(classAutoGrowth),
@@ -2198,11 +2199,20 @@ function renderSkillTree() {
   state.screen = "skills";
   renderMenu();
   const player = state.currentPlayer;
+  syncClassBranchSnapshots(player);
+  const filters = ownedBranchNames(player);
+  if (state.skillTreeBranchFilter !== "all" && !filters.includes(state.skillTreeBranchFilter)) {
+    state.skillTreeBranchFilter = "all";
+  }
+  const selectedBranch = state.skillTreeBranchFilter;
+  const visibleSkills = ownedSkillReferences(player)
+    .filter(ref => selectedBranch === "all" || ref.branch === selectedBranch);
   app.innerHTML = `
     <h3>技能樹</h3>
-    <p class="hint">點擊升級分支。每次升級都會永久提升角色能力，技能解鎖則改看對應分支投入點數。</p>
+    <p class="hint">點擊升級目前職業可用的分支。重複分支會在不同職業間共用加點，已轉職過的職業技能也可繼續使用。</p>
     ${renderPageLinks("skills")}
-    <p><span class="pill">可用技能點 ${player.skillPoints}</span></p>
+    <p><span class="pill">目前職業 ${player.className}</span> <span class="pill">可用技能點 ${player.skillPoints}</span></p>
+    <h3>目前職業分支</h3>
     <div class="card-grid">
       ${player.branches.map((branch, index) => {
         const [stat, value] = data.branchEffects[branch.name] || ["attack", 1];
@@ -2217,20 +2227,27 @@ function renderSkillTree() {
       }).join("")}
     </div>
     <div class="spacer"></div>
-    <h3>職業技能</h3>
+    <h3>技能顯示</h3>
+    <div class="inline-actions">
+      <button type="button" data-skill-filter="all" ${selectedBranch === "all" ? "disabled" : ""}>全部</button>
+      ${filters.map(branch => `<button type="button" data-skill-filter="${branch}" ${selectedBranch === branch ? "disabled" : ""}>${branch}</button>`).join("")}
+    </div>
+    <p class="hint">目前顯示：${selectedBranch === "all" ? "全部技能" : `${selectedBranch} 技能`}</p>
     <div class="card-grid">
-      ${data.classSkills[player.className].map((skill, index) => `
+      ${visibleSkills.map(ref => `
         <div class="stat">
           <div class="card-visual">
-            ${renderMediaThumb(skillImagePath(skill), skill.name)}
-            <div><strong>${skill.name}</strong></div>
+            ${renderMediaThumb(skillImagePath(ref.skill), ref.skill.name)}
+            <div>
+              <strong>${ref.skill.name}</strong>
+              <div class="hint">${ref.className}・${ref.branch || "通用"}</div>
+            </div>
           </div>
-          <p>MP ${skillCost(player, skill)} | 屬性 ${skill.element || "無"}</p>
-          <p>${skillKindText(skill.kind)}</p>
-          <p>${skill.branch ? `綁定分支 ${skill.branch}` : "無分支限制"}</p>
-          <p>${isSkillUnlocked(player, index) ? `已解鎖` : skillUnlockText(player, skill)}</p>
+          <p>MP ${skillCost(player, ref.skill)} | 屬性 ${ref.skill.element || "無"}</p>
+          <p>${skillKindText(ref.skill.kind)}</p>
+          <p>${isSkillUnlocked(player, ref) ? "已解鎖" : skillUnlockText(player, ref)}</p>
         </div>
-      `).join("")}
+      `).join("") || `<div class="stat">這個技能樹目前沒有可顯示的技能。</div>`}
     </div>
   `;
   app.querySelectorAll("[data-branch-index]").forEach(button => {
@@ -2240,7 +2257,8 @@ function renderSkillTree() {
       }
       const branch = player.branches[Number(button.dataset.branchIndex)];
       const [stat, value] = data.branchEffects[branch.name] || ["attack", 1];
-      branch.level += 1;
+      const nextLevel = (branch.level || 0) + 1;
+      setSharedBranchLevel(player, branch.name, nextLevel);
       player.skillPoints -= 1;
       if (stat === "maxHp" || stat === "maxMp") {
         player[stat] += value;
@@ -2249,7 +2267,15 @@ function renderSkillTree() {
       } else {
         player[stat] += value;
       }
+      syncClassBranchSnapshots(player);
+      commitActiveClassState(player);
       await saveCurrentPlayer(false);
+      renderSkillTree();
+    });
+  });
+  app.querySelectorAll("[data-skill-filter]").forEach(button => {
+    button.addEventListener("click", () => {
+      state.skillTreeBranchFilter = button.dataset.skillFilter;
       renderSkillTree();
     });
   });
@@ -2472,11 +2498,12 @@ function handleBattleAction(action) {
 
 function renderSkillButtons() {
   const panel = document.querySelector("#skill-panel");
-  panel.innerHTML = availableSkills(state.currentPlayer)
-    .map(({ skill, index }) => `<button class="skill-button" type="button" data-skill-index="${index}">${skill.name}<br><small>MP ${skillCost(state.currentPlayer, skill)}</small></button>`)
+  const skills = availableSkills(state.currentPlayer);
+  panel.innerHTML = skills
+    .map((ref, index) => `<button class="skill-button" type="button" data-skill-index="${index}">${ref.skill.name}<br><small>${ref.className} | MP ${skillCost(state.currentPlayer, ref.skill)}</small></button>`)
     .join("");
   if (!panel.innerHTML) {
-    panel.innerHTML = `<div class="stat">目前沒有可用技能。</div>`;
+    panel.innerHTML = `<div class="stat">目前沒有可使用的技能。</div>`;
     return;
   }
   panel.querySelectorAll("[data-skill-index]").forEach(button => {
@@ -2560,8 +2587,9 @@ async function performBattleTurn(action) {
     }
     battle.log.push(result.message);
   } else if (action.type === "skill") {
-    const skill = data.classSkills[player.className][action.index];
-    if (!skill || !isSkillUnlocked(player, action.index)) {
+    const skillEntry = availableSkills(player)[action.index];
+    const skill = skillEntry?.skill;
+    if (!skillEntry || !skill || !isSkillUnlocked(player, skillEntry)) {
       battle.log.push("這個技能尚未解鎖。");
       acted = false;
       return renderBattle();
@@ -2590,7 +2618,7 @@ async function performBattleTurn(action) {
       const targets = allyTargets(player, battle);
       if (targets.length > 1) {
         battle.targetMode = { action: "skill", type: "ally", index: action.index };
-        battle.log.push(`請選擇 ${skill.name} 的施放對象。`);
+        battle.log.push(`請選擇 ${skill.name} 的對象。`);
         return renderBattle();
       }
       action.allyIndex = 0;
@@ -2599,20 +2627,20 @@ async function performBattleTurn(action) {
       const allTargets = allyTargets(player, battle, true);
       const fallenTargets = allTargets.filter(member => member.hp <= 0);
       if (!fallenTargets.length) {
-        battle.log.push("目前沒有可復活的目標。");
+        battle.log.push("目前沒有倒下的隊友可指定。");
         acted = false;
         return renderBattle();
       }
       if (fallenTargets.length > 1) {
         battle.targetMode = { action: "skill", type: "fallen_ally", index: action.index };
-        battle.log.push(`請選擇 ${skill.name} 的目標。`);
+        battle.log.push(`請選擇 ${skill.name} 的對象。`);
         return renderBattle();
       }
       action.allyIndex = allTargets.indexOf(fallenTargets[0]);
     }
     const realCost = skill.kind === "chiBlast" && (battle.selfBuffs.chi || 0) > 0 ? 0 : skillCost(player, skill);
     if (player.mp < realCost) {
-      battle.log.push("MP 不足，技能施放失敗。");
+      battle.log.push("MP 不足，無法施放技能。");
       acted = false;
     } else {
       player.mp -= realCost;
@@ -3316,6 +3344,7 @@ function buildPlayer(name, raceCode, classCode) {
   const stats = structuredClone(baseStats);
   applyBonuses(stats, race.bonuses);
   applyBonuses(stats, job.bonuses);
+  const sharedBranches = job.branches.map(name => ({ name, level: 0 }));
   return {
     name,
     raceCode,
@@ -3337,6 +3366,7 @@ function buildPlayer(name, raceCode, classCode) {
     ...stats,
     gold: 30,
     activeClassCode: job.code,
+    sharedBranches,
     classes: [
       {
         classCode: job.code,
@@ -3344,10 +3374,10 @@ function buildPlayer(name, raceCode, classCode) {
         classLevel: 1,
         exp: 0,
         skillPoints: 1,
-        branches: job.branches.map(branchName => ({ name: branchName, level: 0 })),
+        branches: sharedBranches.map(branch => ({ ...branch })),
       },
     ],
-    branches: job.branches.map(name => ({ name, level: 0 })),
+    branches: sharedBranches.map(branch => ({ ...branch })),
     equipment: starterEquipmentForClass(job.name),
     companions: [],
     inventory: [
@@ -3381,27 +3411,90 @@ function currentActiveClass(player) {
   return getClassEntry(player, player.activeClassCode) || classes[0];
 }
 
+function mergeBranchLevelsIntoPool(pool, branches = []) {
+  for (const branch of branches) {
+    const name = typeof branch === "string" ? branch : branch?.name;
+    if (!name) continue;
+    const level = typeof branch === "string" ? 0 : Math.max(0, branch.level || 0);
+    const existing = pool.find(item => item.name === name);
+    if (existing) {
+      existing.level = Math.max(existing.level || 0, level);
+    } else {
+      pool.push({ name, level });
+    }
+  }
+}
+
+function ensureSharedBranches(player) {
+  const pool = [];
+  mergeBranchLevelsIntoPool(pool, player.sharedBranches || []);
+  mergeBranchLevelsIntoPool(pool, player.branches || []);
+  getPlayerClasses(player).forEach(entry => {
+    const classDef = getClassDefinition(entry.classCode || entry.className);
+    mergeBranchLevelsIntoPool(pool, classDef?.branches || []);
+    mergeBranchLevelsIntoPool(pool, entry.branches || []);
+  });
+  player.sharedBranches = pool;
+  return player.sharedBranches;
+}
+
+function setSharedBranchLevel(player, branchName, level) {
+  const pool = ensureSharedBranches(player);
+  const existing = pool.find(branch => branch.name === branchName);
+  if (existing) {
+    existing.level = Math.max(0, level || 0);
+    return existing;
+  }
+  const created = { name: branchName, level: Math.max(0, level || 0) };
+  pool.push(created);
+  return created;
+}
+
+function branchLevelsForClass(player, classCodeOrName) {
+  const classDef = getClassDefinition(classCodeOrName);
+  const branchNames = classDef?.branches || [];
+  ensureSharedBranches(player);
+  return branchNames.map(name => ({ name, level: (player.sharedBranches || []).find(branch => branch.name === name)?.level || 0 }));
+}
+
+function ownedBranchNames(player) {
+  ensureSharedBranches(player);
+  return (player.sharedBranches || []).map(branch => branch.name);
+}
+
+function syncClassBranchSnapshots(player) {
+  ensureSharedBranches(player);
+  getPlayerClasses(player).forEach(entry => {
+    entry.branches = branchLevelsForClass(player, entry.classCode || entry.className);
+  });
+  const active = currentActiveClass(player);
+  player.branches = active ? branchLevelsForClass(player, active.classCode || active.className) : [];
+}
+
 function commitActiveClassState(player) {
   const active = currentActiveClass(player);
   if (!active) return;
+  (player.branches || []).forEach(branch => setSharedBranchLevel(player, branch.name, branch.level || 0));
   active.classCode = player.classCode;
   active.className = player.className;
   active.classLevel = player.classLevel;
   active.exp = player.exp;
   active.skillPoints = player.skillPoints;
-  active.branches = (player.branches || []).map(branch => ({ ...branch }));
+  syncClassBranchSnapshots(player);
+  active.branches = branchLevelsForClass(player, active.classCode || active.className);
 }
 
 function syncActiveClassState(player) {
   const active = currentActiveClass(player);
   if (!active) return;
+  ensureSharedBranches(player);
   player.activeClassCode = active.classCode;
   player.classCode = active.classCode;
   player.className = active.className;
   player.classLevel = active.classLevel || 1;
   player.exp = active.exp || 0;
   player.skillPoints = active.skillPoints ?? 0;
-  player.branches = active.branches || [];
+  player.branches = branchLevelsForClass(player, active.classCode || active.className);
   player.level = totalPlayerLevel(player);
 }
 
@@ -3444,15 +3537,17 @@ function unlockOrSwitchClass(player, classCode) {
   applyBonuses(player, classDef.bonuses || {});
   player.hp += gainedHp;
   player.mp += gainedMp;
+  (classDef.branches || []).forEach(name => setSharedBranchLevel(player, name, branchLevel(player, name)));
   getPlayerClasses(player).push({
     classCode: classDef.code,
     className: classDef.name,
     classLevel: 1,
     exp: 0,
     skillPoints: 1,
-    branches: (classDef.branches || []).map(name => ({ name, level: 0 })),
+    branches: branchLevelsForClass(player, classDef.code),
   });
   player.activeClassCode = classDef.code;
+  syncClassBranchSnapshots(player);
   syncActiveClassState(player);
   return `${classDef.name} 已解鎖並成為目前職業。`;
 }
@@ -4029,28 +4124,81 @@ function nextLevelExp(level) {
 }
 
 function spentSkillPoints(player) {
-  return (player.branches || []).reduce((sum, branch) => sum + (branch.level || 0), 0);
+  ensureSharedBranches(player);
+  return (player.sharedBranches || []).reduce((sum, branch) => sum + (branch.level || 0), 0);
 }
 
 function branchLevel(player, branchName) {
-  return (player.branches || []).find(branch => branch.name === branchName)?.level || 0;
+  ensureSharedBranches(player);
+  return (player.sharedBranches || []).find(branch => branch.name === branchName)?.level || 0;
 }
 
-function isSkillUnlocked(player, index) {
-  const skill = (data.classSkills[player.className] || [])[index];
-  if (!skill) return false;
-  if (!skill.branch) return true;
-  return branchLevel(player, skill.branch) >= (skill.requiredPoints || 0);
+function buildSkillReference(player, className, skillIndex) {
+  const skill = (data.classSkills[className] || [])[skillIndex];
+  if (!skill) return null;
+  const unlockData = classSkillUnlocks[className]?.[skill.name] || [];
+  return {
+    className,
+    classCode: getClassDefinition(className)?.code || className,
+    skillIndex,
+    skill,
+    branch: skill.branch || unlockData[0] || null,
+    requiredPoints: skill.requiredPoints ?? unlockData[1] ?? 0,
+  };
+}
+
+function ownedSkillReferences(player) {
+  const activeCode = player.activeClassCode;
+  const refs = [];
+  getPlayerClasses(player).forEach(classEntry => {
+    (data.classSkills[classEntry.className] || []).forEach((skill, skillIndex) => {
+      const ref = buildSkillReference(player, classEntry.className, skillIndex);
+      if (ref) refs.push(ref);
+    });
+  });
+  refs.sort((a, b) => {
+    const aActive = a.classCode === activeCode ? 0 : 1;
+    const bActive = b.classCode === activeCode ? 0 : 1;
+    if (aActive !== bActive) return aActive - bActive;
+    if ((a.branch || "") !== (b.branch || "")) return (a.branch || "").localeCompare(b.branch || "", "zh-Hant");
+    if ((a.requiredPoints || 0) !== (b.requiredPoints || 0)) return (a.requiredPoints || 0) - (b.requiredPoints || 0);
+    return a.skill.name.localeCompare(b.skill.name, "zh-Hant");
+  });
+  const deduped = [];
+  const seen = new Map();
+  refs.forEach(ref => {
+    const key = ref.skill.name;
+    const existingIndex = seen.get(key);
+    if (existingIndex === undefined) {
+      seen.set(key, deduped.length);
+      deduped.push(ref);
+      return;
+    }
+    const existing = deduped[existingIndex];
+    if (existing.classCode !== activeCode && ref.classCode === activeCode) {
+      deduped[existingIndex] = ref;
+    }
+  });
+  return deduped;
+}
+
+function isSkillUnlocked(player, skillRefOrIndex, className = player.className) {
+  const ref = typeof skillRefOrIndex === "number"
+    ? buildSkillReference(player, className, skillRefOrIndex)
+    : skillRefOrIndex;
+  if (!ref) return false;
+  if (!ref.branch) return true;
+  return branchLevel(player, ref.branch) >= (ref.requiredPoints || 0);
 }
 
 function availableSkills(player) {
-  return (data.classSkills[player.className] || [])
-    .map((skill, index) => ({ skill, index }))
-    .filter(({ skill, index }) => (!skill.branch || isSkillUnlocked(player, index)) && !skill.kind.startsWith("passive"));
+  return ownedSkillReferences(player)
+    .filter(ref => isSkillUnlocked(player, ref) && !ref.skill.kind.startsWith("passive"));
 }
 
 function skillKnown(player, skillName) {
-  return (data.classSkills[player.className] || []).some((skill, index) => skill.name === skillName && isSkillUnlocked(player, index));
+  return ownedSkillReferences(player)
+    .some(ref => ref.skill.name === skillName && isSkillUnlocked(player, ref));
 }
 
 function skillUnlockText(player, skill) {
@@ -4151,6 +4299,8 @@ function normalizePlayer(player) {
       });
     }
   });
+  ensureSharedBranches(player);
+  syncClassBranchSnapshots(player);
   if (!player.activeClassCode || !getClassEntry(player, player.activeClassCode)) {
     player.activeClassCode = getPlayerClasses(player)[0]?.classCode || job?.code;
   }
