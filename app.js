@@ -2066,17 +2066,26 @@ function renderCompanions(message = "") {
       ${(player.companions || []).map((companion, index) => `
         <div class="choice-card">
           <h4>${companion.name}</h4>
-          <p>${companion.className} | Lv.${companion.level} / 職業 Lv.${companion.classLevel} / 100</p>
+          <p>${companion.raceName} / ${companion.className}</p>
+          <p>Lv.${companion.level} | 職業 Lv.${companion.classLevel} / 100</p>
+          <p>EXP ${(companion.exp || 0)} / ${nextLevelExp(companion.classLevel)}</p>
           <p>HP ${companion.hp}/${companion.maxHp} | MP ${companion.mp}/${companion.maxMp}</p>
+          <p class="muted">已學技能 ${availableCompanionSkills(companion).length} 個</p>
           <button type="button" data-dismiss-index="${index}">離隊</button>
         </div>
-      `).join("")}
+      `).join("") || `<div class="stat">目前還沒有同伴。</div>`}
     </div>
     <div class="spacer"></div>
     <h3>新增同伴</h3>
     <label>同伴名字</label>
     <input type="text" id="companion-name" placeholder="輸入同伴名字">
     <div class="spacer"></div>
+    <h3>選擇種族</h3>
+    <div class="card-grid">
+      ${data.races.map(race => choiceCard(race.name, race.description, race.advantage, "companion-race", race.code)).join("")}
+    </div>
+    <div class="spacer"></div>
+    <h3>選擇職業</h3>
     <div class="card-grid">
       ${data.classes.filter(job => !(job.requirements?.length)).map(job => choiceCard(job.name, job.description, job.advantage, "companion-class", job.code)).join("")}
     </div>
@@ -2093,8 +2102,9 @@ function renderCompanions(message = "") {
   });
   document.querySelector("#recruit-companion").addEventListener("click", async () => {
     const name = document.querySelector("#companion-name").value.trim();
+    const raceCode = document.querySelector(".choice-card[data-group='companion-race'].selected")?.dataset.code;
     const classCode = document.querySelector(".choice-card[data-group='companion-class'].selected")?.dataset.code;
-    const result = recruitCompanion(name, classCode);
+    const result = recruitCompanion(name, raceCode, classCode);
     await saveCurrentPlayer(false);
     renderCompanions(result);
   });
@@ -3300,7 +3310,12 @@ async function finishVictory() {
     player.classLevel += 1;
     player.skillPoints += 1;
     applyClassLevelGrowth(player, player.className);
-    (player.companions || []).forEach(companion => levelUpCompanion(companion));
+    (player.companions || []).forEach(companion => {
+      const companionLevelUps = grantCompanionExp(companion, totalExp + storyBonusExp);
+      if (companionLevelUps > 0) {
+        battle.log.push(`${companion.name} 升了 ${companionLevelUps} 級，已自動習得新技能。`);
+      }
+    });
     player.hp = player.maxHp;
     player.mp = player.maxMp;
     commitActiveClassState(player);
@@ -3868,8 +3883,12 @@ function resolvePlayerAttackElement(player, battle, fallbackElement = null) {
     return selfBuffs.weaponElements[randomInt(0, selfBuffs.weaponElements.length - 1)];
   }
   if (selfBuffs.weaponElement) return selfBuffs.weaponElement;
-  const weapon = (player.equipment || []).find(item => item.slot === "主手");
+  const weapon = (player.equipment || []).find(item => item.slot === "???");
   return weapon?.element || null;
+}
+
+function resolveCompanionAttackElement(companion) {
+  return companion.attackElement || null;
 }
 
 function refreshPlayerStanceBuffs(battle) {
@@ -4305,7 +4324,7 @@ function normalizePlayer(player) {
     player.activeClassCode = getPlayerClasses(player)[0]?.classCode || job?.code;
   }
   player.equipment = player.equipment.map(item => ({ bonuses: {}, ...item, bonuses: item.bonuses || {} }));
-  player.companions = player.companions.map(companion => ({ ...companion, level: companion.level || 1, classLevel: companion.classLevel || 1 }));
+  player.companions = player.companions.map(companion => ({ ...companion, raceCode: companion.raceCode || "human", raceName: companion.raceName || (data.races.find(race => race.code === (companion.raceCode || "human"))?.name || "??"), exp: companion.exp || 0, level: companion.level || 1, classLevel: companion.classLevel || 1 }));
   syncActiveClassState(player);
 }
 
@@ -4620,25 +4639,31 @@ function refreshShopStock() {
   return `商店已刷新，本次花費 ${cost} 金幣。`;
 }
 
-function recruitCompanion(name, classCode) {
+function recruitCompanion(name, raceCode, classCode) {
   const player = state.currentPlayer;
-  if (!name || !classCode) return "請輸入同伴名字並選擇職業。";
+  if (!name || !raceCode || !classCode) return "請輸入同伴名字並選擇種族與職業。";
   if ((player.companions || []).length >= 3) return "最多只能擁有三位同伴。";
-  const companion = buildCompanion(name, classCode, player.level);
+  const companion = buildCompanion(name, raceCode, classCode, player.level);
   player.companions.push(companion);
   return `${companion.name} 已加入隊伍。`;
 }
 
-function buildCompanion(name, classCode, level) {
+function buildCompanion(name, raceCode, classCode, level) {
+  const race = data.races.find(item => item.code === raceCode) || data.races[0];
   const job = data.classes.find(item => item.code === classCode);
   const stats = structuredClone(baseStats);
-  applyBonuses(stats, job.bonuses);
+  applyBonuses(stats, race.bonuses || {});
+  applyBonuses(stats, job.bonuses || {});
   const companion = {
     name,
+    raceCode: race.code,
+    raceName: race.name,
+    raceSkillName: race.skillName,
     classCode,
     className: job.name,
     level: 1,
     classLevel: 1,
+    exp: 0,
     hp: stats.maxHp,
     mp: stats.maxMp,
     ...stats,
@@ -4655,6 +4680,28 @@ function levelUpCompanion(companion) {
   applyClassLevelGrowth(companion, companion.className);
   companion.hp = companion.maxHp;
   companion.mp = companion.maxMp;
+}
+
+function companionSkillUnlockLevel(skill) {
+  return Math.max(1, (skill.requiredPoints || 0) + 1);
+}
+
+function availableCompanionSkills(companion) {
+  return (data.classSkills[companion.className] || [])
+    .filter(skill => !skill.kind.startsWith("passive"))
+    .filter(skill => companion.classLevel >= companionSkillUnlockLevel(skill));
+}
+
+function grantCompanionExp(companion, amount) {
+  if (!amount) return 0;
+  companion.exp = (companion.exp || 0) + amount;
+  let levelUps = 0;
+  while (companion.exp >= nextLevelExp(companion.classLevel) && companion.classLevel < 100) {
+    companion.exp -= nextLevelExp(companion.classLevel);
+    levelUpCompanion(companion);
+    levelUps += 1;
+  }
+  return levelUps;
 }
 
 function applyClassLevelGrowth(target, className) {
@@ -4693,34 +4740,63 @@ function companionTurn(battle) {
     const targets = livingEnemies(battle);
     if (!targets.length) return;
     const monster = targets[Math.floor(Math.random() * targets.length)];
-    const skill = (data.classSkills[companion.className] || []).find(item => ["attack", "attackBurn", "attackPoison", "attackParalyze", "heal", "multiHit"].includes(item.kind));
-    if (skill && companion.mp >= skill.cost && Math.random() < 0.45) {
+    const unlockedSkills = availableCompanionSkills(companion)
+      .filter(skill => companion.mp >= skillCost(companion, skill));
+    const healSkill = unlockedSkills
+      .filter(skill => ["heal", "healAll", "fullHealSingle"].includes(skill.kind))
+      .sort((a, b) => (b.power || 0) - (a.power || 0))[0];
+    const supportSkill = unlockedSkills.find(skill => ["buffAttackSingle", "buffDefenseSingle", "buffSpeedSingle", "buffAttackParty", "buffDefenseParty", "buffMagic", "buffMagicResistance", "buffSpeedParty"].includes(skill.kind));
+    const attackSkill = unlockedSkills
+      .filter(skill => ["attack", "attackBurn", "attackPoison", "attackParalyze", "multiHit", "attackAll", "attackFreeze", "attackStun", "attackAllStun", "attackAllParalyze", "attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance", "attackIgnoreDefense", "attackDualElement"].includes(skill.kind))
+      .sort((a, b) => (b.power || 0) - (a.power || 0))[0];
+    const lowTarget = lowestHpPartyMember(state.currentPlayer, battle);
+    const shouldHeal = lowTarget && (lowTarget.hp / lowTarget.maxHp) <= 0.55;
+    const chosenSkill = shouldHeal ? (healSkill || attackSkill || supportSkill) : (attackSkill || supportSkill || healSkill);
+    if (chosenSkill) {
       const stats = companionStats(companion, battle);
-      companion.mp -= skill.cost;
-      if (skill.kind === "attack") {
-        const monsterStats = monsterBattleStats(monster, battle);
-        const damage = dealDamage(stats[skill.stat], skill.stat === "magic" ? monsterStats.resistance : monsterStats.defense, skill.power, skill.element, monster);
-        monster.currentHp = Math.max(0, monster.currentHp - damage);
-        battle.log.push(`${companion.name} 施放 ${skill.name}，造成 ${damage} 點傷害。`);
-      } else if (skill.kind === "heal") {
+      companion.mp -= skillCost(companion, chosenSkill);
+      if (["heal", "healAll", "fullHealSingle"].includes(chosenSkill.kind)) {
         const target = lowestHpPartyMember(state.currentPlayer, battle);
         if (target) {
-          const heal = Math.floor(stats.magic * skill.power + randomInt(4, 8));
+          const heal = chosenSkill.kind === "fullHealSingle"
+            ? target.maxHp
+            : Math.floor(stats.magic * (chosenSkill.power || 1) + randomInt(4, 8));
           target.hp = Math.min(target.maxHp, target.hp + heal);
-          battle.log.push(`${companion.name} 施放 ${skill.name}，替 ${target.name} 回復 ${heal} HP。`);
+          battle.log.push(`${companion.name} 施放 ${chosenSkill.name}，替 ${target.name} 回復 ${heal} HP。`);
+          return;
         }
-      } else {
-        const damage = Math.max(1, Math.floor(stats.attack * 1.1));
-        monster.currentHp = Math.max(0, monster.currentHp - damage);
-        battle.log.push(`${companion.name} 趁勢追擊，造成 ${damage} 點傷害。`);
       }
-    } else {
+      if (["buffAttackSingle", "buffDefenseSingle", "buffSpeedSingle", "buffAttackParty", "buffDefenseParty", "buffMagic", "buffMagicResistance", "buffSpeedParty"].includes(chosenSkill.kind)) {
+        battle.log.push(`${companion.name} 施放 ${chosenSkill.name}，強化了隊伍。`);
+        if (chosenSkill.kind === "buffAttackSingle" || chosenSkill.kind === "buffAttackParty") battle.buffs.attack = Math.max(battle.buffs.attack, 3);
+        if (chosenSkill.kind === "buffDefenseSingle" || chosenSkill.kind === "buffDefenseParty") battle.buffs.defense = Math.max(battle.buffs.defense, 3);
+        if (chosenSkill.kind === "buffMagic" || chosenSkill.kind === "buffMagicResistance") {
+          battle.buffs.magic = Math.max(battle.buffs.magic, 3);
+          battle.buffs.resistance = Math.max(battle.buffs.resistance, 3);
+        }
+        if (chosenSkill.kind === "buffSpeedSingle" || chosenSkill.kind === "buffSpeedParty") battle.buffs.speed = Math.max(battle.buffs.speed, 3);
+        return;
+      }
       const monsterStats = monsterBattleStats(monster, battle);
-      const stats = companionStats(companion, battle);
-      const damage = Math.max(1, Math.floor(stats.attack - monsterStats.defense / 2 + randomInt(0, 4)));
+      if (chosenSkill.kind === "attackAll" || chosenSkill.kind === "attackAllStun" || chosenSkill.kind === "attackAllParalyze") {
+        livingEnemies(battle).forEach(enemy => {
+          const enemyStats = monsterBattleStats(enemy, battle);
+          const damage = dealDamage(stats[chosenSkill.stat], chosenSkill.stat === "magic" ? enemyStats.resistance : enemyStats.defense, chosenSkill.power, chosenSkill.element, enemy);
+          enemy.currentHp = Math.max(0, enemy.currentHp - damage);
+        });
+        battle.log.push(`${companion.name} 施放 ${chosenSkill.name}，對敵群造成打擊。`);
+        return;
+      }
+      const damage = dealDamage(stats[chosenSkill.stat], chosenSkill.stat === "magic" ? monsterStats.resistance : monsterStats.defense, chosenSkill.power, chosenSkill.element, monster);
       monster.currentHp = Math.max(0, monster.currentHp - damage);
-      battle.log.push(`${companion.name} 協力攻擊，造成 ${damage} 點傷害。`);
+      battle.log.push(`${companion.name} 施放 ${chosenSkill.name}，造成 ${damage} 點傷害。`);
+      return;
     }
+    const stats = companionStats(companion, battle);
+    const monsterStats = monsterBattleStats(monster, battle);
+    const damage = dealDamage(stats.attack, monsterStats.defense, 1, resolveCompanionAttackElement(companion), monster);
+    monster.currentHp = Math.max(0, monster.currentHp - damage);
+    battle.log.push(`${companion.name} 協力攻擊，造成 ${damage} 點傷害。`);
   });
 }
 
