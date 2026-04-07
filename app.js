@@ -2225,7 +2225,7 @@ function renderSkillTree() {
             ${renderMediaThumb(skillImagePath(skill), skill.name)}
             <div><strong>${skill.name}</strong></div>
           </div>
-          <p>MP ${skill.cost} | 屬性 ${skill.element || "無"}</p>
+          <p>MP ${skillCost(player, skill)} | 屬性 ${skill.element || "無"}</p>
           <p>${skillKindText(skill.kind)}</p>
           <p>${skill.branch ? `綁定分支 ${skill.branch}` : "無分支限制"}</p>
           <p>${isSkillUnlocked(player, index) ? `已解鎖` : skillUnlockText(player, skill)}</p>
@@ -3659,10 +3659,12 @@ function dualWieldBonus(player) {
 }
 
 function skillCost(player, skill) {
-  if (player.raceName === "天翼族" && skill.school === "天法") {
-    return Math.max(1, Math.floor(skill.cost * 0.8));
+  const baseCost = Math.max(0, Math.ceil((skill.cost || 0) * 0.5));
+  if (baseCost <= 0) return 0;
+  if (player.raceName === "???" && skill.school === "??") {
+    return Math.max(1, Math.floor(baseCost * 0.8));
   }
-  return skill.cost;
+  return baseCost;
 }
 
 function createMonsterAilments() {
@@ -3735,12 +3737,11 @@ function allyTargets(player, battle, includeFallen = false) {
 
 function skillTargetType(skill) {
   const enemyKinds = new Set([
-    "attack", "attackAll", "attackRandom", "attackAllMulti", "attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance",
+    "attack", "attackDebuffDefense", "attackDebuffAttack", "attackDebuffResistance",
     "attackPoison", "attackSleep", "attackBlind", "attackTrap", "attackDebuffSpeed", "attackStun", "attackFreeze",
-    "attackBurn", "multiHit", "attackIgnoreDefense", "attackParalyze", "attackAllParalyze", "attackDualElement", "attackAllStun",
-    "attackParalyze", "attackDrain", "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal", "riskyTriple",
-    "executeAilment", "attackInstantDeath", "allStun", "fearAll", "debuffDefenseAll", "debuffResistanceAll",
-    "randomAilmentAll", "multiHitStun"
+    "attackBurn", "multiHit", "attackIgnoreDefense", "attackParalyze", "attackDualElement",
+    "attackDrain", "attackBuffSpeed", "chiBlast", "attackAfterimage", "steal", "riskyTriple",
+    "executeAilment", "attackInstantDeath", "multiHitStun"
   ]);
   const allyKinds = new Set([
     "heal", "fullHealSingle", "buffAttackSingle", "buffDefenseSingle", "buffResistanceSingle", "buffAttackSingleStrong",
