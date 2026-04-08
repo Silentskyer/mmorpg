@@ -876,6 +876,10 @@ const skillTierOverrides = {
   "火球": "weak",
 };
 
+const fixedSkillPowerOverrides = {
+  "火焰之槍": 3.0,
+};
+
 function classifyDamageTier(skill) {
   if (skill?.name && skillTierOverrides[skill.name]) {
     return skillTierOverrides[skill.name];
@@ -932,6 +936,9 @@ function rebalanceSkillData() {
       const tier = classifyDamageTier(skill);
       if (!tier) return;
       skill.power = powerForSkillTier(skill, tier);
+      if (fixedSkillPowerOverrides[skill.name]) {
+        skill.power = fixedSkillPowerOverrides[skill.name];
+      }
       const originalCost = Math.max(0, Number(skill.cost || 0));
       if (originalCost <= 0) return;
       const raisedCost = Math.ceil(originalCost * 1.5);
@@ -977,7 +984,9 @@ function rebalanceMonsterSkillData() {
 function normalizeGroupMagicKinds() {
   const groupKindOverrides = {
     "酸雨": "attackAllPoison",
+    "吹雪": "attackAllFreeze",
     "暴風雪": "attackAllFreeze",
+    "霜天葬送": "attackAllFreeze",
     "焦土": "attackAllBurn",
   };
   Object.values(data.classSkills || {}).forEach(skills => {
