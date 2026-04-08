@@ -429,6 +429,25 @@ body[data-area-theme="void"] {
   margin-top: 14px;
 }
 
+#skill-panel {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+#skill-panel .skill-button,
+#skill-panel .stat {
+  width: 100%;
+}
+
+#skill-panel .skill-button {
+  min-height: 74px;
+  text-align: left;
+}
+
+#skill-panel .stat {
+  grid-column: 1 / -1;
+}
+
 .pill {
   display: inline-flex;
   align-items: center;
@@ -516,6 +535,18 @@ body[data-area-theme="void"] {
 
 .spacer {
   height: 12px;
+}
+
+@media (max-width: 1080px) {
+  #skill-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  #skill-panel {
+    grid-template-columns: 1fr;
+  }
 }
 
 .save-note {
