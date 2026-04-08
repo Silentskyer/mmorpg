@@ -68,12 +68,12 @@ const data = {
       { name: "酸雨", cost: 10, power: 1.55, kind: "attackPoison", stat: "magic", element: "水", chance: 0.2, duration: 3 },
       { name: "吹雪", cost: 12, power: 1.7, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.35, duration: 2 },
       { name: "暴風雪", cost: 14, power: 2.0, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.45, duration: 2 },
-      { name: "霜天葬送", cost: 22, power: 2.85, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.65, duration: 3 },
+      { name: "霜天葬送", cost: 22, power: 5.0, kind: "attackFreeze", stat: "magic", element: "水", chance: 0.65, duration: 3 },
       { name: "火球", cost: 10, power: 1.8, kind: "attackBurn", stat: "magic", element: "火", chance: 0.2, duration: 2 },
       { name: "豪火柱", cost: 12, power: 1.95, kind: "attackBurn", stat: "magic", element: "火", chance: 0.2, duration: 2 },
       { name: "火焰之槍", cost: 14, power: 2.05, kind: "attackBurn", stat: "magic", element: "火", chance: 0.2, duration: 2 },
       { name: "焦土", cost: 14, power: 2.1, kind: "attackBurn", stat: "magic", element: "火", chance: 0.6, duration: 3 },
-      { name: "焚天神兵", cost: 24, power: 3.0, kind: "attackBurn", stat: "magic", element: "火", chance: 0.8, duration: 4 },
+      { name: "焚天神兵", cost: 24, power: 5.0, kind: "attackBurn", stat: "magic", element: "火", chance: 0.8, duration: 4 },
       { name: "魔法強化", cost: 10, power: 0, kind: "buffMagicResistance", stat: "magic", element: null },
       { name: "疾走", cost: 8, power: 0, kind: "buffSpeedParty", stat: "magic", element: null },
       { name: "魔力聚流", cost: 10, power: 0, kind: "buffMagic", stat: "magic", element: null }
@@ -108,7 +108,7 @@ const data = {
       { name: "旋風", cost: 10, power: 1.55, kind: "attack", stat: "magic", element: "風" },
       { name: "狂嵐", cost: 12, power: 1.8, kind: "attack", stat: "magic", element: "風" },
       { name: "嵐天風暴", cost: 14, power: 2.0, kind: "attack", stat: "magic", element: "風" },
-      { name: "龍捲風", cost: 22, power: 2.7, kind: "attackStun", stat: "magic", element: "風", chance: 0.5, duration: 1 }
+      { name: "龍捲風", cost: 22, power: 5.0, kind: "attackStun", stat: "magic", element: "風", chance: 0.5, duration: 1 }
     ],
     "盜賊": [
       { name: "麻痺短劍", cost: 8, power: 1.45, kind: "attackParalyze", stat: "attack", element: null, chance: 0.3, duration: 3 },
@@ -781,13 +781,13 @@ function ensureAdvancedClassSkills() {
       { name: "太陽球", cost: 14, power: 0, kind: "buffResistancePartyStrong", stat: "magic", element: "日", duration: 4, school: "日", branch: "日", requiredPoints: 6 },
       { name: "烈日恆天", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "日", school: "日", branch: "日", requiredPoints: 9 },
       { name: "太陽風", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "日", school: "日", branch: "日", requiredPoints: 12 },
-      { name: "太陽面爆發", cost: 26, power: 3.1, kind: "attackAll", stat: "magic", element: "日", school: "日", branch: "日", requiredPoints: 15 },
+      { name: "太陽面爆發", cost: 26, power: 5.0, kind: "attackAll", stat: "magic", element: "日", school: "日", branch: "日", requiredPoints: 15 },
       { name: "新月", cost: 10, power: 1.35, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 0 },
       { name: "上弦月", cost: 14, power: 0, kind: "debuffDefenseAll", stat: "magic", element: "月", duration: 4, school: "月", branch: "月", requiredPoints: 3 },
       { name: "下弦月", cost: 14, power: 0, kind: "debuffResistanceAll", stat: "magic", element: "月", duration: 4, school: "月", branch: "月", requiredPoints: 6 },
       { name: "滿月", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 9 },
       { name: "無月", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 12 },
-      { name: "月亮追逐者", cost: 26, power: 3.15, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 15 },
+      { name: "月亮追逐者", cost: 26, power: 5.0, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 15 },
       { name: "癒合", cost: 10, power: 0.08, kind: "regenHpSingle", stat: "magic", duration: 5, school: "賢術系", branch: "賢術系", requiredPoints: 0 },
       { name: "加速癒合", cost: 14, power: 0.12, kind: "regenHpSingle", stat: "magic", duration: 5, school: "賢術系", branch: "賢術系", requiredPoints: 3 },
       { name: "大範圍祝福", cost: 16, power: 0, kind: "cleanseAll", stat: "magic", school: "賢術系", branch: "賢術系", requiredPoints: 6 },
@@ -819,7 +819,7 @@ function ensureAdvancedClassSkills() {
       { name: "下弦月", cost: 14, power: 0, kind: "debuffResistanceAll", stat: "magic", element: "月", duration: 4, school: "月", branch: "月", requiredPoints: 6 },
       { name: "滿月", cost: 18, power: 1.85, kind: "attackAll", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 9 },
       { name: "無月", cost: 20, power: 2.35, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 12 },
-      { name: "月亮追逐者", cost: 26, power: 3.15, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 15 },
+      { name: "月亮追逐者", cost: 26, power: 5.0, kind: "attack", stat: "magic", element: "月", school: "月", branch: "月", requiredPoints: 15 },
     ],
     "勇者": [
       { name: "雷鳴斬", cost: 16, power: 1.8, kind: "attack", stat: "attack", element: "雷", school: "勇者系", branch: "勇者系", requiredPoints: 0 },
@@ -831,7 +831,7 @@ function ensureAdvancedClassSkills() {
       { name: "雷電", cost: 14, power: 1.15, kind: "attackAllParalyze", stat: "magic", element: "雷", chance: 0.3, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 3 },
       { name: "閃電球", cost: 18, power: 1.85, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.35, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 6 },
       { name: "雷電牢獄", cost: 24, power: 2.25, kind: "attackAllParalyze", stat: "magic", element: "雷", chance: 0.4, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 9 },
-      { name: "神罰天雷", cost: 30, power: 3.2, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.45, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 12 },
+      { name: "神罰天雷", cost: 30, power: 5.0, kind: "attackParalyze", stat: "magic", element: "雷", chance: 0.45, duration: 3, school: "雷霆系", branch: "雷霆系", requiredPoints: 12 },
     ],
     "魔王": [
       { name: "墮落斬", cost: 16, power: 1.85, kind: "attackDualElement", stat: "attack", element: "地|月", school: "魔王系", branch: "魔王系", requiredPoints: 0 },
@@ -843,7 +843,7 @@ function ensureAdvancedClassSkills() {
       { name: "岩刺", cost: 14, power: 1.15, kind: "attackAll", stat: "magic", element: "地", school: "大地", branch: "大地", requiredPoints: 3 },
       { name: "大地之槍", cost: 18, power: 1.85, kind: "attack", stat: "magic", element: "地", school: "大地", branch: "大地", requiredPoints: 6 },
       { name: "大地震", cost: 24, power: 2.25, kind: "attackAllStun", stat: "magic", element: "地", chance: 0.3, duration: 1, school: "大地", branch: "大地", requiredPoints: 9 },
-      { name: "蓋亞之怒", cost: 30, power: 3.1, kind: "attackAll", stat: "magic", element: "地", school: "大地", branch: "大地", requiredPoints: 12 },
+      { name: "蓋亞之怒", cost: 30, power: 5.0, kind: "attackAll", stat: "magic", element: "地", school: "大地", branch: "大地", requiredPoints: 12 },
     ],
   };
 
@@ -882,6 +882,9 @@ const fixedSkillPowerOverrides = {
   "焚天神兵": 5.0,
   "龍捲風": 5.0,
   "神罰天雷": 5.0,
+  "太陽面爆發": 5.0,
+  "月亮追逐者": 5.0,
+  "蓋亞之怒": 5.0,
 };
 
 function classifyDamageTier(skill) {
