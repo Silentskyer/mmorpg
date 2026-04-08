@@ -878,6 +878,10 @@ const skillTierOverrides = {
 
 const fixedSkillPowerOverrides = {
   "火焰之槍": 3.0,
+  "霜天葬送": 5.0,
+  "焚天神兵": 5.0,
+  "龍捲風": 5.0,
+  "神罰天雷": 5.0,
 };
 
 function classifyDamageTier(skill) {
@@ -982,18 +986,37 @@ function rebalanceMonsterSkillData() {
 }
 
 function normalizeGroupMagicKinds() {
-  const groupKindOverrides = {
-    "酸雨": "attackAllPoison",
-    "吹雪": "attackAllFreeze",
-    "暴風雪": "attackAllFreeze",
-    "霜天葬送": "attackAllFreeze",
-    "焦土": "attackAllBurn",
+  const elementSkillOverrides = {
+    "酸雨": { kind: "attackAllPoison", chance: 0.2, duration: 3 },
+    "吹雪": { kind: "attackAllFreeze", chance: 0.2, duration: 2 },
+    "暴風雪": { kind: "attackAllFreeze", chance: 0.2, duration: 2 },
+    "霜天葬送": { kind: "attack", chance: null, duration: null },
+    "火球": { kind: "attackBurn", chance: 0.2, duration: 2 },
+    "豪火柱": { kind: "attackBurn", chance: 0.2, duration: 2 },
+    "火焰之槍": { kind: "attackBurn", chance: 0.2, duration: 2 },
+    "焦土": { kind: "attackAllBurn", chance: 0.2, duration: 2 },
+    "焚天神兵": { kind: "attackBurn", chance: 0.2, duration: 2 },
+    "龍捲風": { kind: "attackAll", chance: null, duration: null },
+    "落雷": { kind: "attackParalyze", chance: 0.2, duration: 3 },
+    "雷電": { kind: "attackAllParalyze", chance: 0.2, duration: 3 },
+    "閃電球": { kind: "attackParalyze", chance: 0.2, duration: 3 },
+    "雷電牢獄": { kind: "attackAllParalyze", chance: 0.2, duration: 3 },
+    "神罰天雷": { kind: "attackParalyze", chance: 0.2, duration: 3 },
   };
   Object.values(data.classSkills || {}).forEach(skills => {
     skills.forEach(skill => {
-      const overrideKind = groupKindOverrides[skill.name];
-      if (overrideKind) {
-        skill.kind = overrideKind;
+      const override = elementSkillOverrides[skill.name];
+      if (!override) return;
+      if (override.kind) skill.kind = override.kind;
+      if (override.chance === null) {
+        delete skill.chance;
+      } else if (override.chance !== undefined) {
+        skill.chance = override.chance;
+      }
+      if (override.duration === null) {
+        delete skill.duration;
+      } else if (override.duration !== undefined) {
+        skill.duration = override.duration;
       }
     });
   });
