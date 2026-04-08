@@ -2815,7 +2815,28 @@ function handleSkill(skill, player, battle, monster, stats, action = {}) {
   if (skill.kind === "attackAllParalyze") {
     livingEnemies(battle).forEach(target => {
       castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
-      if (Math.random() < (skill.chance || 0.3)) applyMonsterAilment(target, "paralyze", skill.duration || 3, `${target.name} 麻痺了。`, battle);
+      if (Math.random() < (skill.chance || 0.3)) applyMonsterAilment(target, "paralyze", skill.duration || 3, `${target.name} ????`, battle);
+    });
+    return;
+  }
+  if (skill.kind === "attackAllPoison") {
+    livingEnemies(battle).forEach(target => {
+      castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
+      if (Math.random() < (skill.chance || 0.2)) applyMonsterAilment(target, "poison", skill.duration || 3, `${target.name} ????`, battle);
+    });
+    return;
+  }
+  if (skill.kind === "attackAllFreeze") {
+    livingEnemies(battle).forEach(target => {
+      castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
+      if (Math.random() < (skill.chance || 0.2)) applyMonsterAilment(target, "freeze", skill.duration || 2, `${target.name} ????`, battle);
+    });
+    return;
+  }
+  if (skill.kind === "attackAllBurn") {
+    livingEnemies(battle).forEach(target => {
+      castAttackSkill(skill, player, battle, target, stats, monsterBattleStats(target, battle));
+      if (Math.random() < (skill.chance || 0.2)) applyMonsterAilment(target, "burn", skill.duration || 2, `${target.name} ????`, battle);
     });
     return;
   }
