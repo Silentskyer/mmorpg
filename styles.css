@@ -366,6 +366,10 @@ body[data-area-theme="void"] {
   text-align: left;
 }
 
+.compact-enemy-card .status-strip {
+  margin-top: 8px;
+}
+
 .compact-enemy-card .media-thumb {
   width: 48px;
   height: 48px;
@@ -411,6 +415,13 @@ body[data-area-theme="void"] {
   gap: 12px;
 }
 
+.battle-player,
+.battle-monster .monster-focus-copy,
+.stat {
+  display: grid;
+  gap: 6px;
+}
+
 .battle-stack {
   display: grid;
   gap: 12px;
@@ -446,6 +457,49 @@ body[data-area-theme="void"] {
 
 #skill-panel .stat {
   grid-column: 1 / -1;
+}
+
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 249, 241, 0.88);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.status-ailment {
+  background: rgba(123, 40, 38, 0.1);
+  border-color: rgba(123, 40, 38, 0.24);
+}
+
+.status-buff {
+  background: rgba(62, 84, 37, 0.1);
+  border-color: rgba(62, 84, 37, 0.22);
+}
+
+.status-badge-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.status-badge-text {
+  white-space: nowrap;
 }
 
 .pill {

@@ -1666,6 +1666,69 @@ function renderMediaThumb(path, alt, className = "") {
   return `<img class="${classes}" src="${path}" alt="${alt}" loading="lazy" onerror="this.classList.add('hidden');this.removeAttribute('src');">`;
 }
 
+function escapeAttribute(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function describeSkillPower(power = 0) {
+  if (power >= 5) return "最大傷害";
+  if (power >= 3.5) return "大傷害";
+  if (power >= 2.5) return "中傷害";
+  if (power >= 1.5) return "弱傷害";
+  return "";
+}
+
+function skillTargetLabel(skill) {
+  if (!skill) return "單體";
+  if (["attackAll", "attackAllPoison", "attackAllFreeze", "attackAllBurn", "attackAllParalyze", "attackAllStun", "attackAllMulti", "healAll", "cleanseAll", "buffAllParty", "buffAttackParty", "buffAttackDefense", "buffMagicResistance", "buffSpeedParty", "buffDefensePartyStrong", "buffResistancePartyStrong", "statusWardParty", "sanctuary", "fearAll", "debuffDefenseAll", "debuffResistanceAll", "randomAilmentAll"].includes(skill.kind)) {
+    return "群體";
+  }
+  if (["multiHit", "attackRandom", "multiHitStun"].includes(skill.kind)) {
+    return "隨機多段";
+  }
+  return "單體";
+}
+
+function skillEffectSummary(skill) {
+  if (!skill) return "";
+  const powerText = describeSkillPower(skill.power);
+  const elementText = skill.element ? `${String(skill.element).replaceAll("|", "/")}屬性` : "";
+  const damagePrefix = skill.stat === "magic" ? "魔法" : "攻擊";
+  const lines = [];
+  if (skill.branch) lines.push(`技能樹：${skill.branch}`);
+  if (skill.school) lines.push(`系統：${skill.school}`);
+  lines.push(`目標：${skillTargetLabel(skill)}`);
+
+  if (["attack", "attackAll", "attackRandom", "attackAllMulti", "multiHit", "multiHitStun", "attackIgnoreDefense", "attackDualElement", "attackDrain"].includes(skill.kind)) {
+    lines.push(`效果：${skillTargetLabel(skill)}${elementText}${powerText ? `${powerText}` : ""}${damagePrefix}`);
+  } else if (skill.kind.startsWith("attack")) {
+    lines.push(`效果：${skillTargetLabel(skill)}${elementText}${powerText ? `${powerText}` : ""}${damagePrefix}`);
+  } else if (skill.kind.includes("heal") || skill.kind.includes("revive") || skill.kind.includes("regen")) {
+    lines.push("效果：恢復或支援隊友");
+  } else if (skill.kind.includes("buff") || skill.kind === "sanctuary" || skill.kind === "statusWardParty") {
+    lines.push("效果：提供增益狀態");
+  } else if (skill.kind.includes("debuff") || skill.kind.includes("cleanse")) {
+    lines.push("效果：造成減益或解除異常");
+  }
+
+  if (skill.chance) lines.push(`附加機率：${Math.round(skill.chance * 100)}%`);
+  if (skill.duration) lines.push(`持續回合：${skill.duration}`);
+  if (skill.hits) lines.push(`段數：${skill.hits}`);
+  return lines.join("\n");
+}
+
+function buildSkillTooltip(skill, className) {
+  const lines = [`${skill.name}${className ? ` (${className})` : ""}`];
+  lines.push(`消耗 MP：${skillCost(state.currentPlayer, skill)}`);
+  const summary = skillEffectSummary(skill);
+  if (summary) lines.push(summary);
+  return lines.join("\n");
+}
+
 function firstElementOf(value) {
   if (!value) return "";
   return String(value).split("|").map(item => item.trim()).find(Boolean) || "";
@@ -1684,6 +1747,133 @@ function itemImagePath(item) {
   if (item.slot && imageCatalog.armor[item.slot]) return imageCatalog.armor[item.slot];
   if (item.element) return imageCatalog.elements[firstElementOf(item.element)] || "";
   return "";
+}
+
+function battleStatusIconPath(key, category = "buff") {
+  const ailmentIcons = {
+    burn: imageCatalog.elements["火"],
+    poison: "data/jpg/skills/element/poison/S_Poison04.png",
+    freeze: imageCatalog.elements["水"],
+    paralyze: imageCatalog.elements["雷"],
+    blind: "data/jpg/skills/support/debuff/S_Debuff02.png",
+    sleep: "data/jpg/skills/support/debuff/S_Debuff01.png",
+    trap: "data/jpg/skills/physical/impact/S_Physic04.png",
+    stun: "data/jpg/skills/physical/impact/S_Physic05.png",
+    fear: "data/jpg/skills/support/debuff/S_Debuff03.png",
+    attackDown: imageCatalog.support.debuff,
+    defenseDown: imageCatalog.support.debuff,
+    resistanceDown: imageCatalog.support.debuff,
+    speedDown: imageCatalog.support.debuff,
+  };
+  const buffIcons = {
+    attack: imageCatalog.support.buff,
+    defense: imageCatalog.support.buff,
+    magic: imageCatalog.support.arcane,
+    resistance: imageCatalog.support.buff,
+    speed: imageCatalog.elements["風"],
+    evade: imageCatalog.elements["風"],
+    shield: imageCatalog.support.buff,
+    counter: imageCatalog.support.sword,
+    afterimage: imageCatalog.elements["月"],
+    statusWard: imageCatalog.elements["日"],
+    sanctuary: imageCatalog.elements["日"],
+    regen: imageCatalog.support.heal,
+    regenMp: imageCatalog.support.arcane,
+    taunt: imageCatalog.support.debuff,
+    chi: imageCatalog.elements["雷"],
+    coverAll: imageCatalog.support.buff,
+    spellblade: imageCatalog.support.sword,
+    allIn: imageCatalog.support.sword,
+    berserk: imageCatalog.support.sword,
+    attackBoost: imageCatalog.support.buff,
+    magicBoost: imageCatalog.support.arcane,
+    transcend: imageCatalog.elements["日"],
+    weaponElement: imageCatalog.support.sword,
+    elementalWard: imageCatalog.support.buff,
+    dragon: imageCatalog.elements["雷"],
+  };
+  return category === "ailment" ? (ailmentIcons[key] || "") : (buffIcons[key] || "");
+}
+
+function renderStatusBadge(key, label, value, category = "buff") {
+  const icon = battleStatusIconPath(key, category);
+  const duration = Number.isFinite(value) && value > 0 ? ` ${value}` : "";
+  const text = `${label}${duration}`;
+  return `<span class="status-badge status-${category}" title="${escapeAttribute(text)}">${icon ? `<img class="status-badge-icon" src="${icon}" alt="${label}" loading="lazy" onerror="this.remove();">` : ""}<span class="status-badge-text">${text}</span></span>`;
+}
+
+function formatBattleAilmentStrip(ailments = {}) {
+  const labels = {
+    burn: "燒傷",
+    poison: "中毒",
+    freeze: "凍結",
+    paralyze: "麻痺",
+    blind: "失明",
+    sleep: "睡眠",
+    trap: "陷阱",
+    stun: "暈眩",
+    fear: "恐懼",
+    attackDown: "攻擊下降",
+    defenseDown: "防禦下降",
+    resistanceDown: "抗性下降",
+    speedDown: "速度下降",
+  };
+  const active = Object.entries(ailments)
+    .filter(([, value]) => value > 0)
+    .map(([key, value]) => renderStatusBadge(key, labels[key] || key, value, "ailment"));
+  return active.length ? `<div class="status-strip">${active.join("")}</div>` : "";
+}
+
+function collectBattleBuffEntries(buffStore = {}) {
+  const labels = {
+    attack: "攻擊提升",
+    defense: "防禦提升",
+    magic: "魔力提升",
+    resistance: "抵抗提升",
+    speed: "速度提升",
+    evade: "迴避提升",
+    shield: "護盾",
+    counter: "反擊",
+    afterimage: "殘影",
+    statusWard: "異常免疫",
+    sanctuary: "聖域",
+    regen: "再生",
+    regenMp: "回魔",
+    taunt: "嘲諷",
+    chi: "聚氣",
+    coverAll: "全體承傷",
+    spellblade: "魔武戰技",
+    allIn: "孤注一擲",
+    berserk: "捨身",
+    attackBoost: "攻擊倍率",
+    magicBoost: "魔力倍率",
+    transcend: "超越者",
+    weaponElement: "武器附魔",
+    elementalWard: "屬性加護",
+    dragon: "龍力",
+  };
+  return Object.entries(buffStore)
+    .filter(([, value]) => {
+      if (typeof value === "number") return value > 0;
+      return Boolean(value);
+    })
+    .map(([key, value]) => renderStatusBadge(key, labels[key] || key, typeof value === "number" ? Math.floor(value) : 0, "buff"));
+}
+
+function renderBattleActorStatusStrip(battle, actorType, actor) {
+  const ailmentStrip = formatBattleAilmentStrip(actor?.ailments || {});
+  const combined = [];
+  if (actorType === "player") {
+    combined.push(...collectBattleBuffEntries(battle?.buffs || {}));
+    combined.push(...collectBattleBuffEntries(battle?.selfBuffs || {}));
+  } else if (actorType === "companion") {
+    combined.push(...collectBattleBuffEntries(battle?.buffs || {}));
+    combined.push(...collectBattleBuffEntries(actor?.battleBuffs || {}));
+  } else if (actorType === "enemy") {
+    combined.push(...collectBattleBuffEntries(actor?.battleBuffs || {}));
+  }
+  const buffStrip = combined.length ? `<div class="status-strip">${combined.join("")}</div>` : "";
+  return `${ailmentStrip}${buffStrip}`;
 }
 
 function skillImagePath(skill) {
@@ -2413,6 +2603,7 @@ function renderBattle() {
       <p>HP ${Math.max(0, enemy.currentHp)} / ${enemy.maxHp}</p>
       <p>${enemy.elements.join(" / ")}</p>
       <p>${formatMonsterAilments(enemy.ailments)}</p>
+      ${formatBattleAilmentStrip(enemy.ailments)}
     </button>
   `).join("");
   const targetButtons = battle.targetMode && battle.targetMode.type !== "enemy"
@@ -2455,6 +2646,7 @@ function renderBattle() {
               <p>HP ${monster ? Math.max(0, monster.currentHp) : 0} / ${monster ? monster.maxHp : 0}</p>
               <p>屬性：${monster ? monster.elements.join(" / ") : "無"}</p>
               <p>異常：${monster ? formatMonsterAilments(monster.ailments) : "無"}</p>
+              ${monster ? renderBattleActorStatusStrip(battle, "enemy", monster) : ""}
               <p>技能：${monster ? formatMonsterSkillList(monster) : "無"}</p>
             </div>
           </div>
@@ -2468,12 +2660,14 @@ function renderBattle() {
             <p>HP ${player.hp} / ${stats.maxHp}</p>
             <p>MP ${player.mp} / ${stats.maxMp}</p>
             <p>${player.raceName} / ${player.className}</p>
+            ${renderBattleActorStatusStrip(battle, "player", player)}
           </div>
           ${(battle.companions || []).length ? `<div class="card-grid">${battle.companions.map(companion => `
             <div class="stat">
               <strong>${companion.name}</strong>
               <p>${companion.className}</p>
               <p>HP ${companion.hp}/${companion.maxHp} | MP ${companion.mp}/${companion.maxMp}</p>
+              ${renderBattleActorStatusStrip(battle, "companion", companion)}
             </div>
           `).join("")}</div>` : ""}
           <div class="battle-actions">
@@ -2562,7 +2756,7 @@ function renderSkillButtons() {
   const panel = document.querySelector("#skill-panel");
   const skills = availableSkills(state.currentPlayer);
   panel.innerHTML = skills
-    .map((ref, index) => `<button class="skill-button" type="button" data-skill-index="${index}">${ref.skill.name}<br><small>${ref.className} | MP ${skillCost(state.currentPlayer, ref.skill)}</small></button>`)
+    .map((ref, index) => `<button class="skill-button" type="button" data-skill-index="${index}" title="${escapeAttribute(buildSkillTooltip(ref.skill, ref.className))}">${ref.skill.name}<br><small>${ref.className} | MP ${skillCost(state.currentPlayer, ref.skill)}</small></button>`)
     .join("");
   if (!panel.innerHTML) {
     panel.innerHTML = `<div class="stat">目前沒有可使用的技能。</div>`;
